@@ -88,7 +88,7 @@ const submit = async (formEl: FormInstance | undefined = formRef.value) => {
       )
       try {
         loadingContainer.value.push('submit');
-        await indexApi.update(formData.value);
+        await indexApi.update({ ...formData.value, description: formData.value.description || undefined });
         ElMessage.success(t('accountUpdatedSuccessfully'));
         close(formEl, true);
       } catch (error: any) {

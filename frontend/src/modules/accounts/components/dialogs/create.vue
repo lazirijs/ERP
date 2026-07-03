@@ -40,7 +40,10 @@ const formRef = ref<FormInstance>();
 const dialogModel = ref<boolean>(false);
 
 const formRules = reactive<Record<keyof AccountCreateBody, FormItemRule | FormItemRule[]>>({
-  name: { required: true, message: t('required'), trigger: 'submit' },
+  name: [
+    { required: true, message: t('required'), trigger: 'submit' },
+    { min: 3, max: 50, message: t('lengthShouldBe3To50'), trigger: 'submit' },
+  ],
   description: { min: 3, max: 50, message: t('lengthShouldBe3To50'), trigger: 'submit' },
 });
 
@@ -76,7 +79,7 @@ const submit = async (formEl: FormInstance | undefined = formRef.value) => {
       )
       try {
         loadingContainer.value.push('submit');
-        await AccountApi.create(formData.value);
+        await AccountApi.create({ ...formData.value, description: formData.value.description || undefined });
         ElMessage.success(t('accountCreatedSuccessfully'));
         close(formEl, true);
       } catch (error: any) {

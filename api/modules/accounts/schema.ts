@@ -2,8 +2,8 @@ import { t } from "elysia";
 import DataGridSchema from "../../utils/devextreme/datagrid/schema";
 
 const createBody = t.Object({
-    name: t.String(),
-    description: t.Optional(t.String({ default: "" }))
+    name: t.String({ minLength: 3, maxLength: 50 }),
+    description: t.Optional(t.String({ minLength: 3, maxLength: 50, default: "" }))
 });
 
 const account = t.Object({
