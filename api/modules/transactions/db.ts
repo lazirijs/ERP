@@ -82,6 +82,7 @@ export default {
             }
 
             if (inputs.account_uid) {
+                inputs.account_uid = inputs.account_uid.replace(/"/g, "").toLowerCase();
                 if (filter) filter += ` AND t.account_uid = ?`;
                 else filter = `WHERE t.account_uid = ?`;
                 binds.push(inputs.account_uid);
