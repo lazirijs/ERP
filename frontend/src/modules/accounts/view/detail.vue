@@ -34,10 +34,7 @@
           <el-tab-pane :label="$t('transactions')" name="transactions">
             <data-grid-app
               v-if="tab === 'transactions'"
-              ref="dataGridRef"
               :config="transactionsDataGridConfig"
-              :columns="transactionsDataGridConfig.columns"
-              @row-click="$router.push({ name: 'transactions-detail', params: { uid: $event.data.uid } })"
             />
           </el-tab-pane>
         </el-tabs>

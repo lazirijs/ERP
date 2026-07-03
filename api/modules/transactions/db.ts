@@ -68,12 +68,9 @@ export default {
             const binds: unknown[] = [];
 
             if (inputs.searchText) {
-                inputs.searchText = inputs.searchText.replace(/"/g, "").toLowerCase();
-                if (inputs.searchText) {
-                    inputs.searchText = `%${ inputs.searchText }%`;
-                    filter = `WHERE search_vector LIKE ?`;
-                    binds.push(inputs.searchText);
-                }
+                inputs.searchText = `%${ inputs.searchText }%`;
+                filter = `WHERE name LIKE ?`;
+                binds.push(inputs.searchText);
             }
 
             if (inputs.project_uid) {
@@ -83,7 +80,6 @@ export default {
             }
 
             if (inputs.account_uid) {
-                inputs.account_uid = inputs.account_uid.replace(/"/g, "").toLowerCase();
                 if (filter) filter += ` AND t.account_uid = ?`;
                 else filter = `WHERE t.account_uid = ?`;
                 binds.push(inputs.account_uid);

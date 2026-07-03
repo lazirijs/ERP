@@ -70,12 +70,9 @@ export default {
             const binds: unknown[] = [];
 
             if (inputs.searchText) {
-                inputs.searchText = inputs.searchText.replace(/"/g, "").toLowerCase();
-                if (inputs.searchText) {
-                    inputs.searchText = `%${ inputs.searchText }%`;
-                    filter = `WHERE search_vector LIKE ?`;
-                    binds.push(inputs.searchText);
-                }
+                inputs.searchText = `%${ inputs.searchText }%`;
+                filter = `WHERE p.name LIKE ?`;
+                binds.push(inputs.searchText);
             }
 
             if (inputs.client_uid) {

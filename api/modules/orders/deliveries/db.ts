@@ -66,10 +66,8 @@ export default {
             let result;
 
             if (inputs.searchText) {
-                inputs.searchText = inputs.searchText.replace(/"/g, "").toLowerCase();
-                if (inputs.searchText) {
-                    filter = `WHERE search_vector LIKE ?`;
-                }
+                inputs.searchText = `%${ inputs.searchText }%`;
+                filter = `WHERE name LIKE ?`;
             }
 
             if (inputs.order_uid) {

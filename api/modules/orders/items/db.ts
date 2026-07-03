@@ -65,10 +65,8 @@ export default {
             let result;
 
             if (inputs.searchText) {
-                inputs.searchText = inputs.searchText.replace(/"/g, "").toLowerCase();
-                if (inputs.searchText) {
-                    filter = `AND name LIKE ?`;
-                }
+                inputs.searchText = `%${ inputs.searchText }%`;
+                filter = `AND name LIKE ?`;
             }
 
             query.push(filter);

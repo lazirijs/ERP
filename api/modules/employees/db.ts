@@ -64,11 +64,9 @@ export default {
             let result;
 
             if (inputs.searchText) {
-                inputs.searchText = inputs.searchText.replace(/"/g, "").toLowerCase();
-                if (inputs.searchText) {
-                    if (filter) filter += ` AND search_vector LIKE ?`;
-                    else filter = `WHERE search_vector LIKE ?`;
-                }
+                inputs.searchText = `%${ inputs.searchText }%`;
+                if (filter) filter += ` AND search_vector LIKE ?`;
+                else filter = `WHERE name LIKE ?`;
             }
 
             const team_uid = inputs.team_uid && inputs.team_uid != "null" && inputs.team_uid.replace(/"/g, "");

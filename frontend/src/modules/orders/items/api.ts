@@ -1,8 +1,9 @@
 import api from "@/api";
+import formatter from '@/services/formatter';
 import type { ApiResponse } from "@/api/type";
-import type { Item, ItemCreateBody, ItemUpdateBody } from "./type";
 import type { DevExtremeDataGridRemoteDataFormat, DevExtremeDataGridRemoteQuery } from "@/components/devextreme/datagrid/type";
 import { defaultQuery } from "@/components/devextreme/datagrid/constant";
+import type { Item, ItemCreateBody, ItemUpdateBody } from "./type";
 
 const endpoint = '/orders/items';
 
@@ -26,7 +27,7 @@ export const get = async (uid: Item["uid"]) => {
 
 export const getAll = async (query: { order_uid: string, getUnusedOnDeliveryUid?: string } | DevExtremeDataGridRemoteQuery<{ order_uid: string, getUnusedOnDeliveryUid?: string }>) => {
   try {
-    const queryString = Object.entries({ ...defaultQuery, ...query }).map(([i, j]) => [i, JSON.stringify(j)].join("=")).join("&");
+    const queryString = formatter.stringifyForUrlQuery({ ...defaultQuery, ...query });
     const response = await api.get<ApiResponse<DevExtremeDataGridRemoteDataFormat<Item>>>(`${endpoint}?${queryString}`);
     return response.data;
   } catch (error: any) {
