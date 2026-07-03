@@ -77,8 +77,9 @@ export default {
             }
 
             if (inputs.project_uid) {
-                if (filter) filter += ` AND t.project_uid = ${ inputs.project_uid }`;
-                else filter = `WHERE t.project_uid = ${ inputs.project_uid }`;
+                if (filter) filter += ` AND t.project_uid = ?`;
+                else filter = `WHERE t.project_uid = ?`;
+                binds.push(inputs.project_uid);
             }
 
             if (inputs.account_uid) {

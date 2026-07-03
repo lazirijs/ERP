@@ -67,20 +67,24 @@ export default {
             let filter: string = "";
             let orderBy: string = "";
             let result;
+            const binds: unknown[] = [];
 
             if (inputs.searchText) {
                 inputs.searchText = inputs.searchText.replace(/"/g, "").toLowerCase();
                 if (inputs.searchText) {
                     inputs.searchText = `%${ inputs.searchText }%`;
                     filter = `WHERE search_vector LIKE ?`;
+                    binds.push(inputs.searchText);
                 }
             }
 
             if (inputs.client_uid) {
-                if (filter) filter += ` AND p.client_uid = ${ inputs.client_uid }`;
-                else filter = `WHERE p.client_uid = ${ inputs.client_uid }`;
-                query.push(filter);
-            } else query.push(filter);
+                if (filter) filter += ` AND p.client_uid = ?`;
+                else filter = `WHERE p.client_uid = ?`;
+                binds.push(inputs.client_uid);
+            }
+
+            query.push(filter);
             
             if (inputs.sort?.length) {
                 const { selector, desc } = inputs.sort[0]!;
@@ -94,7 +98,7 @@ export default {
             
             // console.log(query.join(" "));
             const prepare = database.prepare(query.join(" "));
-            result = inputs.searchText ? await prepare.bind(inputs.searchText).run() : await prepare.run();
+            result = binds.length ? await prepare.bind(...binds).run() : await prepare.run();
 
             // parse result
             result.results = result.results.map((project: any) => {
@@ -108,11 +112,11 @@ export default {
 
             let countResult = { count: -1 };
             if(inputs.requireTotalCount) {
-                const countQuery = `SELECT COUNT(*) as count FROM ${ tableName }`;
-                if (inputs.searchText) {
-                    countResult = await database.prepare([countQuery, filter!].join(" ")).bind(inputs.searchText).first() as { count: number };
+                const countQuery = `SELECT COUNT(*) as count FROM ${ tableName } p`;
+                if (binds.length) {
+                    countResult = await database.prepare([countQuery, filter].join(" ")).bind(...binds).first() as { count: number };
                 }
-                else countResult = await database.prepare(countQuery).first() as { count: number };
+                else countResult = await database.prepare([countQuery, filter].join(" ")).first() as { count: number };
             }
 
             // console.log(countResult);
