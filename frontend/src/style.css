@@ -1,0 +1,62 @@
+@import "tailwindcss";
+@import "element-plus/dist/index.css";
+@import "devextreme/dist/css/dx.fluent.blue.light.css";
+
+
+.space-y-app {
+  @apply space-y-4 md:space-y-6;
+}
+
+.space-x-app {
+  @apply space-x-4 md:space-x-6;
+}
+
+.gap-app {
+  @apply gap-4 md:gap-6;
+}
+
+.p-app {
+  @apply p-4 md:p-6;
+}
+
+@utility badge-app {
+  @apply inline-block text-xs font-medium px-2 py-1 rounded-full;
+}
+
+@layer base {
+  .badge-app-green {
+    @apply badge-app bg-green-100 text-green-600;
+  }
+
+  .badge-app-blue {
+    @apply badge-app bg-blue-100 text-blue-600;
+  }
+  
+  .badge-app-gray {
+    @apply badge-app bg-gray-100 text-gray-600;
+  }
+  
+  .badge-app-yellow {
+    @apply badge-app bg-yellow-100 text-yellow-600;
+  }
+  
+  .badge-app-red {
+    @apply badge-app bg-red-100 text-red-600;
+  }
+  
+  .badge-app-orange {
+    @apply badge-app bg-orange-100 text-orange-600;
+  }
+}
+
+.dx-datagrid-search-panel {
+  margin: 0 5px 0 0 !important;
+}
+
+.dx-datagrid-header-panel {
+  padding: 0 0 20px 0 !important;
+}
+
+.dx-toolbar .dx-toolbar-items-container {
+  height: 32px !important;
+}

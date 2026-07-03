@@ -1,0 +1,5 @@
+-- Migration number: 0005 	 2026-05-15T12:04:00.000Z
+
+ALTER TABLE users ADD COLUMN role_uid TEXT;
+
+ALTER TABLE employees ADD COLUMN team_uid TEXT REFERENCES teams(uid) DEFAULT NULL;

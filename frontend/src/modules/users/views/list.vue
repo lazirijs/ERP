@@ -1,0 +1,79 @@
+<template>
+    <container-app type="fixed">
+        <div class="flex justify-between items-center gap-app">
+            <div class="flex items-center gap-2">
+                <el-input v-model="search" @input="onSearchChange" dir="auto" :placeholder="$t('search')" class="md:w-75!">
+                    <template #prefix>
+                        <el-icon>
+                            <el-icon-search />
+                        </el-icon>
+                    </template>
+                </el-input>
+                <el-button @click="dataGridRef?.instance?.refresh()" class="w-8">
+                    <el-icon>
+                        <el-icon-refresh />
+                    </el-icon>
+                </el-button>
+            </div>
+            <el-button @click="createDialogRef?.open()" type="success">
+                {{ $t('create') }}
+                <el-icon class="ml-2">
+                    <el-icon-plus />
+                </el-icon>
+            </el-button>
+        </div>
+        <create-dialog-app ref="createDialogRef" @submitted="dataGridRef?.instance?.refresh()" />
+        <edit-dialog-app ref="editDialogRef" @submitted="dataGridRef?.instance?.refresh()" />
+        <div class="flex-1 min-h-0 min-w-0">
+            <data-grid-app
+                ref="dataGridRef"
+                :config="dataGridConfig"
+                :columns="dataGridConfig.columns"
+                @row-click="editDialogRef?.open($event.data)"
+            />
+        </div>
+    </container-app>
+</template>
+
+<script setup lang="ts">
+import { ref } from 'vue';
+import CreateDialogApp from '@/modules/users/components/dialogs/create.vue';
+import EditDialogApp from '@/modules/users/components/dialogs/edit.vue';
+
+
+import indexApi from '@/modules/users/api';
+import type { DataGridAppRef, DataGridPropsConfig } from '@/components/devextreme/datagrid/type';
+import { useI18n } from 'vue-i18n';
+import formatter from '@/services/formatter';
+
+const { t } = useI18n();
+
+const createDialogRef = ref<InstanceType<typeof CreateDialogApp>>();
+const editDialogRef = ref<InstanceType<typeof EditDialogApp>>();
+
+const dataGridRef = ref<DataGridAppRef>();
+
+const search = ref('');
+
+const onSearchChange = (value: string) => {
+    value = value.trim();
+    setTimeout(() => {
+        if (value === search.value) dataGridRef.value?.instance?.option("searchPanel.text", value);
+    }, 500);
+};
+
+const dataGridConfig = ref<DataGridPropsConfig>({
+    dataSource: {
+        key: 'uid',
+        api: indexApi.getAll
+    },
+    searchPanel: {
+        visible: false
+    },
+    columns: [
+        { dataField: 'name', caption: t('name') },
+        { dataField: 'email', caption: t('email') },
+        { dataField: 'created_at', caption: t('createdAt'), ...formatter.devextreme.datetime, sortOrder: 'desc' }
+    ]
+});
+</script>

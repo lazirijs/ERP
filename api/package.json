@@ -1,0 +1,28 @@
+{
+  "name": "ERP API",
+  "module": "index.ts",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "db:pull": "rm -rf .wrangler && wrangler d1 export db --remote --output=./database/exports/seed.sql && wrangler d1 execute db --local --file=./database/exports/seed.sql",
+    "db:migration:create": "wrangler d1 migrations create db",
+    "db:migration:local": "wrangler d1 migrations apply db --local",
+    "db:migration:remote": "wrangler d1 migrations apply db --remote"
+  },
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "dependencies": {
+    "elysia": "^1.4.28",
+    "wrangler": "^4.77.0",
+    "@elysiajs/jwt": "^1.4.1",
+    "@cloudflare/d1": "^1.4.1",
+    "@elysiajs/cors": "^1.4.1",
+    "@elysiajs/openapi": "^1.4.14"
+  }
+}
