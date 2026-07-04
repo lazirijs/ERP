@@ -26,7 +26,7 @@
             <data-grid-app
                 ref="dataGridRef"
                 :config="dataGridConfig"
-                @row-click="$router.push({ name: 'clients-detail', params: { uid: $event.data.uid } })"
+                @row-click="$router.push({ name: 'products-detail', params: { uid: $event.data.uid } })"
             />
         </div>
         <create-dialog-app ref="dialogRef" @submitted="dataGridRef?.instance?.refresh()" />
@@ -39,9 +39,9 @@ import indexApi from '../api';
 import { useI18n } from 'vue-i18n';
 import CreateDialogApp from '../components/dialogs/create.vue';
 
-
 import type { DataGridAppRef, DataGridPropsConfig } from '@/components/devextreme/datagrid/type';
 import formatter from '@/services/formatter';
+import { previewImage } from '@/services/files';
 
 const { t } = useI18n();
 
@@ -64,9 +64,14 @@ const dataGridConfig = ref<DataGridPropsConfig>({
         api: indexApi.getAll
     },
     columns: [
+        {
+            dataField: 'image', caption: t('image'), allowSorting: false, alignment: 'center', width: 120,
+            cellTemplate: (container: HTMLElement, options: { value: string }) => {
+                container.innerHTML = previewImage({ type: 'image', src: options.value, format: 'html' });
+            }
+        },
         { dataField: 'name', caption: t('name') },
-        { dataField: 'total_projects', caption: t('totalProjects') },
-        { dataField: 'total_guarantee_amount', caption: t('totalGuaranteeAmount'), customizeText: ({ value }) => formatter.currency(value) },
+        { dataField: 'price', caption: t('price'), customizeText: ({ value }) => formatter.currency(value) },
         { dataField: 'created_at', caption: t('createdAt'), ...formatter.devextreme.datetime, sortOrder: 'desc' }
     ]
 });

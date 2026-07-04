@@ -1,11 +1,11 @@
 import { currency } from "@/constants";
 
 export default {
-  currency: (value?: number | string) => {
+  currency: (value?: number | string, useCurrencyCode = true) => {
     if (!value) value = 0;
     const num = Number(value);
     if (isNaN(num)) return '';
-    return `${num}`.replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ` ${currency}`;
+    return `${num}`.replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + (useCurrencyCode ? ` ${currency}` : '');
   },
   number: (value: string): number => {
     if (!value) return 0;

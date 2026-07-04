@@ -7,16 +7,21 @@
             <el-button @click="$router.back()" text class="m-0!">
               <el-icon><el-icon-arrow-left /></el-icon>
             </el-button>
-            <span>{{ $t('generalInfo') }}</span>
+            <span class="hidden lg:block">{{ $t('generalInfo') }}</span>
             <el-button @click="dialogRef?.open()" text class="m-0!">
               <el-icon><el-icon-edit /></el-icon>
             </el-button>
           </div>
         </template>
         <div class="space-y-app">
+          <img :src="$previewImage({ type: 'image', src: formData.image })" class="w-full aspect-square object-cover rounded-lg" />
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">{{ $t('name') }}</label>
             <span class="block text-sm text-gray-900">{{ formData.name }}</span>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">{{ $t('price') }}</label>
+            <span class="block text-sm text-gray-900">{{ $formatter.currency(formData.price) }}</span>
           </div>
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">{{ $t('description') }}</label>
@@ -31,16 +36,19 @@
       </el-card>
       <div class="col-span-1 md:col-span-3 flex-1 space-y-app">
         <el-tabs v-model="tab" type="border-card">
-          <el-tab-pane :label="$t('transactions')" name="transactions">
-            <data-grid-app
-              v-if="tab === 'transactions'"
-              :config="transactionsDataGridConfig"
-            />
+          <el-tab-pane :label="$t('sales')" name="sales">
+            <el-empty v-if="tab === 'sales'" :description="$t('notAvailableYet')" />
+          </el-tab-pane>
+          <el-tab-pane :label="$t('suppliers')" name="suppliers">
+            <el-empty v-if="tab === 'suppliers'" :description="$t('notAvailableYet')" />
+          </el-tab-pane>
+          <el-tab-pane :label="$t('images')" name="images">
+            <images-gallery-app v-if="tab === 'images'" :uid="formData.uid" :image="formData.image" @changed="load()" />
           </el-tab-pane>
         </el-tabs>
       </div>
     </div>
-    <edit-dialog-app ref="dialogRef" :account_uid="formData.uid" @submitted="getData()" />
+    <edit-dialog-app ref="dialogRef" :product_uid="formData.uid" @submitted="load()" />
   </container-app>
 </template>
 
@@ -48,29 +56,22 @@
 import { onMounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
 import { get } from '../api';
-import type { Account } from '../type';
+import type { Product } from '../type';
 
-import type { DataGridPropsConfig } from '@/components/devextreme/datagrid/type';
-import transactionsApi from '@/modules/transactions/api';
-import { useI18n } from 'vue-i18n';
-import formatter from '@/services/formatter';
-import { type } from '@/modules/transactions/constant';
-import type { Transaction } from '@/modules/transactions/type';
 import EditDialogApp from '../components/dialogs/edit.vue';
-
-const { t } = useI18n();
+import ImagesGalleryApp from '../components/images-gallery.vue';
 
 const route = useRoute();
 
 const loadingContainer = ref<('detail')[]>([]);
 
-const tab = ref('transactions');
+const tab = ref('sales');
 
 const dialogRef = ref<InstanceType<typeof EditDialogApp>>();
 
-const formData = ref<Account>({} as Account);
+const formData = ref<Product>({} as Product);
 
-const getData = async () => {
+const load = async () => {
   try {
     loadingContainer.value.push('detail');
     const response = await get(route.params.uid as string);
@@ -82,26 +83,5 @@ const getData = async () => {
   }
 };
 
-onMounted(getData);
-
-const transactionsDataGridConfig = ref<DataGridPropsConfig>({
-  dataSource: {
-    key: 'uid',
-    api: (query) => transactionsApi.getAll({ ...query, account_uid: route.params.uid as string })
-  },
-  columns: [
-    { dataField: 'project.name', caption: t('project'), allowSorting: false },
-    { dataField: 'employee.name', caption: t('employee'), allowSorting: false },
-    {
-      dataField: 'type', caption: t('type'), alignment: 'center',
-      cellTemplate: (container: HTMLElement, options: { value: Transaction["type"] }) => {
-        let { label, color } = type[options.value];
-        container.innerHTML = `<span class="badge-app-${ color }">${ t(label) }</span>`;
-      }
-    },
-    { dataField: 'amount', caption: t('amount'), customizeText: ({ value }) => formatter.currency(value) },
-    { dataField: 'note', caption: t('note') },
-    { dataField: 'created_at', caption: t('createdAt'), ...formatter.devextreme.datetime, sortOrder: 'desc' }
-  ]
-});
+onMounted(load);
 </script>

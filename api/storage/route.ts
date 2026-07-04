@@ -4,10 +4,11 @@ import type { AuthPluginType } from "../modules/auth/type";
 
 export default (new Elysia() as unknown as AuthPluginType)
 
-// --- Load user profile picture ---
-.get("/file/:folder/:name", async ({ params: { folder, name }, set }) => {
+// --- Load a stored file by its full key (supports nested keys, e.g. products/{uid}/{imageId}.ext) ---
+.get("/file/*", async ({ params, set }) => {
     try {
-        const file = await storage.get(folder + "/" + name);
+        const key = (params as Record<string, string | undefined>)["*"] ?? "";
+        const file = key ? await storage.get(key) : null;
 
         if (!file) return set.status = 404, { message: "File not found in storage" };
 

@@ -113,10 +113,10 @@ const projectsDataGridConfig = ref<DataGridPropsConfig>({
       },
       allowFiltering: true
     },
-    { dataField: 'offer', caption: t('offer'), format: formatter.devextreme.currency },
+    { dataField: 'offer', caption: t('offer'), customizeText: ({ value }) => formatter.currency(value) },
     { dataField: 'competitor_name', caption: t('competitorName') },
-    { dataField: 'competitor_offer', caption: t('competitorOffer'), format: formatter.devextreme.currency },
-    { dataField: 'guarantee_amount', caption: t('guaranteeAmount'), format: formatter.devextreme.currency },
+    { dataField: 'competitor_offer', caption: t('competitorOffer'), customizeText: ({ value }) => formatter.currency(value) },
+    { dataField: 'guarantee_amount', caption: t('guaranteeAmount'), customizeText: ({ value }) => formatter.currency(value) },
     { dataField: 'created_at', caption: t('createdAt'), ...formatter.devextreme.datetime, sortOrder: 'desc' }
   ]
 });

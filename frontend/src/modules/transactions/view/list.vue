@@ -73,7 +73,7 @@ const dataGridConfig = ref<DataGridPropsConfig>({
                 container.innerHTML = `<span class="badge-app-${ color }">${ t(label) }</span>`;
             } 
         },
-        { dataField: 'amount', caption: t('amount'), format: formatter.devextreme.currency },
+        { dataField: 'amount', caption: t('amount'), customizeText: ({ value }) => formatter.currency(value) },
         { dataField: 'note', caption: t('note') },
         { dataField: 'created_at', caption: t('createdAt'), ...formatter.devextreme.datetime, sortOrder: 'desc' }
     ]

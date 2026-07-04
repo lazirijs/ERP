@@ -126,8 +126,8 @@ const deliveriesItemsDataGridConfig = ref<DataGridPropsConfig>({
     { dataField: 'name', caption: t('name') },
     { dataField: 'unit', caption: t('unit') },
     { dataField: 'quantity', caption: t('quantity') },
-    { dataField: 'unit_price', caption: t('unitPrice'), format: formatter.devextreme.currency },
-    { dataField: 'total_price', caption: t('totalPrice'), format: formatter.devextreme.currency },
+    { dataField: 'unit_price', caption: t('unitPrice'), customizeText: ({ value }) => formatter.currency(value) },
+    { dataField: 'total_price', caption: t('totalPrice'), customizeText: ({ value }) => formatter.currency(value) },
     { dataField: 'created_at', caption: t('createdAt'), ...formatter.devextreme.datetime, sortOrder: 'desc' }
   ]
 });

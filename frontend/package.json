@@ -13,7 +13,7 @@
     "axios": "^1.13.6",
     "devextreme": "~23.2.15",
     "devextreme-vue": "~23.2.15",
-    "element-plus": "^2.13.5",
+    "element-plus": "^2.14.1",
     "pinia": "^3.0.4",
     "vue": "^3.5.30",
     "vue-i18n": "^11.3.0",

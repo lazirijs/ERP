@@ -2,7 +2,7 @@
   <el-dialog v-model="dialogModel" :title="$t('createUser')" align-center class="min-w-11/12 md:min-w-1/4! md:max-w-1/4!" @closed="reset()" :before-close="(done: any) => !loadingContainer.includes('submit') && done()">
     <el-form ref="formRef" v-loading="loadingContainer.includes('submit')" :model="formData" :rules="formRules" @submit.prevent="submit()" label-position="top" class="w-full">
       <div class="size-26 mx-auto my-6 overflow-hidden rounded-full bg-gray-100 border border-gray-200">
-        <img :src="$getAvatar(null)" class="object-cover size-full" />
+        <img :src="$previewImage({ type: 'avatar' })" class="object-cover size-full" />
       </div>
       <el-form-item :label="$t('name')" prop="name">
           <el-input v-model="formData.name" :placeholder="$t('user')" />

@@ -24,11 +24,12 @@
 
 <script setup lang="ts">
 import { ref, reactive } from 'vue';
-import { ElMessage, ElMessageBox } from 'element-plus';
+import { ElMessage } from 'element-plus';
 import type { FormInstance, FormItemRule } from 'element-plus'
 import type { AccountCreateBody } from '@/modules/accounts/type';
 import { useI18n } from 'vue-i18n';
 import AccountApi from '@/modules/accounts/api';
+import confirmDialog from '@/services/dialog/confirm';
 
 const emit = defineEmits(['submitted']);
 
@@ -67,16 +68,15 @@ const submit = async (formEl: FormInstance | undefined = formRef.value) => {
   if (!formEl) return;
   await formEl.validate(async (valid, fields) => {
     if (valid) {
-      await ElMessageBox.confirm(
-        t('areYouSureYouWantToCreateThisAccount?'),
-        t('createAccount'),
-        {
-          confirmButtonText: t('create'),
-          confirmButtonType: 'primary',
-          cancelButtonText: t('cancel'),
-          type: 'info',
-        }
-      )
+      await confirmDialog({
+        message: 'areYouSureYouWantToCreateThisAccount?',
+        title: 'createAccount',
+        confirmButtonText: 'create',
+        confirmButtonType: 'primary',
+        cancelButtonText: 'cancel',
+        type: 'info'
+      });
+      
       try {
         loadingContainer.value.push('submit');
         await AccountApi.create({ ...formData.value, description: formData.value.description || undefined });

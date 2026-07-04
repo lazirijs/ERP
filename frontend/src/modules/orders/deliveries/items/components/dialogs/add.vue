@@ -40,12 +40,13 @@
 <script setup lang="ts">
 import { ref, reactive, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { ElMessage, ElMessageBox } from 'element-plus';
+import { ElMessage } from 'element-plus';
 import type { FormInstance, FormItemRule } from 'element-plus'
 import type { DeliveryItemCreateBody } from '../../type';
 import type { Item } from '@/modules/orders/items/type';
 import deliveriesItemsApi from '../../api';
 import itemsApi from '@/modules/orders/items/api';
+import confirmDialog from '@/services/dialog/confirm';
 
 const props = defineProps<{
   order_uid: string;
@@ -107,16 +108,14 @@ const submit = async (formEl: FormInstance | undefined = formRef.value) => {
   if (!formEl) return;
   await formEl.validate(async (valid, fields) => {
     if (valid) {
-      await ElMessageBox.confirm(
-        t('areYouSureYouWantToAddThisItem?'),
-        t('addItem'),
-        {
-          confirmButtonText: t('add'),
-          confirmButtonType: 'primary',
-          cancelButtonText: t('cancel'),
-          type: 'info',
-        }
-      )
+      await confirmDialog({
+        message: 'areYouSureYouWantToAddThisItem?',
+        title: 'addItem',
+        confirmButtonText: 'add',
+        confirmButtonType: 'primary',
+        cancelButtonText: 'cancel',
+        type: 'info'
+      })
       try {
         loadingContainer.value.push('submit');
         await deliveriesItemsApi.create(formData.value);

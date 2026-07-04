@@ -17,8 +17,9 @@ import { useI18n } from 'vue-i18n';
 
 import type { DataGridAppRef, DataGridPropsConfig } from '@/components/devextreme/datagrid/type';
 import formatter from '@/services/formatter';
-import { ElMessage, ElMessageBox } from 'element-plus';
+import { ElMessage } from 'element-plus';
 import router from '@/router';
+import confirmDialog from '@/services/dialog/confirm';
 
 import { DxScheduler, DxResource } from 'devextreme-vue/scheduler';
 
@@ -50,16 +51,14 @@ const dataGridConfig = ref<DataGridPropsConfig>({
 });
 
 const create = async () => {
-    await ElMessageBox.confirm(
-        t('areYouSureYouWantToCreateThisAttendance?'),
-        t('createAttendance'),
-        {
-          confirmButtonText: t('create'),
-          confirmButtonType: 'primary',
-          cancelButtonText: t('cancel'),
-          type: 'info',
-        }
-    )
+    await confirmDialog({
+        message: 'areYouSureYouWantToCreateThisAttendance?',
+        title: 'createAttendance',
+        confirmButtonText: 'create',
+        confirmButtonType: 'primary',
+        cancelButtonText: 'cancel',
+        type: 'info'
+    })
     try {
         loadingContainer.value.push('create');
         const response = await indexApi.create();

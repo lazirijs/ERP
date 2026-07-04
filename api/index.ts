@@ -12,6 +12,7 @@ import ProjectsRoute from "./modules/projects/route"
 import StorageRoute from "./storage/route"
 import TransactionsRoute from "./modules/transactions/route"
 import AccountsRoute from "./modules/accounts/route"
+import ProductsRoute from "./modules/products/route"
 import EmployeesRoute from "./modules/employees/route"
 import TeamsRoute from "./modules/teams/route"
 import OrdersRoute from "./modules/orders/route"
@@ -41,6 +42,7 @@ export default new Elysia({ adapter: CloudflareAdapter })
 .use(StorageRoute)
 .use(TransactionsRoute)
 .use(AccountsRoute)
+.use(ProductsRoute)
 .use(EmployeesRoute)
 .use(TeamsRoute)
 .use(OrdersRoute)

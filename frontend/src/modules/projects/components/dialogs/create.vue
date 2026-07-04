@@ -77,7 +77,7 @@ import { ref, reactive } from 'vue';
 import { useI18n } from 'vue-i18n';
 import ProjectApi from '@/modules/projects/api';
 import { status } from '@/modules/projects/constant';
-import { ElMessage, ElMessageBox } from 'element-plus';
+import { ElMessage } from 'element-plus';
 import type { FormInstance, FormItemRule } from 'element-plus'
 import type { ProjectCreateBody } from '@/modules/projects/type';
 import type { Client } from '@/modules/clients/type';
@@ -86,6 +86,7 @@ import type { Category } from '@/modules/projects/categories/type';
 import ClientApi from '@/modules/clients/api';
 import RegionApi from '@/modules/clients/regions/api';
 import CategoryApi from '@/modules/projects/categories/api';
+import confirmDialog from '@/services/dialog/confirm';
 
 const emit = defineEmits(['submitted']);
 
@@ -140,16 +141,14 @@ const submit = async (formEl: FormInstance | undefined = formRef.value) => {
   if (!formEl) return;
   await formEl.validate(async (valid, fields) => {
     if (valid) {
-      await ElMessageBox.confirm(
-        t('areYouSureYouWantToCreateThisProject?'),
-        t('createProject'),
-        {
-          confirmButtonText: t('create'),
-          confirmButtonType: 'primary',
-          cancelButtonText: t('cancel'),
-          type: 'info',
-        }
-      )
+      await confirmDialog({
+        message: 'areYouSureYouWantToCreateThisProject?',
+        title: 'createProject',
+        confirmButtonText: 'create',
+        confirmButtonType: 'primary',
+        cancelButtonText: 'cancel',
+        type: 'info',
+      })
       try {
         loadingContainer.value.push('submit');
         await ProjectApi.create(formData.value);

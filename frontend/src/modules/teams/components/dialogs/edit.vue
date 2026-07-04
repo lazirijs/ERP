@@ -25,13 +25,14 @@
 
 <script setup lang="ts">
 import { ref, reactive } from 'vue';
-import { ElMessage, ElMessageBox } from 'element-plus';
+import { ElMessage } from 'element-plus';
 import type { FormInstance, FormItemRule } from 'element-plus'
 import type { TeamUpdateBody } from '../../type';
 import { useI18n } from 'vue-i18n';
 import teamsApi from '../../api';
 import employeesApi from '@/modules/employees/api';
 import type { Employee } from '@/modules/employees/type';
+import confirmDialog from '@/services/dialog/confirm';
 
 const props = defineProps<{
   uid: string;
@@ -82,16 +83,14 @@ const submit = async (formEl: FormInstance | undefined = formRef.value) => {
   if (!formEl) return;
   await formEl.validate(async (valid, fields) => {
     if (valid) {
-      await ElMessageBox.confirm(
-        t('areYouSureYouWantToUpdateThisTeam?'),
-        t('updateTeam'),
-        {
-          confirmButtonText: t('update'),
-          confirmButtonType: 'primary',
-          cancelButtonText: t('cancel'),
-          type: 'info',
-        }
-      )
+      await confirmDialog({
+        message: 'areYouSureYouWantToUpdateThisTeam?',
+        title: 'updateTeam',
+        confirmButtonText: 'update',
+        confirmButtonType: 'primary',
+        cancelButtonText: 'cancel',
+        type: 'info',
+      })
       try {
         loadingContainer.value.push('submit');
         await teamsApi.update(formData.value);

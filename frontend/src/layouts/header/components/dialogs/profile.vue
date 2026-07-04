@@ -2,7 +2,7 @@
     <el-dialog v-model="dialogModel" :title="$t('profile')" align-center class="min-w-11/12 md:min-w-1/4! md:max-w-1/4!" @closed="hideUpdateProfileForm()" :before-close="(done: any) => !loadingContainer.includes('submitUpdateProfile') && done()">
         <el-form v-if="isEdit && updateProfileFormData" ref="updateProfileFormRef" v-loading="loadingContainer.includes('submitUpdateProfile')" :model="updateProfileFormData" :rules="updateProfileFormRules" @submit.prevent="submitUpdateProfile()" label-position="top" class="w-full">
             <div class="size-26 mx-auto my-6 overflow-hidden rounded-full bg-gray-100 border border-gray-200">
-              <img :src="$getAvatar(null)" class="object-cover size-full" />
+              <img :src="$previewImage({ type: 'avatar' })" class="object-cover size-full" />
             </div>
             <el-form-item :label="$t('name')" prop="name">
                 <el-input v-model="updateProfileFormData.name" placeholder="User" />
@@ -29,7 +29,7 @@
         </el-form>
         <div v-else class="space-y-4">
             <div class="size-26 mx-auto my-6 overflow-hidden rounded-full bg-gray-100 border border-gray-200">
-              <img :src="$getAvatar(null)" class="object-cover size-full" />
+              <img :src="$previewImage({ type: 'avatar' })" class="object-cover size-full" />
             </div>
             <h1 class="text-center text-xl font-bold">{{ authStore.profile?.name }}</h1>
             <el-card class="space-y-4" shadow="never">

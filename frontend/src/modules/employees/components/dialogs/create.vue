@@ -34,7 +34,7 @@
 
 <script setup lang="ts">
 import { ref, reactive } from 'vue';
-import { ElMessage, ElMessageBox } from 'element-plus';
+import { ElMessage } from 'element-plus';
 import type { FormInstance, FormItemRule } from 'element-plus'
 import type { EmployeeCreateBody } from '@/modules/employees/type';
 import { useI18n } from 'vue-i18n';
@@ -42,6 +42,7 @@ import EmployeeApi from '@/modules/employees/api';
 import TeamApi from '@/modules/teams/api';
 import { status } from '@/modules/employees/constant';
 import type { Team } from '@/modules/teams/type';
+import confirmDialog from '@/services/dialog/confirm';
 
 const emit = defineEmits(['submitted']);
 
@@ -83,16 +84,14 @@ const submit = async (formEl: FormInstance | undefined = formRef.value) => {
   if (!formEl) return;
   await formEl.validate(async (valid, fields) => {
     if (valid) {
-      await ElMessageBox.confirm(
-        t('areYouSureYouWantToCreateThisEmployee?'),
-        t('createEmployee'),
-        {
-          confirmButtonText: t('create'),
-          confirmButtonType: 'primary',
-          cancelButtonText: t('cancel'),
-          type: 'info',
-        }
-      )
+      await confirmDialog({
+        message: 'areYouSureYouWantToCreateThisEmployee?',
+        title: 'createEmployee',
+        confirmButtonText: 'create',
+        confirmButtonType: 'primary',
+        cancelButtonText: t('cancel'),
+        type: 'info'
+      })
       try {
         loadingContainer.value.push('submit');
         await EmployeeApi.create(formData.value);

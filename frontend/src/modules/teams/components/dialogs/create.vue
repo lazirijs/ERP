@@ -26,13 +26,14 @@
 
 <script setup lang="ts">
 import { ref, reactive } from 'vue';
-import { ElMessage, ElMessageBox } from 'element-plus';
+import { ElMessage } from 'element-plus';
 import type { FormInstance, FormItemRule } from 'element-plus'
 import type { TeamCreateBody } from '@/modules/teams/type';
 import { useI18n } from 'vue-i18n';
 import TeamApi from '@/modules/teams/api';
 import EmployeeApi from '@/modules/employees/api';
 import type { Employee } from '@/modules/employees/type';
+import confirmDialog from '@/services/dialog/confirm';
 
 const emit = defineEmits(['submitted']);
 
@@ -70,16 +71,14 @@ const submit = async (formEl: FormInstance | undefined = formRef.value) => {
   if (!formEl) return;
   await formEl.validate(async (valid, fields) => {
     if (valid) {
-      await ElMessageBox.confirm(
-        t('areYouSureYouWantToCreateThisTeam?'),
-        t('createTeam'),
-        {
-          confirmButtonText: t('create'),
-          confirmButtonType: 'primary',
-          cancelButtonText: t('cancel'),
-          type: 'info',
-        }
-      )
+      await confirmDialog({
+        message: 'areYouSureYouWantToCreateThisTeam?',
+        title: 'createTeam',
+        confirmButtonText: 'create',
+        confirmButtonType: 'primary',
+        cancelButtonText: 'cancel',
+        type: 'info',
+      })
       try {
         loadingContainer.value.push('submit');
         await TeamApi.create(formData.value);

@@ -5,7 +5,7 @@ import { locale, loadMessages } from "devextreme/localization";
 import * as ElementPlusIconsVue from '@element-plus/icons-vue';
 import AppStore from '@/stores/app';
 import AuthStore from '@/modules/auth/store';
-import { getAvatar } from '@/services/avatar';
+import { previewImage } from '@/services/files';
 import formatter from '@/services/formatter';
 import { arrayHasAny } from '@/services';
 
@@ -26,7 +26,7 @@ const app = createApp(main);
 app.config.globalProperties.$appStore = AppStore;
 app.config.globalProperties.$authStore = AuthStore;
 
-app.config.globalProperties.$getAvatar = getAvatar;
+app.config.globalProperties.$previewImage = previewImage;
 app.config.globalProperties.$formatter = formatter;
 app.config.globalProperties.$arrayHasAny = arrayHasAny;
 

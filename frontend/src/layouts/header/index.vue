@@ -41,7 +41,7 @@
             </el-dropdown>
 
             <el-dropdown v-if="$route.meta.auth == 'required'" size="large" placement="bottom-end">
-                <el-avatar :src="$getAvatar(null)" class="bg-gray-100 border border-gray-200" />
+                <el-avatar :src="$previewImage({ type: 'avatar' })" class="bg-gray-100 border border-gray-200" />
                 <template #dropdown>
                     <el-dropdown-menu>
                         <el-dropdown-item @click="profileDialogRef?.open()">
@@ -84,9 +84,10 @@ import { languages } from '@/translate/constants';
 import type { LanguagesCode } from '@/translate/type';
 import AuthStore from '@/modules/auth/store';
 import AuthApi from '@/modules/auth/api';
-import { ElLoading, ElMessage, ElMessageBox } from 'element-plus';
+import { ElLoading, ElMessage } from 'element-plus';
 import { useI18n } from 'vue-i18n';
 import ProfileDialogApp from '@/layouts/header/components/dialogs/profile.vue';
+import confirmDialog from '@/services/dialog/confirm';
 
 const { t } = useI18n();
 
@@ -110,16 +111,14 @@ const toggleCollapse = () => {
 const logout = async () => {
     let loading: any;
     
-    await ElMessageBox.confirm(
-        t('areYouSureYouWantToLogout?'),
-        t('logout'),
-        {
-            confirmButtonText: t('logout'),
-            confirmButtonType: 'danger',
-            cancelButtonText: t('cancel'),
-            type: 'warning',
-        }
-    )
+    await confirmDialog({
+        message: 'areYouSureYouWantToLogout?',
+        title: 'logout',
+        confirmButtonText: 'logout',
+        confirmButtonType: 'danger',
+        cancelButtonText: 'cancel',
+        type: 'warning'
+    });
     
     try {
         loading = ElLoading.service();

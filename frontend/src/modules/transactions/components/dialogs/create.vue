@@ -4,7 +4,11 @@
       <el-form ref="formRef" v-loading="loadingContainer.length" :model="formData" :rules="formRules" @submit.prevent="submit()" label-position="top" class="w-full grid gap-4">
         
         <el-form-item :label="$t('amount')" prop="amount" class="mb-0!">
-          <el-input v-model="formData.amount" :placeholder="$t('amount')" :parser="$formatter.number" :formatter="$formatter.currency" />
+          <el-input-number v-model="formData.amount" :min="0" :precision="0" :controls="false" :parser="$formatter.number" :formatter="(amount: number) => $formatter.currency(amount, false)" class="w-full!">          
+            <template #suffix>
+              <span>{{ currency }}</span>
+            </template>
+          </el-input-number>
         </el-form-item>
 
         <el-form-item :label="$t('project')" prop="project_uid" class="mb-0!">
@@ -51,7 +55,7 @@
 
 <script setup lang="ts">
 import { ref, reactive } from 'vue';
-import { ElMessage, ElMessageBox } from 'element-plus';
+import { ElMessage } from 'element-plus';
 import type { FormInstance, FormItemRule } from 'element-plus'
 import type { TransactionCreateBody } from '@/modules/transactions/type';
 import { useI18n } from 'vue-i18n';
@@ -62,7 +66,9 @@ import AccountApi from '@/modules/accounts/api';
 // import EmployeeApi from '@/modules/employees/api';
 import type { Project } from '@/modules/projects/type';
 import type { Account } from '@/modules/accounts/type';
+import { currency } from '@/constants';
 // import type { Employee } from '@/modules/employees/type';
+import confirmDialog from '@/services/dialog/confirm';
 
 const emit = defineEmits(['submitted']);
 
@@ -117,16 +123,14 @@ const submit = async (formEl: FormInstance | undefined = formRef.value) => {
   if (!formEl) return;
   await formEl.validate(async (valid, fields) => {
     if (valid) {
-      await ElMessageBox.confirm(
-        t('areYouSureYouWantToCreateThisTransaction?'),
-        t('createTransaction'),
-        {
-          confirmButtonText: t('create'),
-          confirmButtonType: 'primary',
-          cancelButtonText: t('cancel'),
-          type: 'info',
-        }
-      )
+      await confirmDialog({
+        message: 'areYouSureYouWantToCreateThisTransaction?',
+        title: 'createTransaction',
+        confirmButtonText: 'create',
+        confirmButtonType: 'primary',
+        cancelButtonText: 'cancel',
+        type: 'info',
+      })
       try {
         loadingContainer.value.push('submit');
         await TransactionApi.create(formData.value);

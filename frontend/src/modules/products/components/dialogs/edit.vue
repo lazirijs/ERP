@@ -1,12 +1,36 @@
 <template>
-  <el-dialog v-model="dialogModel" :title="$t('editAccount')" align-center class="min-w-11/12 md:min-w-1/4! md:max-w-1/4!" @closed="reset()" :before-close="(done: any) => !$arrayHasAny(loadingContainer, ['loading', 'submit']) && done()">
+  <el-dialog v-model="dialogModel" :title="$t('editProduct')" align-center class="min-w-11/12 md:min-w-1/4! md:max-w-1/4!" @closed="reset()" :before-close="(done: any) => !$arrayHasAny(loadingContainer, ['loading', 'submit']) && done()">
     <el-form ref="formRef" v-loading="$arrayHasAny(loadingContainer, ['loading', 'submit'])" :model="formData" :rules="formRules" @submit.prevent="submit()" label-position="top" class="w-full grid gap-4">
+      <el-form-item class="mb-0!">
+        <el-upload class="mx-auto" :auto-upload="false" :show-file-list="false" accept="image/*" @change="onImageChange">
+          <div class="size-65 overflow-hidden rounded-lg bg-gray-100 border border-gray-200 flex items-center justify-center cursor-pointer">
+            <template v-if="preview">
+              <el-button v-if="newImageSelected" text type="danger" class="absolute top-1 right-12" size="small" circle @click.stop="removeImagePreview">
+                <el-icon><el-icon-close /></el-icon>
+              </el-button>
+              <img :src="preview" class="object-cover w-full" />
+            </template>
+            <el-icon v-else class="text-gray-400" :size="40"><el-icon-plus /></el-icon>
+          </div>
+        </el-upload>
+      </el-form-item>
+
       <el-form-item :label="$t('name')" prop="name" class="mb-0!">
         <el-input v-model="formData.name" :placeholder="$t('name')" />
       </el-form-item>
+
+      <el-form-item :label="$t('price')" prop="price" class="mb-0!">
+        <el-input-number v-model="formData.price" :min="0" :precision="0" :controls="false" class="w-full!">
+          <template #suffix>
+            <span>{{ currency }}</span>
+          </template>
+        </el-input-number>
+      </el-form-item>
+
       <el-form-item :label="$t('description')" prop="description" class="mb-0!">
         <el-input v-model="formData.description" :placeholder="$t('description')" />
       </el-form-item>
+
       <el-form-item class="mb-0! mt-8">
         <div class="ml-auto">
           <el-button @click="close()">
@@ -22,16 +46,18 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive } from 'vue';
+import { ref, reactive, computed } from 'vue';
 import { ElMessage } from 'element-plus';
-import type { FormInstance, FormItemRule } from 'element-plus'
-import type { AccountUpdateBody } from '@/modules/accounts/type';
+import type { FormInstance, FormItemRule, UploadFile } from 'element-plus'
+import type { ProductUpdateBody } from '@/modules/products/type';
 import { useI18n } from 'vue-i18n';
+import { previewImage } from '@/services/files';
 import indexApi from '../../api';
+import { currency } from '@/constants';
 import confirmDialog from '@/services/dialog/confirm';
 
 const props = defineProps<{
-  account_uid: string;
+  product_uid: string;
 }>();
 
 const emit = defineEmits(['submitted']);
@@ -43,7 +69,12 @@ const loadingContainer = ref<('loading' | 'submit')[]>([]);
 const formRef = ref<FormInstance>();
 const dialogModel = ref<boolean>(false);
 
-const formRules = reactive<Record<keyof AccountUpdateBody, FormItemRule | FormItemRule[]>>({
+const originalProductImage = ref<string>();
+const image = ref<File>();
+const preview = ref<string>();
+const newImageSelected = computed<boolean>(() => preview.value !== previewImage({ src: originalProductImage.value }));
+
+const formRules = reactive<Record<keyof ProductUpdateBody, FormItemRule | FormItemRule[]>>({
   uid: [
     { required: true, message: t('required'), trigger: 'submit' },
   ],
@@ -51,18 +82,32 @@ const formRules = reactive<Record<keyof AccountUpdateBody, FormItemRule | FormIt
     { required: true, message: t('required'), trigger: 'submit' },
     { min: 3, max: 50, message: t('lengthShouldBe3To50'), trigger: 'submit' },
   ],
+  price: [],
   description: [
     { min: 3, max: 100, message: t('lengthShouldBe3To100'), trigger: 'submit' },
   ]
 });
 
-const formData = ref<AccountUpdateBody>({
-  uid: props.account_uid,
+const formData = ref<ProductUpdateBody>({
+  uid: props.product_uid,
   name: '',
+  price: 0,
   description: ''
 });
 
+const removeImagePreview = () => {
+  onImageChange();
+  preview.value = originalProductImage.value ? previewImage({ type: 'image', src: originalProductImage.value }) : '';
+};
+
+const onImageChange = (uploadFile?: UploadFile) => {
+  image.value = uploadFile?.raw;
+  preview.value = uploadFile?.raw ? URL.createObjectURL(uploadFile.raw) : '';
+};
+
 const reset = (formEl: FormInstance | undefined = formRef.value) => {
+  image.value = undefined;
+  preview.value = '';
   if (!formEl) return;
   formEl.resetFields();
 };
@@ -78,20 +123,21 @@ const submit = async (formEl: FormInstance | undefined = formRef.value) => {
   await formEl.validate(async (valid, fields) => {
     if (valid) {
       await confirmDialog({
-        message: 'areYouSureYouWantToUpdateThisAccount?',
-        title: 'updateAccount',
+        message: 'areYouSureYouWantToUpdateThisProduct?',
+        title: 'updateProduct',
         confirmButtonText: 'update',
         confirmButtonType: 'primary',
         cancelButtonText: 'cancel',
         type: 'info'
-      });
+      })
       try {
         loadingContainer.value.push('submit');
-        await indexApi.update({ ...formData.value, description: formData.value.description || undefined });
-        ElMessage.success(t('accountUpdatedSuccessfully'));
+        await indexApi.update(formData.value);
+        if (image.value) await indexApi.uploadImage(formData.value.uid, image.value, true);
+        ElMessage.success(t('productUpdatedSuccessfully'));
         close(formEl, true);
       } catch (error: any) {
-        const errorMessage = error?.detail?.message || t('failedToUpdateAccount');
+        const errorMessage = error?.detail?.message || t('failedToUpdateProduct');
         ElMessage.error(errorMessage);
       } finally {
         loadingContainer.value = loadingContainer.value.filter(item => item !== 'submit');
@@ -107,10 +153,13 @@ const open = async () => {
   dialogModel.value = true;
   try {
     loadingContainer.value.push('loading');
-    const response = await indexApi.get(props.account_uid);
+    const response = await indexApi.get(props.product_uid);
     formData.value.uid = response.detail.uid;
     formData.value.name = response.detail.name;
+    formData.value.price = response.detail.price;
     formData.value.description = response.detail.description;
+    originalProductImage.value = response.detail.image;
+    preview.value = response.detail.image ? previewImage({ type: 'image', src: response.detail.image }) : '';
   } catch (error: any) {
     const errorMessage = error?.detail?.message || t('loadingFailed');
     ElMessage.error(errorMessage);
@@ -122,6 +171,5 @@ const open = async () => {
 
 defineExpose({
   open,
-  // close: () => close()
 });
 </script>
