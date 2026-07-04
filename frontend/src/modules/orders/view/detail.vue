@@ -33,7 +33,7 @@
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">{{ $t('note') }}</label>
             <span v-if="formData.note" class="block text-sm text-gray-900">{{ formData.note }}</span>
-            <span v-else class="block text-sm text-gray-400">{{ $t('noNote') }}</span>
+            <span v-else class="block text-sm text-gray-400">{{ $t('notProvided') }}</span>
           </div>
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">{{ $t('createdAt') }}</label>

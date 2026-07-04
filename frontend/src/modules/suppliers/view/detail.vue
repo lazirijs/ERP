@@ -14,14 +14,19 @@
           </div>
         </template>
         <div class="space-y-app">
-          <img :src="$previewImage({ type: 'image', src: formData.image })" class="w-full aspect-square object-cover rounded-lg" />
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">{{ $t('name') }}</label>
             <span class="block text-sm text-gray-900">{{ formData.name }}</span>
           </div>
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">{{ $t('price') }}</label>
-            <span class="block text-sm text-gray-900">{{ $formatter.currency(formData.price) }}</span>
+            <label class="block text-sm font-medium text-gray-700 mb-1">{{ $t('contact') }}</label>
+            <span v-if="formData.contact" class="block text-sm text-gray-900">{{ formData.contact }}</span>
+            <span v-else class="block text-sm text-gray-400">{{ $t('notProvided') }}</span>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">{{ $t('address') }}</label>
+            <span v-if="formData.address" class="block text-sm text-gray-900">{{ formData.address }}</span>
+            <span v-else class="block text-sm text-gray-400">{{ $t('notProvided') }}</span>
           </div>
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">{{ $t('description') }}</label>
@@ -36,19 +41,13 @@
       </el-card>
       <div class="col-span-1 md:col-span-3 flex-1 space-y-app">
         <el-tabs v-model="tab" type="border-card">
-          <el-tab-pane :label="$t('sales')" name="sales">
-            <el-empty v-if="tab === 'sales'" :description="$t('notAvailableYet')" />
-          </el-tab-pane>
-          <el-tab-pane :label="$t('suppliers')" name="suppliers">
-            <el-empty v-if="tab === 'suppliers'" :description="$t('notAvailableYet')" />
-          </el-tab-pane>
-          <el-tab-pane :label="$t('images')" name="images">
-            <images-gallery-app v-if="tab === 'images'" :uid="formData.uid" :image="formData.image" @changed="load()" />
+          <el-tab-pane :label="$t('purchases')" name="purchases">
+            <el-empty v-if="tab === 'purchases'" :description="$t('notAvailableYet')" />
           </el-tab-pane>
         </el-tabs>
       </div>
     </div>
-    <edit-dialog-app ref="dialogRef" :product_uid="formData.uid" @submitted="load()" />
+    <edit-dialog-app ref="dialogRef" :supplier_uid="formData.uid" @submitted="load()" />
   </container-app>
 </template>
 
@@ -56,20 +55,19 @@
 import { onMounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
 import { get } from '../api';
-import type { Product } from '../type';
+import type { Supplier } from '../type';
 
 import EditDialogApp from '../components/dialogs/edit.vue';
-import ImagesGalleryApp from '../components/images-gallery.vue';
 
 const route = useRoute();
 
 const loadingContainer = ref<('detail')[]>([]);
 
-const tab = ref('sales');
+const tab = ref('purchases');
 
 const dialogRef = ref<InstanceType<typeof EditDialogApp>>();
 
-const formData = ref<Product>({} as Product);
+const formData = ref<Supplier>({} as Supplier);
 
 const load = async () => {
   try {

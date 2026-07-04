@@ -15,6 +15,7 @@ const menuItems = [
         name: 'inventory',
         icon: 'el-icon-box',
         children: [
+            { name: 'purchases', icon: 'el-icon-shopping-bag', routeName: 'purchases-list' },
             { name: 'products', icon: 'el-icon-goods', routeName: 'products-list' },
             { name: 'suppliers', icon: 'el-icon-office-building', routeName: 'suppliers-list' }
         ]
