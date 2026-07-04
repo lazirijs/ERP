@@ -51,7 +51,7 @@ const formRules = reactive<Record<keyof AccountUpdateBody, FormItemRule | FormIt
     { min: 3, max: 50, message: t('lengthShouldBe3To50'), trigger: 'submit' },
   ],
   description: [
-    { min: 3, max: 50, message: t('lengthShouldBe3To50'), trigger: 'submit' },
+    { min: 3, max: 100, message: t('lengthShouldBe3To100'), trigger: 'submit' },
   ]
 });
 
