@@ -4,7 +4,7 @@ import type { ApiResponse } from "@/api/type";
 export type DevExtremeDataGridRemoteQuery<T = {}> = {
   searchText: string;
   requireTotalCount: boolean;
-  sort: [{ selector: string; desc: boolean }];
+  sort: { selector: string; desc: boolean }[];
   skip: number;
   take: number;
 } & T;
@@ -28,3 +28,10 @@ export type DataGridPropsConfig = Omit<DxDataGrid, 'dataSource'> & {
 export type DataGridAppRef = {
   instance: DxDataGrid["instance"];
 };
+
+export type DevExtremeDataGridLookupLoadOptions = {
+  searchExpr: string;
+  searchOperation: string;
+  searchValue: string;
+  userData: any;
+}

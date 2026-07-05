@@ -15,6 +15,9 @@
     :show-column-lines="dataGridConfig.showColumnLines"
     :show-row-lines="dataGridConfig.showRowLines"
     :word-wrap-enabled="dataGridConfig.wordWrapEnabled"
+
+    :editing="dataGridConfig.editing"
+    :toolbar="dataGridConfig.toolbar"
     
     :search-panel="dataGridConfig.searchPanel"
     :selection="dataGridConfig.selection"
@@ -25,13 +28,10 @@
 
 <script setup lang="ts">
 import { ref, onBeforeMount } from 'vue';
-import { useI18n } from 'vue-i18n';
-import { ElMessage } from 'element-plus';
 import { DxDataGrid } from 'devextreme-vue/data-grid';
 import CustomStore from 'devextreme/data/custom_store';
-import type { DevExtremeDataGridApiDataSource, DataGridPropsConfig } from './type';
-
-const { t } = useI18n();
+import type { DataGridPropsConfig } from './type';
+import { createDevExtremeCustomStore } from '../service';
 
 const props = defineProps<{
   config: DataGridPropsConfig;
@@ -51,6 +51,8 @@ const dataGridConfig = ref<DataGridPropsConfig>({
   showColumnLines: true,
   showRowLines: true,
   wordWrapEnabled: true,
+  editing: {},
+  toolbar: {},
   paging: {
     pageSize: 20
   },
@@ -63,42 +65,12 @@ const dataGridConfig = ref<DataGridPropsConfig>({
   ...props.config
 });
 
-const oldSearchText = ref<string>("");
+const previewsSearchText = ref<string>("");
 
 onBeforeMount(() => {
   dataGridConfig.value.remoteOperations = !Array.isArray(props.config.dataSource);
-  dataSource.value = Array.isArray(props.config.dataSource) ? props.config.dataSource : new CustomStore({
-    key: props.config.dataSource.key,
-    load: async (loadOptions: any) => {
-      const queryValues = {
-        searchText: loadOptions.filter?.[0]?.[2],
-        requireTotalCount: true,
-        sort: loadOptions.sort,
-        skip: loadOptions.skip,
-        take: loadOptions.take
-      };
-
-      const totalCount = dataGridRef.value?.instance?.totalCount();
-      const isTotalCountValid = typeof totalCount === "number" && totalCount > -1 && (queryValues.searchText ? queryValues.skip : !oldSearchText.value);
-
-      queryValues.requireTotalCount = !isTotalCountValid;
-      
-      try {
-        const response = await (props.config.dataSource as DevExtremeDataGridApiDataSource).api(queryValues);
-
-        if(response.success) {
-          oldSearchText.value = queryValues.searchText;
-          if (isTotalCountValid) response.detail.totalCount = totalCount;
-          return response.detail;
-        }
-        const errorMessage = response?.detail?.message || t('failedToLoadUsers');
-        ElMessage.error(errorMessage);
-      } catch (error: any) {
-        const errorMessage = error?.detail?.message || t('failedToLoadUsers');
-        ElMessage.error(errorMessage);
-      }
-    }
-  });
+  if (Array.isArray(props.config.dataSource)) dataSource.value = props.config.dataSource;
+  else dataSource.value = new createDevExtremeCustomStore().dataGrid(dataGridRef.value!, props.config.dataSource, { value: previewsSearchText.value, setter: (searchText: string) => previewsSearchText.value = searchText });
 });
 
 defineExpose({
