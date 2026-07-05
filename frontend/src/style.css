@@ -60,3 +60,8 @@
 .dx-toolbar .dx-toolbar-items-container {
   height: 32px !important;
 }
+
+/* DevExtreme editor dropdowns/popups must render above Element Plus dialogs (e.g. lookup cells in the batch grid) */
+.dx-overlay-wrapper {
+  z-index: 9999 !important;
+}

@@ -7,10 +7,10 @@ export default {
     if (isNaN(num)) return '';
     return `${num}`.replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + (useCurrencyCode ? ` ${currency}` : '');
   },
-  number: (value: string): number => {
+  number: (value: string, isInteger: boolean = false): number => {
     if (!value) return 0;
     const num = Number(value.replace(/[^0-9.-]/g, ''));
-    return isNaN(num) ? 0 : num;
+    return isNaN(num) ? 0 : (isInteger ? Math.floor(num) : num);
   },
   date: (value: string) => {
     return new Date(value).toLocaleString('en-CA', {

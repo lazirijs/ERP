@@ -4,7 +4,7 @@
       <el-form ref="formRef" v-loading="loadingContainer.length" :model="formData" :rules="formRules" @submit.prevent="submit()" label-position="top" class="w-full grid gap-4">
         
         <el-form-item :label="$t('amount')" prop="amount" class="mb-0!">
-          <el-input-number v-model="formData.amount" :min="0" :precision="0" :controls="false" :parser="$formatter.number" :formatter="(amount: number) => $formatter.currency(amount, false)" class="w-full!">          
+          <el-input-number v-model="formData.amount" :min="0" :controls="false" :parser="$formatter.number" :formatter="(amount: number) => $formatter.currency(amount, false)" class="w-full!">          
             <template #suffix>
               <span>{{ currency }}</span>
             </template>

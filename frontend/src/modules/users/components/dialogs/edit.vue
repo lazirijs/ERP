@@ -1,5 +1,5 @@
 <template>
-  <el-dialog :key="key" v-model="dialogModel" :title="$t('editUser')" align-center class="min-w-11/12 md:min-w-1/4! md:max-w-1/4!" @closed="reset()" :before-close="(done: any) => !loadingContainer.includes('submit') && done()">
+  <el-dialog v-model="dialogModel" :title="$t('editUser')" align-center class="min-w-11/12 md:min-w-1/4! md:max-w-1/4!" @closed="reset()" :before-close="(done: any) => !loadingContainer.includes('submit') && done()">
     <el-form ref="formRef" v-loading="loadingContainer.includes('submit')" :model="formData" :rules="formRules" @submit.prevent="submit()" label-position="top" class="w-full">
       <div class="size-26 mx-auto my-6 overflow-hidden rounded-full bg-gray-100 border border-gray-200">
         <img :src="$previewImage({ type: 'avatar' })" class="object-cover size-full" />
@@ -41,8 +41,6 @@ import userApi from '@/modules/users/api';
 const emit = defineEmits(['submitted']);
 
 const { t } = useI18n();
-
-const key = ref<number>(0);
 
 const loadingContainer = ref<("submit")[]>([]);
 

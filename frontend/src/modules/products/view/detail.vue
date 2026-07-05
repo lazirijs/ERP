@@ -39,6 +39,9 @@
           <el-tab-pane :label="$t('sales')" name="sales">
             <el-empty v-if="tab === 'sales'" :description="$t('notAvailableYet')" />
           </el-tab-pane>
+          <el-tab-pane :label="$t('purchases')" name="purchases">
+            <el-empty v-if="tab === 'purchases'" :description="$t('notAvailableYet')" />
+          </el-tab-pane>
           <el-tab-pane :label="$t('suppliers')" name="suppliers">
             <el-empty v-if="tab === 'suppliers'" :description="$t('notAvailableYet')" />
           </el-tab-pane>

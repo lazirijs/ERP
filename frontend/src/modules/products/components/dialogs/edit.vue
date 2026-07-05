@@ -20,7 +20,7 @@
       </el-form-item>
 
       <el-form-item :label="$t('price')" prop="price" class="mb-0!">
-        <el-input-number v-model="formData.price" :min="0" :precision="0" :controls="false" class="w-full!">
+        <el-input-number v-model="formData.price" :min="0" :controls="false" class="w-full!">
           <template #suffix>
             <span>{{ currency }}</span>
           </template>

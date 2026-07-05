@@ -134,6 +134,24 @@ const routes: Route[] = [
     ],
   },
   {
+    path: "/purchases",
+    meta: {
+      auth: "required",
+    },
+    children: [
+      {
+        path: "list",
+        name: "purchases-list",
+        component: () => import("@/modules/purchases/view/list.vue")
+      },
+      {
+        path: "detail/:uid",
+        name: "purchases-detail",
+        component: () => import("@/modules/purchases/view/detail.vue")
+      },
+    ],
+  },
+  {
     path: "/suppliers",
     meta: {
       auth: "required",

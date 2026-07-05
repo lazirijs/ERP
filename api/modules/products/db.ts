@@ -105,7 +105,6 @@ export default {
     async getImages(uid: ProductType["uid"]): Promise<SuccessServiceResponse<ProductImageType[]>> {
         try {
             const { objects } = await storage.list({ prefix: `products/${ uid }/` });
-            console.log({ objects });
             const images = objects.map(object => object.key);
 
             return Responses.service.handler.success(images);
