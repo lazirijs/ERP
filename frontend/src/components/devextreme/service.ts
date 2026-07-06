@@ -42,35 +42,41 @@ export class createDevExtremeCustomStore {
         );
     }
 
-    public lookup(dataSource: DevExtremeDataGridApiDataSource, searchText: { value: string, setter: (searchText: string) => void }) {
-        return this.createCustomStore(dataSource.key, async (loadOptions: DevExtremeDataGridLookupLoadOptions) => {
-            const queryValues = {
-                searchText: loadOptions.searchValue || '',
-                requireTotalCount: true,
-                sort: [],
-                skip: 0,
-                take: 20
-            };
-            
-            const totalCount = -1; //dataGridRef?.instance?.totalCount();
-            const isTotalCountValid = typeof totalCount === "number" && totalCount > -1 && (queryValues.searchText ? queryValues.skip : !searchText.value);
+    public lookup(dataSource: DevExtremeDataGridApiDataSource & { getByKey?: (key: any) => Promise<{ success: boolean; detail: any }> }) {
+        return this.createCustomStore(
+            dataSource.key,
+            // Dropdown list: server-side fetch (searchValue is sent to the API when the user searches).
+            async (loadOptions: DevExtremeDataGridLookupLoadOptions) => {
+                const queryValues = {
+                    searchText: loadOptions.searchValue || '',
+                    requireTotalCount: false,
+                    sort: [],
+                    skip: 0,
+                    take: 20
+                };
 
-            queryValues.requireTotalCount = !isTotalCountValid;
-            
-            try {
-                const response = await dataSource.api(queryValues);
-
-                if(response.success) {
-                    searchText.setter(queryValues.searchText);
-                    if (isTotalCountValid) response.detail.totalCount = totalCount;
-                    return response.detail;
+                try {
+                    const response = await dataSource.api(queryValues);
+                    if(response.success) return response.detail;
+                    const errorMessage = response?.detail?.message || t('failedToLoadUsers');
+                    ElMessage.error(errorMessage);
+                } catch (error: any) {
+                    const errorMessage = error?.detail?.message || t('failedToLoadUsers');
+                    ElMessage.error(errorMessage);
                 }
-                const errorMessage = response?.detail?.message || t('failedToLoadUsers');
-                ElMessage.error(errorMessage);
-            } catch (error: any) {
-                const errorMessage = error?.detail?.message || t('failedToLoadUsers');
-                ElMessage.error(errorMessage);
+            },
+            {
+                // Resolve a single already-selected value to its display object.
+                // Required so editing a row that already has a value doesn't wipe it.
+                byKey: async (key: any) => {
+                    if (!key || !dataSource.getByKey) return null;
+                    try {
+                        const response = await dataSource.getByKey(key);
+                        if (response.success) return response.detail;
+                    } catch { /* ignore */ }
+                    return null;
+                }
             }
-        });
+        );
     }
 }

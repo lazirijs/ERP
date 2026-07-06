@@ -37,7 +37,7 @@ const itemsDataGridConfig = ref<DataGridPropsConfig>({
       caption: t('supplier'),
       minWidth: 160,
       lookup: { 
-        dataSource: devExtremeCustomStore.lookup({ key: 'uid', api: SupplierApi.getAll }, { value: '', setter: () => {} }), 
+        dataSource: devExtremeCustomStore.lookup({ key: 'uid', api: SupplierApi.getAll, getByKey: SupplierApi.get }),
         valueExpr: 'uid', 
         displayExpr: 'name' 
       }
@@ -46,12 +46,18 @@ const itemsDataGridConfig = ref<DataGridPropsConfig>({
       dataField: 'product_uid',
       caption: t('product'),
       minWidth: 160,
-      lookup: { 
-        dataSource: devExtremeCustomStore.lookup({ key: 'uid', api: ProductApi.getAll }, { value: '', setter: () => {} }), 
-        valueExpr: 'uid', 
-        displayExpr: 'name' 
+      lookup: {
+        dataSource: devExtremeCustomStore.lookup({ key: 'uid', api: ProductApi.getAll, getByKey: ProductApi.get }),
+        valueExpr: 'uid',
+        displayExpr: 'name'
       },
-      validationRules: [{ type: 'required' }]
+      validationRules: [{ type: 'required' }],
+      // Fetch the selected product so the image column can preview it
+      setCellValue(newData: any, value: any) {
+        newData.product_uid = value;
+        newData.image = '';
+        if (value) return ProductApi.get(value).then((res) => { newData.image = res.detail.image; }).catch(() => {});
+      }
     },
     {
       dataField: 'image', caption: t('image'), allowSorting: false, alignment: 'center', width: 120, allowEditing: false,
@@ -107,7 +113,7 @@ const getRows = async () => {
   await instance.saveEditData();
   if (instance.hasEditData()) throw new Error('invalid');
   const all = await instance.getDataSource().store().load() as any[];
-  return all.map(({ __id, ...rest }: any) => ({
+  return all.map(({ __id, image, ...rest }: any) => ({
     ...rest,
     note: rest.note ?? '',
     supplier_uid: rest.supplier_uid ?? null

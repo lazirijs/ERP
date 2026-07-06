@@ -8,7 +8,7 @@
         {{ $t('addItem') }}
       </el-button>
     </div>
-    <items-batch-grid v-if="dialogModel" v-loading="loadingContainer.includes('submit')" ref="batchGridRef" :show-supplier="false" />
+    <items-batch-data-grid-app v-if="dialogModel" v-loading="loadingContainer.includes('submit')" ref="batchGridRef" :show-supplier="false" />
     <div class="flex justify-end gap-2 mb-0! mt-8">
       <el-button @click="close()">
         {{ $t("close") }}
@@ -25,7 +25,7 @@ import { ref } from 'vue';
 import { ElMessage } from 'element-plus';
 import { useI18n } from 'vue-i18n';
 import itemsApi from '../../api';
-import ItemsBatchGrid from '@/modules/purchases/components/items-batch-grid.vue';
+import ItemsBatchDataGridApp from '@/modules/purchases/components/items-batch-data-grid.vue';
 import confirmDialog from '@/services/dialog/confirm';
 
 const props = defineProps<{
@@ -38,7 +38,7 @@ const { t } = useI18n();
 
 const loadingContainer = ref<('submit')[]>([]);
 const dialogModel = ref<boolean>(false);
-const batchGridRef = ref<InstanceType<typeof ItemsBatchGrid>>();
+const batchGridRef = ref<InstanceType<typeof ItemsBatchDataGridApp>>();
 
 const reset = () => {
   batchGridRef.value?.reset();

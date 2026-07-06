@@ -26,7 +26,7 @@
     </el-form>
 
     <!-- Multiple purchases (batch: rows grouped by supplier) -->
-    <items-batch-grid v-else v-loading="loadingContainer.includes('submit')" ref="batchGridRef" :show-supplier="true" />
+    <items-batch-data-grid-app v-else v-loading="loadingContainer.includes('submit')" ref="batchGridRef" :show-supplier="true" />
 
     <div class="flex justify-end gap-2 mb-0! mt-8">
       <el-button @click="close()">
@@ -50,7 +50,7 @@ import type { PurchaseCreateBody } from '@/modules/purchases/type';
 import PurchaseApi from '@/modules/purchases/api';
 import SupplierApi from '@/modules/suppliers/api';
 import type { Supplier } from '@/modules/suppliers/type';
-import ItemsBatchGrid from '../items-batch-grid.vue';
+import ItemsBatchDataGridApp from '../items-batch-data-grid.vue';
 import confirmDialog from '@/services/dialog/confirm';
 
 const emit = defineEmits(['submitted']);
@@ -68,7 +68,7 @@ const modeOptions = computed(() => [
 
 const formRef = ref<FormInstance>();
 const dialogModel = ref<boolean>(false);
-const batchGridRef = ref<InstanceType<typeof ItemsBatchGrid>>();
+const batchGridRef = ref<InstanceType<typeof ItemsBatchDataGridApp>>();
 
 const suppliers = ref<Supplier[]>([]);
 
@@ -88,7 +88,6 @@ const formData = ref<PurchaseCreateBody>({
 });
 
 const reset = (formEl: FormInstance | undefined = formRef.value) => {
-  mode.value = 'purchase';
   formData.value = { name: '', supplier_uid: null, note: '' };
   batchGridRef.value?.reset();
   formEl?.resetFields();

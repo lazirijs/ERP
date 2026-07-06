@@ -1,6 +1,5 @@
 <template>
   <el-dialog v-model="dialogModel" :title="$t('editItem')" align-center class="min-w-11/12 md:min-w-1/4! md:max-w-1/4!" @closed="reset()" :before-close="(done: any) => !$arrayHasAny(loadingContainer, ['loading', 'submit']) && done()">
-    {{ formData.uid }}
     <el-form ref="formRef" v-loading="$arrayHasAny(loadingContainer, ['loading', 'submit'])" :model="formData" :rules="formRules" @submit.prevent="submit()" label-position="top" class="w-full grid gap-4">
       <el-form-item :label="$t('product')" prop="product_uid" class="mb-0!">
         <el-select v-model="formData.product_uid" filterable :placeholder="$t('product')" class="w-full">
