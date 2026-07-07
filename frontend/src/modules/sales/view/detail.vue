@@ -15,12 +15,17 @@
         </template>
         <div class="space-y-app">
           <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">{{ $t('status') }}</label>
+            <span :class="`badge-app-${ status[formData.status]?.color } p-2 rounded-md text-center w-full`">{{ $t(status[formData.status]?.label || '-') }}</span>
+          </div>
+          <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">{{ $t('name') }}</label>
             <span class="block text-sm text-gray-900">{{ formData.name }}</span>
           </div>
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">{{ $t('supplier') }}</label>
-            <span v-if="formData.supplier" class="block text-sm text-gray-900">{{ formData.supplier.name }}</span>
+            <label class="block text-sm font-medium text-gray-700 mb-1">{{ formData.project ? $t('project') : $t('client') }}</label>
+            <span v-if="formData.project" class="block text-sm text-gray-900">{{ formData.project.name }}</span>
+            <span v-else-if="formData.client" class="block text-sm text-gray-900">{{ formData.client.name }}</span>
             <span v-else class="block text-sm text-gray-400">{{ $t('notProvided') }}</span>
           </div>
           <div>
@@ -42,7 +47,7 @@
         <el-tabs v-model="tab" type="border-card">
           <el-tab-pane :label="$t('items')" name="items">
             <div v-if="tab === 'items'" class="flex flex-col items-end gap-4">
-              <el-button @click="batchAddDialogRef?.open()" type="success">
+              <el-button v-if="formData.status === 0" @click="batchAddDialogRef?.open()" type="success">
                 {{ $t('addItems') }}
                 <el-icon class="ml-2"><el-icon-plus /></el-icon>
               </el-button>
@@ -53,15 +58,12 @@
               />
             </div>
           </el-tab-pane>
-          <el-tab-pane :label="$t('documents')" name="documents">
-            <documents-tab v-if="tab === 'documents'" :uid="formData.uid" />
-          </el-tab-pane>
         </el-tabs>
       </div>
     </div>
 
-    <edit-dialog-app ref="dialogRef" :purchase_uid="formData.uid" @submitted="load()" />
-    <batch-add-dialog-app ref="batchAddDialogRef" :purchase_uid="formData.uid" @submitted="onItemsChanged" />
+    <edit-dialog-app ref="dialogRef" :sale_uid="formData.uid" @submitted="load()" />
+    <batch-add-dialog-app ref="batchAddDialogRef" :sale_uid="formData.uid" @submitted="onItemsChanged" />
     <item-edit-dialog-app ref="itemEditDialogRef" @submitted="onItemsChanged" />
   </container-app>
 </template>
@@ -72,13 +74,13 @@ import { useRoute } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import { get } from '../api';
 import itemsApi from '../items/api';
-import type { Purchase } from '../type';
+import type { Sale } from '../type';
+import { status } from '../constant';
 import type { DataGridAppRef, DataGridPropsConfig } from '@/components/devextreme/datagrid/type';
 import formatter from '@/services/formatter';
 import { previewImage } from '@/services/files';
 
 import EditDialogApp from '../components/dialogs/edit.vue';
-import DocumentsTab from '../components/documents-tab.vue';
 import BatchAddDialogApp from '../items/components/dialogs/batch-add.vue';
 import ItemEditDialogApp from '../items/components/dialogs/edit.vue';
 
@@ -92,9 +94,8 @@ const dialogRef = ref<InstanceType<typeof EditDialogApp>>();
 const batchAddDialogRef = ref<InstanceType<typeof BatchAddDialogApp>>();
 const itemEditDialogRef = ref<InstanceType<typeof ItemEditDialogApp>>();
 const itemsDataGridRef = ref<DataGridAppRef>();
-const selectedItemUid = ref<string>('');
 
-const formData = ref<Purchase>({} as Purchase);
+const formData = ref<Sale>({} as Sale);
 
 const load = async () => {
   try {
@@ -111,7 +112,7 @@ const load = async () => {
 onMounted(load);
 
 const onItemRowClick = (event: any) => {
-  selectedItemUid.value = event.data.uid;
+  if (formData.value.status !== 0) return;
   itemEditDialogRef.value?.open(event.data);
 };
 
@@ -123,7 +124,7 @@ const onItemsChanged = () => {
 const itemsDataGridConfig = ref<DataGridPropsConfig>({
   dataSource: {
     key: 'uid',
-    api: (query) => itemsApi.getAll({ ...query, purchase_uid: route.params.uid as string })
+    api: (query) => itemsApi.getAll({ ...query, sale_uid: route.params.uid as string })
   },
   columns: [
     {

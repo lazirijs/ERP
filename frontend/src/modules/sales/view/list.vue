@@ -25,16 +25,16 @@
         </div>
         <div class="flex-1 min-h-0 min-w-0">
             <data-grid-app
-                v-if="view === 'purchase'"
+                v-if="view === 'sale'"
                 ref="dataGridRef"
-                :config="purchasesDataGridConfig"
-                @row-click="$router.push({ name: 'purchases-detail', params: { uid: $event.data.uid } })"
+                :config="salesDataGridConfig"
+                @row-click="$router.push({ name: 'sales-detail', params: { uid: $event.data.uid } })"
             />
             <data-grid-app
                 v-else
                 ref="dataGridRef"
                 :config="itemsDataGridConfig"
-                @row-click="$event.data.purchase && $router.push({ name: 'purchases-detail', params: { uid: $event.data.purchase.uid } })"
+                @row-click="$event.data.sale && $router.push({ name: 'sales-detail', params: { uid: $event.data.sale.uid } })"
             />
         </div>
         <create-dialog-app ref="dialogRef" @submitted="dataGridRef?.instance?.refresh()" />
@@ -47,6 +47,7 @@ import indexApi from '../api';
 import itemsApi from '../items/api';
 import { useI18n } from 'vue-i18n';
 import CreateDialogApp from '../components/dialogs/create.vue';
+import { status } from '../constant';
 
 import type { DataGridAppRef, DataGridPropsConfig } from '@/components/devextreme/datagrid/type';
 import formatter from '@/services/formatter';
@@ -57,9 +58,9 @@ const { t } = useI18n();
 const dialogRef = ref<InstanceType<typeof CreateDialogApp>>();
 const dataGridRef = ref<DataGridAppRef>();
 
-const view = ref<'purchase' | 'product'>('purchase');
+const view = ref<'sale' | 'product'>('sale');
 const viewOptions = computed(() => [
-    { label: t('byPurchase'), value: 'purchase' },
+    { label: t('bySale'), value: 'sale' },
     { label: t('byProduct'), value: 'product' }
 ]);
 
@@ -71,14 +72,21 @@ const onSearchChange = (value: string) => {
     }, 500);
 };
 
-const purchasesDataGridConfig = ref<DataGridPropsConfig>({
+const salesDataGridConfig = ref<DataGridPropsConfig>({
     dataSource: {
         key: 'uid',
         api: indexApi.getAll
     },
     columns: [
         { dataField: 'name', caption: t('name') },
-        { dataField: 'supplier.name', caption: t('supplier'), allowSorting: false },
+        { caption: t('customer'), allowSorting: false, calculateCellValue: (row: any) => row.project?.name ?? row.client?.name ?? '' },
+        {
+            dataField: 'status', caption: t('status'), alignment: 'center',
+            cellTemplate: (container: HTMLElement, options: { value: 0 | 1 }) => {
+                const { label, color } = status[options.value];
+                container.innerHTML = `<span class="badge-app-${ color }">${ t(label) }</span>`;
+            }
+        },
         { dataField: 'items_count', caption: t('itemsCount') },
         { dataField: 'total_amount', caption: t('total'), customizeText: ({ value }) => formatter.currency(value) },
         { dataField: 'created_at', caption: t('createdAt'), ...formatter.devextreme.datetime, sortOrder: 'desc' }
@@ -91,6 +99,7 @@ const itemsDataGridConfig = ref<DataGridPropsConfig>({
         api: itemsApi.getAll
     },
     columns: [
+        { dataField: 'sale.name', caption: t('sale'), allowSorting: false },
         {
           dataField: 'product.image', caption: t('image'), allowSorting: false, alignment: 'center', width: 120, allowEditing: false,
           cellTemplate: (container: HTMLElement, options: { value: string }) => {
@@ -98,11 +107,9 @@ const itemsDataGridConfig = ref<DataGridPropsConfig>({
           }
         },
         { dataField: 'product.name', caption: t('product'), allowSorting: false },
-        { dataField: 'supplier.name', caption: t('supplier'), allowSorting: false },
         { dataField: 'price', caption: t('unitPrice'), customizeText: ({ value }) => formatter.currency(value) },
         { dataField: 'quantity', caption: t('quantity') },
         { dataField: 'total', caption: t('total'), customizeText: ({ value }) => formatter.currency(value) },
-        { dataField: 'purchase.name', caption: t('purchase'), allowSorting: false },
         { dataField: 'created_at', caption: t('createdAt'), ...formatter.devextreme.datetime, sortOrder: 'desc' }
     ]
 });
