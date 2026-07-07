@@ -28,7 +28,7 @@
           </div>
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">{{ $t('status') }}</label>
-            <span :class="`badge-app-${status[formData.status]?.color} p-2 rounded-md text-center w-full`">{{ $t(status[formData.status].label!) }}</span>
+            <span :class="`badge-app-${status[formData.status]?.color}`">{{ $t(status[formData.status].label!) }}</span>
           </div>
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">{{ $t('totalItems') }}</label>

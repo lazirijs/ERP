@@ -14,14 +14,13 @@ const parseRow = (row: any) => ({
 const selectSale = `
     SELECT
         s.*,
-        COALESCE(SUM(si.price * si.quantity), 0) AS total_amount,
-        COUNT(si.uid) AS items_count,
+        s.total_amount,
+        s.items_count,
         CASE WHEN pr.uid IS NOT NULL THEN json_object('uid', pr.uid, 'name', pr.name) ELSE NULL END AS project,
         CASE WHEN c.uid IS NOT NULL THEN json_object('uid', c.uid, 'name', c.name) ELSE NULL END AS client
     FROM sales s
     LEFT JOIN projects pr ON s.project_uid = pr.uid
     LEFT JOIN clients c ON s.client_uid = c.uid
-    LEFT JOIN sale_items si ON si.sale_uid = s.uid
 `;
 
 export default {

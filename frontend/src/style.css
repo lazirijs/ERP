@@ -20,7 +20,7 @@
 }
 
 @utility badge-app {
-  @apply inline-block text-xs font-medium px-2 py-1 rounded-full;
+  @apply w-full min-w-fit inline-block text-xs font-medium text-center rounded-md p-2;
 }
 
 @layer base {

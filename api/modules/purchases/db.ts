@@ -67,14 +67,12 @@ export default {
             const result = await database.prepare(`
                 SELECT
                     p.*,
-                    COALESCE(SUM(pi.price * pi.quantity), 0) AS total_amount,
-                    COUNT(pi.uid) AS items_count,
+                    p.total_amount,
+                    p.items_count,
                     CASE WHEN s.uid IS NOT NULL THEN json_object('uid', s.uid, 'name', s.name) ELSE NULL END AS supplier
                 FROM purchases p
                 LEFT JOIN suppliers s ON p.supplier_uid = s.uid
-                LEFT JOIN purchase_items pi ON pi.purchase_uid = p.uid
                 WHERE p.uid = ?
-                GROUP BY p.uid
             `).bind(uid).first();
             if (!result) throw Responses.service.handler.error("Purchase not found", 404);
             return Responses.service.handler.success(parseSupplier(result) as PurchaseType);
@@ -95,12 +93,11 @@ export default {
             const query: string[] = [`
                 SELECT
                     p.*,
-                    COALESCE(SUM(pi.price * pi.quantity), 0) AS total_amount,
-                    COUNT(pi.uid) AS items_count,
+                    p.total_amount,
+                    p.items_count,
                     CASE WHEN s.uid IS NOT NULL THEN json_object('uid', s.uid, 'name', s.name) ELSE NULL END AS supplier
                 FROM purchases p
                 LEFT JOIN suppliers s ON p.supplier_uid = s.uid
-                LEFT JOIN purchase_items pi ON pi.purchase_uid = p.uid
             `];
             let filter: string;
             let orderBy: string;
@@ -111,8 +108,6 @@ export default {
                 filter = `WHERE p.name LIKE ?`;
                 query.push(filter);
             }
-
-            query.push("GROUP BY p.uid");
 
             if (inputs.sort?.length) {
                 const { selector, desc } = inputs.sort[0]!;
