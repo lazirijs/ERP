@@ -48,7 +48,11 @@
             />
           </el-tab-pane>
           <el-tab-pane :label="$t('purchases')" name="purchases">
-            <el-empty v-if="tab === 'purchases'" :description="$t('notAvailableYet')" />
+            <data-grid-app
+              v-if="tab === 'purchases'"
+              :config="purchasesDataGridConfig"
+              @row-click="$event.data.purchase && $router.push({ name: 'purchases-detail', params: { uid: $event.data.purchase.uid } })"
+            />
           </el-tab-pane>
           <el-tab-pane :label="$t('suppliers')" name="suppliers">
             <el-empty v-if="tab === 'suppliers'" :description="$t('notAvailableYet')" />
@@ -70,6 +74,7 @@ import { useI18n } from 'vue-i18n';
 import { get } from '../api';
 import type { Product } from '../type';
 import saleItemsApi from '@/modules/sales/items/api';
+import purchaseItemsApi from '@/modules/purchases/items/api';
 import type { DataGridPropsConfig } from '@/components/devextreme/datagrid/type';
 import formatter from '@/services/formatter';
 
@@ -94,6 +99,21 @@ const salesDataGridConfig = ref<DataGridPropsConfig>({
   },
   columns: [
     { dataField: 'sale.name', caption: t('sale'), allowSorting: false },
+    { dataField: 'price', caption: t('unitPrice'), customizeText: ({ value }) => formatter.currency(value) },
+    { dataField: 'quantity', caption: t('quantity') },
+    { dataField: 'total', caption: t('total'), customizeText: ({ value }) => formatter.currency(value) },
+    { dataField: 'created_at', caption: t('createdAt'), ...formatter.devextreme.datetime, sortOrder: 'desc' }
+  ]
+});
+
+const purchasesDataGridConfig = ref<DataGridPropsConfig>({
+  dataSource: {
+    key: 'uid',
+    api: (query) => purchaseItemsApi.getAll({ ...query, product_uid: route.params.uid as string })
+  },
+  columns: [
+    { dataField: 'purchase.name', caption: t('purchase'), allowSorting: false },
+    { dataField: 'supplier.name', caption: t('supplier'), allowSorting: false },
     { dataField: 'price', caption: t('unitPrice'), customizeText: ({ value }) => formatter.currency(value) },
     { dataField: 'quantity', caption: t('quantity') },
     { dataField: 'total', caption: t('total'), customizeText: ({ value }) => formatter.currency(value) },

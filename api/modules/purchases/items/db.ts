@@ -82,6 +82,10 @@ export default {
                 conditions.push("pi.purchase_uid = ?");
                 binds.push(inputs.purchase_uid);
             }
+            if (inputs.product_uid) {
+                conditions.push("pi.product_uid = ?");
+                binds.push(inputs.product_uid);
+            }
             if (inputs.searchText) {
                 conditions.push("pr.name LIKE ?");
                 binds.push(`%${ inputs.searchText }%`);
