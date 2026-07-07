@@ -15,9 +15,9 @@
         </el-select>
       </el-form-item>
       <el-form-item :label="$t('status')" prop="status" class="mb-0!">
-        <el-select v-model="formData.status" :placeholder="$t('status')" class="w-full el-select-no-focus-outline">
+        <el-select v-model="formData.status" :placeholder="$t('status')" class="w-full el-select-on-focus-no-outline">
           <template #label="{ label, value }">
-            <span :class="`badge-app-${status[value].color} p-1 rounded-md text-center w-full`">
+            <span :class="`badge-app-${status[value as 0 | 1].color} p-1 rounded-md text-center w-full`">
               {{ $t(label) }}
             </span>
           </template>
@@ -95,7 +95,7 @@ const formData = ref<SaleUpdateBody>({
 });
 
 const onProjectChange = (project_uid?: string) => {
-  if (project_uid) formData.value.client_uid = projects.value.find(project => project.uid === project_uid).client.uid;
+  if (project_uid) formData.value.client_uid = projects.value.find(project => project.uid === project_uid)!.client.uid;
   else formData.value.client_uid = null;
 };
 

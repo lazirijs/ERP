@@ -72,7 +72,7 @@ const formData = ref<SaleCreateBody>({
 });
 
 const onProjectChange = (project_uid: string) => {
-  if (project_uid) formData.value.client_uid = projects.value.find(project => project.uid === project_uid).client.uid;
+  if (project_uid) formData.value.client_uid = projects.value.find(project => project.uid === project_uid)!.client.uid;
   else formData.value.client_uid = null;
 };
 

@@ -65,3 +65,7 @@
 .dx-overlay-wrapper {
   z-index: 9999 !important;
 }
+
+.el-select.el-select-on-focus-no-outline > .el-select__wrapper.is-focused {
+  box-shadow: 0 0 0 1px var(--el-border-color) inset !important;
+}
