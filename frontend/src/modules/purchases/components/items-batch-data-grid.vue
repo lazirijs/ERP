@@ -18,6 +18,7 @@ import DataGridApp from '@/components/devextreme/datagrid/index.vue';
 import type { DataGridPropsConfig } from '@/components/devextreme/datagrid/type';
 import formatter from '@/services/formatter';
 import { previewImage } from '@/services/files';
+import { ElMessage } from 'element-plus';
 
 const props = defineProps<{
   showSupplier?: boolean;
@@ -53,10 +54,16 @@ const itemsDataGridConfig = ref<DataGridPropsConfig>({
       },
       validationRules: [{ type: 'required' }],
       // Fetch the selected product so the image column can preview it
-      setCellValue(newData: any, value: any) {
+      setCellValue: async (newData: any, value: any) => {
         newData.product_uid = value;
         newData.image = '';
-        if (value) return ProductApi.get(value).then((res) => { newData.image = res.detail.image; }).catch(() => {});
+        if (value) try {
+          const product = await ProductApi.get(value);
+          newData.image = product.detail.image;
+        } catch (error: any) {
+          ElMessage.error(error?.detail?.message || t('loadingProductFailed'));
+          console.error('Failed to fetch product data:', error);
+        }
       }
     },
     {

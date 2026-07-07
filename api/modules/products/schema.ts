@@ -14,6 +14,7 @@ const product = t.Object({
     uid: t.String(),
     ...createBody.properties,
     image: t.Optional(t.String({ default: "" })),
+    quantity: t.Number(),
     created_at: t.String({ format: "date-time" })
 });
 

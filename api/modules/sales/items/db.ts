@@ -29,21 +29,41 @@ const sortable: Record<string, string> = {
     created_at: "si.created_at"
 };
 
+// Ensure the product has enough stock. `addBack` re-adds the quantity a sale item
+// already reserves (when editing that same item's product) before comparing.
+const checkStock = async (product_uid: string, requested: number, addBack: number = 0) => {
+    const product = await database
+        .prepare("SELECT quantity, name FROM products WHERE uid = ?")
+        .bind(product_uid)
+        .first<{ quantity: number; name: string }>();
+    const remaining = product?.quantity ?? 0;
+    if (requested > remaining + addBack) {
+        throw Responses.service.handler.error({ message: `Not enough stock for "${ product?.name ?? '' }". Remaining: ${ remaining }`, remaining }, 400);
+    }
+};
+
 export default {
     async create(input: ItemCreateBodyType): Promise<SuccessServiceResponse<undefined>> {
         try {
+            await checkStock(input.product_uid, input.quantity);
             await database
                 .prepare("INSERT INTO sale_items (sale_uid, product_uid, price, quantity, note) VALUES (?, ?, ?, ?, ?)")
                 .bind(input.sale_uid, input.product_uid, input.price, input.quantity, input.note ?? '')
                 .run();
             return Responses.service.handler.success();
         } catch (error) {
+            if(Responses.schema.data.check(error)) throw error;
             throw Responses.service.handler.error(error);
         }
     },
 
     async createBatch({ sale_uid, rows }: ItemBatchBodyType): Promise<SuccessServiceResponse<undefined>> {
         try {
+            // Aggregate requested quantity per product, then verify stock before inserting anything
+            const requested = new Map<string, number>();
+            for (const row of rows) requested.set(row.product_uid, (requested.get(row.product_uid) ?? 0) + row.quantity);
+            for (const [product_uid, quantity] of requested) await checkStock(product_uid, quantity);
+
             for (const row of rows) {
                 await database
                     .prepare("INSERT INTO sale_items (sale_uid, product_uid, price, quantity, note) VALUES (?, ?, ?, ?, ?)")
@@ -52,6 +72,7 @@ export default {
             }
             return Responses.service.handler.success();
         } catch (error) {
+            if(Responses.schema.data.check(error)) throw error;
             throw Responses.service.handler.error(error);
         }
     },
@@ -120,6 +141,14 @@ export default {
 
     async update(body: ItemUpdateBodyType) {
         try {
+            const current = await database
+                .prepare("SELECT product_uid, quantity FROM sale_items WHERE uid = ?")
+                .bind(body.uid)
+                .first<{ product_uid: string; quantity: number }>();
+            // If the product is unchanged, this item's current reservation is available to it again
+            const addBack = current && current.product_uid === body.product_uid ? current.quantity : 0;
+            await checkStock(body.product_uid, body.quantity, addBack);
+
             const result = await database.prepare(`
                 UPDATE sale_items
                 SET product_uid = ?, price = ?, quantity = ?, note = ?

@@ -72,6 +72,7 @@ const dataGridConfig = ref<DataGridPropsConfig>({
         },
         { dataField: 'name', caption: t('name') },
         { dataField: 'price', caption: t('price'), customizeText: ({ value }) => formatter.currency(value) },
+        { dataField: 'quantity', caption: t('remainingQuantity') },
         { dataField: 'created_at', caption: t('createdAt'), ...formatter.devextreme.datetime, sortOrder: 'desc' }
     ]
 });
