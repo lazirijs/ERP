@@ -41,7 +41,11 @@
       <div class="col-span-1 md:col-span-3 flex-1 space-y-app">
         <el-tabs v-model="tab" type="border-card">
           <el-tab-pane :label="$t('sales')" name="sales">
-            <el-empty v-if="tab === 'sales'" :description="$t('notAvailableYet')" />
+            <data-grid-app
+              v-if="tab === 'sales'"
+              :config="salesDataGridConfig"
+              @row-click="$event.data.sale && $router.push({ name: 'sales-detail', params: { uid: $event.data.sale.uid } })"
+            />
           </el-tab-pane>
           <el-tab-pane :label="$t('purchases')" name="purchases">
             <el-empty v-if="tab === 'purchases'" :description="$t('notAvailableYet')" />
@@ -62,12 +66,17 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
+import { useI18n } from 'vue-i18n';
 import { get } from '../api';
 import type { Product } from '../type';
+import saleItemsApi from '@/modules/sales/items/api';
+import type { DataGridPropsConfig } from '@/components/devextreme/datagrid/type';
+import formatter from '@/services/formatter';
 
 import EditDialogApp from '../components/dialogs/edit.vue';
 import ImagesGalleryApp from '../components/images-gallery.vue';
 
+const { t } = useI18n();
 const route = useRoute();
 
 const loadingContainer = ref<('detail')[]>([]);
@@ -77,6 +86,20 @@ const tab = ref('sales');
 const dialogRef = ref<InstanceType<typeof EditDialogApp>>();
 
 const formData = ref<Product>({} as Product);
+
+const salesDataGridConfig = ref<DataGridPropsConfig>({
+  dataSource: {
+    key: 'uid',
+    api: (query) => saleItemsApi.getAll({ ...query, product_uid: route.params.uid as string })
+  },
+  columns: [
+    { dataField: 'sale.name', caption: t('sale'), allowSorting: false },
+    { dataField: 'price', caption: t('unitPrice'), customizeText: ({ value }) => formatter.currency(value) },
+    { dataField: 'quantity', caption: t('quantity') },
+    { dataField: 'total', caption: t('total'), customizeText: ({ value }) => formatter.currency(value) },
+    { dataField: 'created_at', caption: t('createdAt'), ...formatter.devextreme.datetime, sortOrder: 'desc' }
+  ]
+});
 
 const load = async () => {
   try {

@@ -46,7 +46,8 @@ const batchBody = t.Object({
 
 const getAllQuery = t.Object({
     ...DataGridSchema.data.properties,
-    sale_uid: t.Optional(t.String())
+    sale_uid: t.Optional(t.String()),
+    product_uid: t.Optional(t.String())
 });
 
 export default {

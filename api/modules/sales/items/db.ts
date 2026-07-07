@@ -100,6 +100,10 @@ export default {
                 conditions.push("si.sale_uid = ?");
                 binds.push(inputs.sale_uid);
             }
+            if (inputs.product_uid) {
+                conditions.push("si.product_uid = ?");
+                binds.push(inputs.product_uid);
+            }
             if (inputs.searchText) {
                 conditions.push("pr.name LIKE ?");
                 binds.push(`%${ inputs.searchText }%`);
