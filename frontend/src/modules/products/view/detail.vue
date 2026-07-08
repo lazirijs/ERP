@@ -44,14 +44,14 @@
             <data-grid-app
               v-if="tab === 'sales'"
               :config="salesDataGridConfig"
-              @row-click="$event.data.sale && $router.push({ name: 'sales-detail', params: { uid: $event.data.sale.uid } })"
+              @row-click="$router.push({ name: 'sales-detail', params: { uid: $event.data.sale.uid } })"
             />
           </el-tab-pane>
           <el-tab-pane :label="$t('purchases')" name="purchases">
             <data-grid-app
               v-if="tab === 'purchases'"
               :config="purchasesDataGridConfig"
-              @row-click="$event.data.purchase && $router.push({ name: 'purchases-detail', params: { uid: $event.data.purchase.uid } })"
+              @row-click="$router.push({ name: 'purchases-detail', params: { uid: $event.data.purchase.uid } })"
             />
           </el-tab-pane>
           <el-tab-pane :label="$t('suppliers')" name="suppliers">

@@ -34,7 +34,7 @@
                 v-else
                 ref="dataGridRef"
                 :config="itemsDataGridConfig"
-                @row-click="$event.data.sale && $router.push({ name: 'sales-detail', params: { uid: $event.data.sale.uid } })"
+                @row-click="$router.push({ name: 'sales-detail', params: { uid: $event.data.sale.uid } })"
             />
         </div>
         <create-dialog-app ref="dialogRef" @submitted="dataGridRef?.instance?.refresh()" />
