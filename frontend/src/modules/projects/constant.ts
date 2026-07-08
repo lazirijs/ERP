@@ -18,6 +18,16 @@ export const status = {
         id: 3,
         label: 'completed',
         color: 'blue'
+    },
+    4: {
+        id: 4,
+        label: 'on_hold',
+        color: 'orange'
+    },
+    5: {
+        id: 5,
+        label: 'cancelled',
+        color: 'red'
     }
 } as const;
 
