@@ -1,9 +1,11 @@
+import { status } from "./constant";
+
 export interface Sale {
   uid: string;
   name: string;
   project_uid?: string | null;
   client_uid?: string | null;
-  status: 0 | 1;
+  status: keyof typeof status;
   note?: string;
   project?: { uid: string; name: string } | null;
   client?: { uid: string; name: string } | null;
@@ -24,6 +26,6 @@ export interface SaleUpdateBody {
   name?: string;
   project_uid?: string | null;
   client_uid?: string | null;
-  status: 0 | 1;
+  status: keyof typeof status;
   note?: string;
 }

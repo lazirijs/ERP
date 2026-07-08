@@ -104,6 +104,10 @@ export default {
                 conditions.push("si.product_uid = ?");
                 binds.push(inputs.product_uid);
             }
+            if (inputs.project_uid) {
+                conditions.push("s.project_uid = ?");
+                binds.push(inputs.project_uid);
+            }
             if (inputs.searchText) {
                 conditions.push("pr.name LIKE ?");
                 binds.push(`%${ inputs.searchText }%`);
@@ -125,7 +129,7 @@ export default {
 
             let countResult = { count: -1 };
             if(inputs.requireTotalCount) {
-                const countQuery = `SELECT COUNT(*) as count FROM sale_items si LEFT JOIN products pr ON si.product_uid = pr.uid ${ where }`;
+                const countQuery = `SELECT COUNT(*) as count FROM sale_items si LEFT JOIN products pr ON si.product_uid = pr.uid LEFT JOIN sales s ON si.sale_uid = s.uid ${ where }`;
                 countResult = binds.length
                     ? await database.prepare(countQuery).bind(...binds).first() as { count: number }
                     : await database.prepare(countQuery).first() as { count: number };
