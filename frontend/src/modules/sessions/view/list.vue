@@ -5,7 +5,6 @@
       :views="['month']"
       current-view="month"
       :first-day-of-week="0"
-      :current-date="currentDate"
       :editing="{ allowAdding: false, allowUpdating: false, allowDeleting: false, allowResizing: false, allowDragging: false }"
       :show-all-day-panel="false"
       data-cell-template="dataCell"
@@ -41,6 +40,7 @@ import { useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import { ElMessage } from 'element-plus';
 import { DxScheduler } from 'devextreme-vue/scheduler';
+
 import sessionsApi from '../api';
 import type { Session } from '../type';
 import CreateDialogApp from '../components/dialogs/create.vue';
@@ -49,8 +49,7 @@ import { status } from '../constant';
 const router = useRouter();
 const { t } = useI18n();
 
-const currentDate = ref(new Date());
-const sessionsMap = ref<Map<string, Session>>(new Map());
+const sessionsMap = ref<Record<string, Session>>({});
 const createDialogRef = ref<InstanceType<typeof CreateDialogApp>>();
 
 const fmt = (d: Date) => {
@@ -63,7 +62,7 @@ const fmt = (d: Date) => {
 const todayStr = () => fmt(new Date());
 
 const summaryFor = (d: Date) => {
-  const session = sessionsMap.value.get(fmt(d));
+  const session = sessionsMap.value[fmt(d)];
   if (!session) return;
   return { total_present: session.total_employees - session.total_absence, ...session };
 };
@@ -71,25 +70,25 @@ const summaryFor = (d: Date) => {
 const load = async ({ component }: { component: DxScheduler["instance"] }) => {
   const from = fmt(component!.getStartViewDate()!);
   const to = fmt(component!.getEndViewDate()!);
+  const take = Math.ceil((new Date(to).getTime() - new Date(from).getTime()) / (1000 * 60 * 60 * 24)) + 1; // Days between from and to (inclusive)
   try {
-    const map = new Map<string, Session>();
-    const response = await sessionsApi.getAll({ from, to } as any);
+    const response = await sessionsApi.getAll({ from, to, take } as any);    
     const data = response.detail.data;
-    for (const session of data) map.set(session.date, session);
-    sessionsMap.value = map;
+    sessionsMap.value = {};
+    for (const session of data) sessionsMap.value[session.date] = session;
   } catch (error: any) {
     ElMessage.error(error?.detail?.message || t('loadingFailed'));
   }
 };
 
 const onCellClick = (e: any) => {
-  const d = fmt(e.cellData.startDate);
-  const session = sessionsMap.value.get(d);
+  const date = fmt(e.cellData.startDate);
+  const session = sessionsMap.value[date];
   if (session) {
     router.push({ name: 'sessions-detail', params: { uid: session.uid } });
     return;
   }
-  if (d >= todayStr()) createDialogRef.value?.open(d);
+  if (date >= todayStr()) createDialogRef.value?.open(date);
   else ElMessage.error(t('cannotCreateSessionForPastDate'));
 };
 </script>

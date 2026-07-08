@@ -69,3 +69,7 @@
 .el-select.el-select-on-focus-no-outline > .el-select__wrapper.is-focused {
   box-shadow: 0 0 0 1px var(--el-border-color) inset !important;
 }
+
+.dx-scheduler-header > .dx-toolbar {
+  @apply flex flex-col justify-center;
+}
