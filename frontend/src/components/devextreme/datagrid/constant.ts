@@ -5,7 +5,7 @@ export const defaultQuery: DevExtremeDataGridRemoteQuery = {
     requireTotalCount: false,
     sort: [{ selector: 'created_at', desc: true }],
     skip: 0,
-    take: 100
+    take: 20
 };
 
 export default { defaultQuery };

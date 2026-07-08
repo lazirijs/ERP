@@ -16,6 +16,8 @@ import { createDevExtremeCustomStore } from '@/components/devextreme/service';
 import DataGridApp from '@/components/devextreme/datagrid/index.vue';
 import type { DataGridPropsConfig } from '@/components/devextreme/datagrid/type';
 import { ElMessage } from 'element-plus';
+import type { DxDataGridTypes } from 'devextreme-vue/cjs/data-grid';
+import type { Employee } from '@/modules/employees/type';
 
 const props = defineProps<{
   allowPresent?: boolean;
@@ -23,27 +25,28 @@ const props = defineProps<{
 
 const { t } = useI18n();
 
+const gridRef = ref<InstanceType<typeof DataGridApp>>();
 const devExtremeCustomStore = new createDevExtremeCustomStore();
 
-const gridRef = ref<InstanceType<typeof DataGridApp>>();
+// Employee uids already picked in the grid (pending inserts live in `editing.changes`,
+// committed rows in the store). Optionally exclude the row currently being edited so its
+// own selection stays visible.
+const takenEmployeeIds = (excludeId?: string) => {
+  const instance = gridRef.value?.instance;
+  const ids = new Set<string>();
+  if (!instance) return ids;
+  for (const change of ((instance.option('editing.changes') as any[]) || [])) {
+    if (change?.data?.employee_uid && change.data.__id !== excludeId) ids.add(change.data.employee_uid);
+  }
+  for (const row of ((instance.getDataSource().items() as any[]) || [])) {
+    if (row?.employee_uid && row.__id !== excludeId) ids.add(row.employee_uid);
+  }
+  return ids;
+};
 
 const statusOptions = props.allowPresent
   ? [{ id: 0, name: t('present') }, { id: 1, name: t('absent') }]
   : [{ id: 1, name: t('absent') }];
-
-// Save pending edits, validate, and return the plain rows (without internal keys)
-const getRows = async () => {
-  const instance = gridRef.value?.instance;
-  if (!instance) return [];
-  await instance.saveEditData();
-  if (instance.hasEditData()) throw new Error('invalid');
-  const all = await instance.getDataSource().store().load() as any[];
-  return all.map(({ __id, team_name, ...rest }: any) => ({
-    ...rest,
-    note: rest.note ?? '',
-    team_uid: rest.team_uid ?? null
-  }));
-};
 
 const gridConfig = ref<DataGridPropsConfig>({
   dataSource: [],
@@ -53,20 +56,20 @@ const gridConfig = ref<DataGridPropsConfig>({
       caption: t('employee'),
       minWidth: 160,
       lookup: {
-        dataSource: devExtremeCustomStore.lookup({
+        dataSource: (options: any) => devExtremeCustomStore.lookup({
           key: 'uid',
           api: async (query) => {
             const response = await EmployeeApi.getAll(query);
-            // TODO: filter out employees that are already in the grid
-            if (!response.success) throw new Error('Failed to load employees');
-            response.detail.data = response.detail.data.filter((employee) => {
-              const rows = gridRef.value?.instance?.getDataSource().items() || [];
-              console.log('rows', rows);
-              return !rows.some((row: any) => row.employee_uid === employee.uid);
-            });
+            const taken = takenEmployeeIds(options?.data?.__id);
+            const filtered = response.detail.data.filter((employee: Employee) => !taken.has(employee.uid));
+            response.detail.data = filtered;
+            response.detail.totalCount = filtered.length;
             return response;
           },
           getByKey: EmployeeApi.get
+        }, {
+          loadMode: 'processed',
+          cacheRawData: false
         }),
         valueExpr: 'uid',
         displayExpr: 'name'
@@ -116,11 +119,25 @@ const gridConfig = ref<DataGridPropsConfig>({
   pager: { showInfo: true, showNavigationButtons: true }
 });
 
-const onInitNewRow = (e: any) => {
-  e.data.__id = crypto.randomUUID();
-  e.data.team_uid = null;
-  e.data.team_name = '';
-  e.data.status = props.allowPresent ? 0 : 1;
+const onInitNewRow = ({ data }: DxDataGridTypes.InitNewRowEvent) => {
+  data.__id = crypto.randomUUID();
+  data.team_uid = null;
+  data.team_name = '';
+  data.status = props.allowPresent ? 0 : 1;
+};
+
+// Save pending edits, validate, and return the plain rows (without internal keys)
+const getRows = async () => {
+  const instance = gridRef.value?.instance;
+  if (!instance) return [];
+  await instance.saveEditData();
+  if (instance.hasEditData()) throw new Error('invalid');
+  const all = await instance.getDataSource().store().load() as any[];
+  return all.map(({ __id, team_name, ...rest }: any) => ({
+    ...rest,
+    note: rest.note ?? '',
+    team_uid: rest.team_uid ?? null
+  }));
 };
 
 const reset = () => {

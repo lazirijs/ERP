@@ -1,12 +1,15 @@
 import { ElMessage } from "element-plus";
-import CustomStore from 'devextreme/data/custom_store';
+import CustomStore, { type Options } from 'devextreme/data/custom_store';
 import type { DevExtremeDataGridApiDataSource, DevExtremeDataGridLookupLoadOptions } from './datagrid/type';
 import { DxDataGrid } from 'devextreme-vue/data-grid';
 import { t } from '@/translate';
+import type { ApiResponse } from "@/api/type";
+
+type CustomStoreOptions = Omit<Options, 'load' | 'key' | 'byKey'>;
 
 export class createDevExtremeCustomStore {
-    private createCustomStore(key: string, load: (loadOptions: any) => Promise<any>, more?: any) {
-        return new CustomStore({ key, load, ...more });
+    private createCustomStore(key: string, load: (loadOptions: any) => Promise<any>, byKey?: (key: string) => Promise<ApiResponse<any>>, customStoreOptions?: CustomStoreOptions) {
+        return new CustomStore({ key, load, byKey, ...customStoreOptions });
     }
 
     public dataGrid(dataGridRef: DxDataGrid, dataSource: DevExtremeDataGridApiDataSource, searchText: { value: string, setter: (searchText: string) => void }) {
@@ -42,7 +45,7 @@ export class createDevExtremeCustomStore {
         );
     }
 
-    public lookup(dataSource: DevExtremeDataGridApiDataSource & { getByKey?: (key: any) => Promise<{ success: boolean; detail: any }> }) {
+    public lookup(dataSource: DevExtremeDataGridApiDataSource, customStoreOptions?: CustomStoreOptions) {
         return this.createCustomStore(
             dataSource.key,
             // Dropdown list: server-side fetch (searchValue is sent to the API when the user searches).
@@ -65,18 +68,19 @@ export class createDevExtremeCustomStore {
                     ElMessage.error(errorMessage);
                 }
             },
-            {
-                // Resolve a single already-selected value to its display object.
-                // Required so editing a row that already has a value doesn't wipe it.
-                byKey: async (key: any) => {
+            async (key: any) => {
+                try {
                     if (!key || !dataSource.getByKey) return null;
-                    try {
-                        const response = await dataSource.getByKey(key);
-                        if (response.success) return response.detail;
-                    } catch { /* ignore */ }
-                    return null;
+                    const response = await dataSource.getByKey(key);
+                    if(response.success) return response.detail;
+                    const errorMessage = response?.detail?.message || t('failedToLoad');
+                    ElMessage.error(errorMessage);
+                } catch (error: any) {
+                    const errorMessage = error?.detail?.message || t('failedToLoad');
+                    ElMessage.error(errorMessage);
                 }
-            }
+            },
+            customStoreOptions
         );
     }
 }

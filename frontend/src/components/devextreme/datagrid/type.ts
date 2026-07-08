@@ -2,11 +2,11 @@ import type { DxDataGrid } from "devextreme-vue";
 import type { ApiResponse } from "@/api/type";
 
 export type DevExtremeDataGridRemoteQuery<T = {}> = {
-  searchText: string;
-  requireTotalCount: boolean;
-  sort: { selector: string; desc: boolean }[];
-  skip: number;
-  take: number;
+  searchText?: string;
+  requireTotalCount?: boolean;
+  sort?: { selector: string; desc: boolean }[];
+  skip?: number;
+  take?: number;
 } & T;
 
 export interface DevExtremeDataGridRemoteDataFormat<T> {
@@ -19,6 +19,7 @@ export interface DevExtremeDataGridRemoteDataFormat<T> {
 export interface DevExtremeDataGridApiDataSource {
   key: string;
   api: (query: DevExtremeDataGridRemoteQuery) => Promise<ApiResponse<DevExtremeDataGridRemoteDataFormat<any>>>;
+  getByKey?: (key: string) => Promise<ApiResponse<any>>;
 }
 
 export type DataGridPropsConfig = Omit<DxDataGrid, 'dataSource'> & {
