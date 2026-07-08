@@ -16,7 +16,7 @@ export const status = {
     },
     3: {
         id: 3,
-        label: 'on_leave',
+        label: 'left',
         color: 'orange'
     }
 } as const;
