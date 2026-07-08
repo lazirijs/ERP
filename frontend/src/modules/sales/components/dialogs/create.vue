@@ -4,16 +4,18 @@
       <el-form-item :label="$t('name')" prop="name" class="mb-0!">
         <el-input v-model="formData.name" :placeholder="$t('name')" />
       </el-form-item>
-      <el-form-item :label="$t('project')" prop="project_uid" class="mb-0!">
-        <el-select v-model="formData.project_uid" clearable filterable :placeholder="$t('project')" class="w-full" @change="onProjectChange">
-          <el-option v-for="project in projects" :key="project.uid" :label="project.name" :value="project.uid" />
-        </el-select>
-      </el-form-item>
-      <el-form-item :label="$t('client')" prop="client_uid" class="mb-0!">
-        <el-select v-model="formData.client_uid" clearable filterable :disabled="!!formData.project_uid"  :placeholder="$t('client')" class="w-full">
-          <el-option v-for="client in clients" :key="client.uid" :label="client.name" :value="client.uid" />
-        </el-select>
-      </el-form-item>
+      <template v-if="!props.project_uid">        
+        <el-form-item :label="$t('project')" prop="project_uid" class="mb-0!">
+          <el-select v-model="formData.project_uid" clearable filterable :placeholder="$t('project')" class="w-full" @change="onProjectChange">
+            <el-option v-for="project in projects" :key="project.uid" :label="project.name" :value="project.uid" />
+          </el-select>
+        </el-form-item>
+        <el-form-item :label="$t('client')" prop="client_uid" class="mb-0!">
+          <el-select v-model="formData.client_uid" clearable filterable :disabled="!!formData.project_uid"  :placeholder="$t('client')" class="w-full">
+            <el-option v-for="client in clients" :key="client.uid" :label="client.name" :value="client.uid" />
+          </el-select>
+        </el-form-item>
+      </template>
       <el-form-item :label="$t('note')" prop="note" class="mb-0!">
         <el-input v-model="formData.note" type="textarea" :rows="2" :placeholder="$t('note')" />
       </el-form-item>
@@ -46,6 +48,10 @@ import confirmDialog from '@/services/dialog/confirm';
 
 const emit = defineEmits(['submitted']);
 
+const props = defineProps<{
+  project_uid?: string;
+}>();
+
 const { t } = useI18n();
 const router = useRouter();
 
@@ -66,7 +72,7 @@ const formRules = reactive<Record<keyof SaleCreateBody, FormItemRule | FormItemR
 
 const formData = ref<SaleCreateBody>({
   name: '',
-  project_uid: null,
+  project_uid: props.project_uid ?? null,
   client_uid: null,
   note: ''
 });
@@ -121,7 +127,7 @@ const submit = async (formEl: FormInstance | undefined = formRef.value) => {
 const open = async () => {
   dialogModel.value = true;
   formData.value.name = formatter.date(new Date().toISOString());
-  try {
+  if (!props.project_uid) try {
     loadingContainer.value.push('loading');
     const [projectsRes, clientsRes] = await Promise.all([ProjectApi.getAll(), ClientApi.getAll()]);
     projects.value = projectsRes.detail.data;

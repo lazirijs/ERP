@@ -35,6 +35,11 @@ const updateBody = t.Object({
     note: createBody.properties.note
 });
 
+const getAllQuery = t.Object({
+    ...DataGridSchema.data.properties,
+    project_uid: t.Optional(t.String())
+});
+
 export default {
     data: {
         value: sale
@@ -54,7 +59,7 @@ export default {
     getAll: {
         validation: {
             auth: true,
-            query: DataGridSchema.data
+            query: getAllQuery
         }
     },
     update: {

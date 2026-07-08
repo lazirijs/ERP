@@ -79,7 +79,8 @@ const salesDataGridConfig = ref<DataGridPropsConfig>({
     },
     columns: [
         { dataField: 'name', caption: t('name') },
-        { caption: t('customer'), allowSorting: false, calculateCellValue: (row: any) => row.project?.name ?? row.client?.name ?? '' },
+        { dataField: 'client.name', caption: t('client') },
+        { dataField: 'project.name', caption: t('project') },
         {
             dataField: 'status', caption: t('status'), alignment: 'center',
             cellTemplate: (container: HTMLElement, options: { value: 0 | 1 }) => {

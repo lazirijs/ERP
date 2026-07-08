@@ -18,7 +18,6 @@
             <label class="block text-sm font-medium text-gray-700 mb-1">{{ $t('name') }}</label>
             <span class="block text-sm text-gray-900">{{ formData.name }}</span>
           </div>
-          
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">{{ $t('client') }}</label>
             <span class="block text-sm text-gray-900">{{ formData.client.name }}</span>
@@ -53,19 +52,19 @@
               :config="transactionsDataGridConfig"
             />
           </el-tab-pane>
-          <el-tab-pane :label="$t('orders')" name="orders">
-            <div v-if="tab === 'orders'" class="flex flex-col items-end gap-4">
-              <el-button @click="createOrdersDialogRef?.open()" type="success">
+          <el-tab-pane :label="$t('sales')" name="sales">
+            <div v-if="tab === 'sales'" class="flex flex-col items-end gap-4">
+              <el-button @click="createSalesDialogRef?.open()" type="success">
                 {{ $t('create') }}
                 <el-icon class="ml-2">
                   <el-icon-plus />
                 </el-icon>
               </el-button>
-              <create-orders-dialog ref="createOrdersDialogRef" :project_uid="formData.uid" @submitted="ordersDataGridRef?.instance?.refresh()" />
+              <create-sales-dialog ref="createSalesDialogRef" :project_uid="formData.uid" @submitted="salesDataGridRef?.instance?.refresh()" />
               <data-grid-app
-                ref="ordersDataGridRef"
-                :config="ordersDataGridConfig"
-                @row-click="$router.push({ name: 'orders-detail', params: { uid: $event.data.uid } })"
+                ref="salesDataGridRef"
+                :config="salesDataGridConfig"
+                @row-click="$router.push({ name: 'sales-detail', params: { uid: $event.data.uid } })"
               />
             </div>
           </el-tab-pane>
@@ -95,11 +94,11 @@ import ConstTransaction from '@/modules/transactions/constant';
 import type { DataGridAppRef, DataGridPropsConfig } from '@/components/devextreme/datagrid/type';
 import { status } from '../constant';
 
-import ordersApi from '@/modules/orders/api';
-import type { Order } from '@/modules/orders/type';
-import OrderConst from '@/modules/orders/constant';
+import salesApi from '@/modules/sales/api';
+import type { Sale } from '@/modules/sales/type';
+import SaleConst from '@/modules/sales/constant';
 
-import CreateOrdersDialog from '@/modules/orders/components/dialogs/create.vue';
+import CreateSalesDialog from '@/modules/sales/components/dialogs/create.vue';
 
 const { t } = useI18n();
 
@@ -109,8 +108,8 @@ const loadingContainer = ref<('detail')[]>(['detail']);
 
 const tab = ref('transactions');
 
-const createOrdersDialogRef = ref<InstanceType<typeof CreateOrdersDialog>>();
-const ordersDataGridRef = ref<DataGridAppRef>();
+const createSalesDialogRef = ref<InstanceType<typeof CreateSalesDialog>>();
+const salesDataGridRef = ref<DataGridAppRef>();
 
 const formData = ref<Project>({} as Project);
 
@@ -134,7 +133,6 @@ const transactionsDataGridConfig = ref<DataGridPropsConfig>({
     api: (query) => transactionsApi.getAll({ ...query, project_uid: route.params.uid as string })
   },
   columns: [
-    // { dataField: 'project.name', caption: t('project') },
     { dataField: 'account.name', caption: t('account'), allowSorting: false },
     { dataField: 'employee.name', caption: t('employee'), allowSorting: false },
     {
@@ -150,20 +148,22 @@ const transactionsDataGridConfig = ref<DataGridPropsConfig>({
   ]
 });
 
-const ordersDataGridConfig = ref<DataGridPropsConfig>({
+const salesDataGridConfig = ref<DataGridPropsConfig>({
   dataSource: {
     key: 'uid',
-    api: (query) => ordersApi.getAll({ ...query, project_uid: route.params.uid as string })
+    api: (query) => salesApi.getAll({ ...query, project_uid: route.params.uid as string })
   },
   columns: [
     { dataField: 'name', caption: t('name') },
     {
       dataField: 'status', caption: t('status'), alignment: 'center', 
-      cellTemplate: (container: HTMLElement, options: { value: Order["status"] }) => {
-        let { label, color } = OrderConst.status[options.value];
+      cellTemplate: (container: HTMLElement, options: { value: Sale["status"] }) => {
+        let { label, color } = SaleConst.status[options.value];
         container.innerHTML = `<span class="badge-app-${ color }">${ t(label) }</span>`;
       } 
     },
+    { dataField: 'items_count', caption: t('itemsCount') },
+    { dataField: 'total_amount', caption: t('total'), customizeText: ({ value }) => formatter.currency(value) },
     { dataField: 'created_at', caption: t('createdAt'), ...formatter.devextreme.datetime, sortOrder: 'desc' }
   ]
 });

@@ -79,10 +79,10 @@ import { ElMessage } from 'element-plus';
 import type { FormInstance, FormItemRule } from 'element-plus'
 import type { ProjectCreateBody } from '@/modules/projects/type';
 import type { Client } from '@/modules/clients/type';
-import type { Region } from '@/modules/clients/regions/type';
+// import type { Region } from '@/modules/clients/regions/type';
 import type { Category } from '@/modules/projects/categories/type';
 import ClientApi from '@/modules/clients/api';
-import RegionApi from '@/modules/clients/regions/api';
+// import RegionApi from '@/modules/clients/regions/api';
 import CategoryApi from '@/modules/projects/categories/api';
 import confirmDialog from '@/services/dialog/confirm';
 import { currency } from '@/constants';
@@ -119,7 +119,7 @@ const formData = ref<ProjectCreateBody>({
 });
 
 const clients = ref<Client[]>([]);
-const regions = ref<Region[]>([]);
+// const regions = ref<Region[]>([]);
 const categories = ref<Category[]>([]);
 
 const reset = (formEl: FormInstance | undefined = formRef.value) => {
@@ -163,21 +163,21 @@ const submit = async (formEl: FormInstance | undefined = formRef.value) => {
   })
 };
 
-const getRegions = async (client_uid: string) => {
-  if (!client_uid) return;
-  try {
-    regions.value = [];
-    loadingContainer.value.push('regions');
-    const res = await RegionApi.getAll({ client_uid });
-    regions.value = res.detail.data;
-  } catch (error: any) {
-    const errorMessage = error?.detail?.message || t('loadingFailed');
-    console.error('Error fetching regions:', error);
-    ElMessage.error(errorMessage);
-  } finally {
-    loadingContainer.value = loadingContainer.value.filter(item => item !== 'regions');
-  }
-};
+// const getRegions = async (client_uid: string) => {
+//   if (!client_uid) return;
+//   try {
+//     regions.value = [];
+//     loadingContainer.value.push('regions');
+//     const res = await RegionApi.getAll({ client_uid });
+//     regions.value = res.detail.data;
+//   } catch (error: any) {
+//     const errorMessage = error?.detail?.message || t('loadingFailed');
+//     console.error('Error fetching regions:', error);
+//     ElMessage.error(errorMessage);
+//   } finally {
+//     loadingContainer.value = loadingContainer.value.filter(item => item !== 'regions');
+//   }
+// };
 
 const open = async () => {
   dialogModel.value = true;

@@ -242,24 +242,6 @@ const routes: Route[] = [
     ],
   },
   {
-    path: "/orders",
-    meta: {
-      auth: "required",
-    },
-    children: [
-      {
-        path: "detail/:uid",
-        name: "orders-detail",
-        component: () => import("@/modules/orders/view/detail.vue")
-      },
-      {
-        path: "deliveries/detail/:uid",
-        name: "deliveries-detail",
-        component: () => import("@/modules/orders/deliveries/view/detail.vue")
-      },
-    ],
-  },
-  {
     path: "/:pathMatch(.*)*",
     name: "error-404",
     meta: {
