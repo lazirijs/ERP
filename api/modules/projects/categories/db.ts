@@ -38,7 +38,7 @@ export default {
             
             const query: string[] = [`SELECT * FROM ${tableName}`];
             let filter: string;
-            let orderBy: string;
+            let orderBy: string = "parent_uid ASC";
             let result;
 
             if (inputs.searchText) {
