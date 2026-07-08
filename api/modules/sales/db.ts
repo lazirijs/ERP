@@ -2,8 +2,8 @@ import Schema from './schema'
 import database from '../../database'
 import Responses from '../../utils/response';
 import type { SuccessServiceResponse } from '../../utils/response/type';
-import type { SaleType, SaleCreateBodyType, SaleUpdateBodyType } from './type';
-import type { DataGridQuery, DataGridResponse } from '../../utils/devextreme/datagrid/type';
+import type { SaleType, SaleCreateBodyType, SaleUpdateBodyType, SaleGetAllQueryType } from './type';
+import type { DataGridResponse } from '../../utils/devextreme/datagrid/type';
 
 const parseRow = (row: any) => ({
     ...row,
@@ -47,49 +47,45 @@ export default {
         }
     },
 
-    async getAll(inputs: DataGridQuery): Promise<SuccessServiceResponse<DataGridResponse<SaleType>>> {
+    async getAll(inputs: SaleGetAllQueryType): Promise<SuccessServiceResponse<DataGridResponse<SaleType>>> {
         try {
-            const tableName = "sales";
-            let limit = "LIMIT " + inputs.take;
-            let offset = "OFFSET " + inputs.skip;
+            const limit = "LIMIT " + inputs.take;
+            const offset = "OFFSET " + inputs.skip;
 
             const waitList = Object.keys(Schema.data.value.properties);
 
-            const query: string[] = [selectSale];
-            let filter: string;
-            let orderBy: string;
-            let result;
+            const conditions: string[] = [];
+            const binds: unknown[] = [];
 
-            if (inputs.searchText) {
-                inputs.searchText = `%${ inputs.searchText }%`;
-                filter = `WHERE s.name LIKE ?`;
-                query.push(filter);
+            if (inputs.project_uid) {
+                conditions.push("s.project_uid = ?");
+                binds.push(inputs.project_uid);
             }
+            if (inputs.searchText) {
+                conditions.push("s.name LIKE ?");
+                binds.push(`%${ inputs.searchText }%`);
+            }
+            const where = conditions.length ? "WHERE " + conditions.join(" AND ") : "";
 
-            query.push("GROUP BY s.uid");
-
+            let orderBy = "";
             if (inputs.sort?.length) {
                 const { selector, desc } = inputs.sort[0]!;
                 if(!waitList.includes(selector)) throw Responses.service.handler.error("Invalid sort field: " + selector, 400);
                 const sortCol = ["total_amount", "items_count"].includes(selector) ? selector : `s.${ selector }`;
                 orderBy = `ORDER BY ${ sortCol } ${ desc ? "DESC" : "ASC" }`;
-                query.push(orderBy);
             }
 
-            query.push(limit);
-            query.push(offset);
-
-            const prepare = database.prepare(query.join(" "));
-            result = inputs.searchText ? await prepare.bind(inputs.searchText).run() : await prepare.run();
+            const query = [selectSale, where, "GROUP BY s.uid", orderBy, limit, offset].join(" ");
+            const prepare = database.prepare(query);
+            const result = binds.length ? await prepare.bind(...binds).run() : await prepare.run();
             result.results = (result.results as any[]).map(parseRow);
 
             let countResult = { count: -1 };
             if(inputs.requireTotalCount) {
-                const countQuery = `SELECT COUNT(*) as count FROM ${ tableName } s`;
-                if (inputs.searchText) {
-                    countResult = await database.prepare([countQuery, `WHERE s.name LIKE ?`].join(" ")).bind(inputs.searchText).first() as { count: number };
-                }
-                else countResult = await database.prepare(countQuery).first() as { count: number };
+                const countQuery = [`SELECT COUNT(*) as count FROM sales s`, where].join(" ");
+                countResult = binds.length
+                    ? await database.prepare(countQuery).bind(...binds).first() as { count: number }
+                    : await database.prepare(countQuery).first() as { count: number };
             }
 
             return Responses.service.handler.success({
