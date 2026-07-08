@@ -81,6 +81,7 @@ const purchasesDataGridConfig = ref<DataGridPropsConfig>({
         { dataField: 'supplier.name', caption: t('supplier'), allowSorting: false },
         { dataField: 'items_count', caption: t('itemsCount') },
         { dataField: 'total_amount', caption: t('total'), customizeText: ({ value }) => formatter.currency(value) },
+        { dataField: 'note', caption: t('note') },
         { dataField: 'created_at', caption: t('createdAt'), ...formatter.devextreme.datetime, sortOrder: 'desc' }
     ]
 });
@@ -103,6 +104,7 @@ const itemsDataGridConfig = ref<DataGridPropsConfig>({
         { dataField: 'quantity', caption: t('quantity') },
         { dataField: 'total', caption: t('total'), customizeText: ({ value }) => formatter.currency(value) },
         { dataField: 'purchase.name', caption: t('purchase'), allowSorting: false },
+        { dataField: 'note', caption: t('note') },
         { dataField: 'created_at', caption: t('createdAt'), ...formatter.devextreme.datetime, sortOrder: 'desc' }
     ]
 });

@@ -2,8 +2,8 @@ import Schema from './schema'
 import database from '../../database'
 import Responses from '../../utils/response';
 import type { SuccessServiceResponse } from '../../utils/response/type';
-import type { SupplierType, SupplierCreateBodyType, SupplierUpdateBodyType } from './type';
-import type { DataGridQuery, DataGridResponse } from '../../utils/devextreme/datagrid/type';
+import type { SupplierType, SupplierCreateBodyType, SupplierUpdateBodyType, SupplierGetAllQueryType } from './type';
+import type { DataGridResponse } from '../../utils/devextreme/datagrid/type';
 
 export default {
     async create(input: SupplierCreateBodyType): Promise<SuccessServiceResponse<undefined>> {
@@ -32,47 +32,57 @@ export default {
         }
     },
 
-    async getAll(inputs: DataGridQuery): Promise<SuccessServiceResponse<DataGridResponse<SupplierType>>> {
+    async getAll(inputs: SupplierGetAllQueryType): Promise<SuccessServiceResponse<DataGridResponse<SupplierType>>> {
         try {
-            const tableName = "suppliers";
-            let limit = "LIMIT " + inputs.take;
-            let offset = "OFFSET " + inputs.skip;
+            const limit = "LIMIT " + inputs.take;
+            const offset = "OFFSET " + inputs.skip;
 
             const waitList = Object.keys(Schema.data.value.properties);
 
-            const query: string[] = [`
-                SELECT * FROM ${ tableName }
-            `];
-            let filter: string;
-            let orderBy: string;
-            let result;
+            // When filtering by product, suppliers are reached indirectly through purchase
+            // history, so switch to a joined + grouped query returning distinct suppliers.
+            // Column references are qualified with the `s.` alias because `created_at`
+            // is ambiguous across the joined tables.
+            const byProduct = !!inputs.product_uid;
+            const alias = byProduct ? "s." : "";
+            const from = byProduct
+                ? `FROM suppliers s
+                   JOIN purchases p       ON p.supplier_uid = s.uid
+                   JOIN purchase_items pi ON pi.purchase_uid = p.uid`
+                : `FROM suppliers s`;
+            const groupBy = byProduct ? "GROUP BY s.uid" : "";
 
-            if (inputs.searchText) {
-                inputs.searchText = `%${ inputs.searchText }%`;
-                filter = `WHERE name LIKE ?`;
-                query.push(filter);
+            const conditions: string[] = [];
+            const binds: unknown[] = [];
+
+            if (inputs.product_uid) {
+                conditions.push("pi.product_uid = ?");
+                binds.push(inputs.product_uid);
             }
+            if (inputs.searchText) {
+                conditions.push(`${ alias }name LIKE ?`);
+                binds.push(`%${ inputs.searchText }%`);
+            }
+            const where = conditions.length ? "WHERE " + conditions.join(" AND ") : "";
 
+            let orderBy = `ORDER BY ${ alias }created_at DESC`;
             if (inputs.sort?.length) {
                 const { selector, desc } = inputs.sort[0]!;
                 if(!waitList.includes(selector)) throw Responses.service.handler.error("Invalid sort field: " + selector, 400);
-                orderBy = `ORDER BY ${ selector } ${ desc ? "DESC" : "ASC" }`;
-                query.push(orderBy);
+                orderBy = `ORDER BY ${ alias }${ selector } ${ desc ? "DESC" : "ASC" }`;
             }
 
-            query.push(limit);
-            query.push(offset);
-
-            const prepare = database.prepare(query.join(" "));
-            result = inputs.searchText ? await prepare.bind(inputs.searchText).run() : await prepare.run();
+            const query = [`SELECT s.*`, from, where, groupBy, orderBy, limit, offset].join(" ");
+            const prepare = database.prepare(query);
+            const result = binds.length ? await prepare.bind(...binds).run() : await prepare.run();
 
             let countResult = { count: -1 };
             if(inputs.requireTotalCount) {
-                const countQuery = `SELECT COUNT(*) as count FROM ${ tableName }`;
-                if (inputs.searchText) {
-                    countResult = await database.prepare([countQuery, filter!].join(" ")).bind(inputs.searchText).first() as { count: number };
-                }
-                else countResult = await database.prepare(countQuery).first() as { count: number };
+                const countSelect = byProduct ? "COUNT(DISTINCT s.uid)" : "COUNT(*)";
+                const countQuery = [`SELECT ${ countSelect } as count`, from, where].join(" ");
+                countResult = binds.length
+                    ? await database.prepare(countQuery).bind(...binds).first() as { count: number }
+                    : await database.prepare(countQuery).first() as { count: number };
             }
 
             return Responses.service.handler.success({
