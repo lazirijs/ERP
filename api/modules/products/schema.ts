@@ -29,8 +29,6 @@ const updateBody = t.Object({
     description: product.properties.description
 });
 
-const productImage = t.String();
-
 const uploadImageBody = t.Object({
     file: t.File({
         type: "image/*",
@@ -49,7 +47,6 @@ const imageKeyBody = t.Object({
 export default {
     data: {
         value: product,
-        image: productImage
     },
     create: {
         validation: {

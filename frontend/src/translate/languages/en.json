@@ -247,5 +247,11 @@
   "dateAlreadyTaken": "This date already has a session",
   "cannotCreateSessionForPastDate": "Cannot create a session for a past date",
   "cannotEditPastSession": "This session has passed and can no longer be edited",
-  "cannotMarkPresentForFutureDate": "Cannot mark present before the date has arrived"
+  "cannotMarkPresentForFutureDate": "Cannot mark present before the date has arrived",
+  "upload": "Upload",
+  "editProject": "Edit project",
+  "updateProject": "Update project",
+  "projectUpdatedSuccessfully": "Project updated successfully",
+  "failedToUpdateProject": "Failed to update project",
+  "areYouSureYouWantToUpdateThisProject?": "Are you sure you want to update this project?"
 }

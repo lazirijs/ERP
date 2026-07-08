@@ -1,9 +1,10 @@
 import Schema from './schema'
 import database from '../../database'
+import storage from '../../storage'
 import Responses from '../../utils/response';
 import type { SuccessServiceResponse } from '../../utils/response/type';
 import type { DataGridResponse } from '../../utils/devextreme/datagrid/type';
-import type { ProjectType, ProjectCreateBodyType, ProjectGetAllQueryType } from './type';
+import type { ProjectType, ProjectCreateBodyType, ProjectUpdateBodyType, ProjectGetAllQueryType } from './type';
 
 export default {
     async create(inputs: ProjectCreateBodyType): Promise<SuccessServiceResponse<undefined>> {
@@ -124,6 +125,51 @@ export default {
                 summary: {},
                 groupCount: -1
             } as DataGridResponse<ProjectType>)
+        } catch (error) {
+            if(Responses.schema.data.check(error)) throw error;
+            throw Responses.service.handler.error(error);
+        }
+    },
+
+    async update(inputs: ProjectUpdateBodyType): Promise<SuccessServiceResponse<undefined>> {
+        try {
+            await database
+                .prepare("UPDATE projects SET name = ?, client_uid = ?, region_uid = ?, category_uid = ?, status = ?, offer = ?, note = ?, description = ? WHERE uid = ?")
+                .bind(inputs.name, inputs.client_uid, inputs.region_uid, inputs.category_uid, inputs.status, inputs.offer ?? 0, inputs.note || null, inputs.description || null, inputs.uid)
+                .run();
+            return Responses.service.handler.success();
+        } catch (error) {
+            throw Responses.service.handler.error(error);
+        }
+    },
+
+    async getDocuments(uid: ProjectType["uid"]): Promise<SuccessServiceResponse<R2Object[]>> {
+        try {
+            const { objects } = await storage.list({ prefix: `projects/${ uid }/` });
+            return Responses.service.handler.success(objects);
+        } catch (error) {
+            if(Responses.schema.data.check(error)) throw error;
+            throw Responses.service.handler.error(error);
+        }
+    },
+
+    async uploadDocument({ uid, file }: { uid: ProjectType["uid"]; file: File }): Promise<SuccessServiceResponse<{ document: string }>> {
+        try {
+            const extension = file.name.split(".").pop() || "bin";
+            const key = `projects/${ uid }/${ crypto.randomUUID() }.${ extension }`;
+            await storage.put(key, await file.arrayBuffer(), { httpMetadata: { contentType: file.type }, customMetadata: { fileName: file.name } });
+            return Responses.service.handler.success({ document: key });
+        } catch (error) {
+            if(Responses.schema.data.check(error)) throw error;
+            throw Responses.service.handler.error(error);
+        }
+    },
+
+    async deleteDocument({ uid, document }: { uid: ProjectType["uid"]; document: string }): Promise<SuccessServiceResponse<undefined>> {
+        try {
+            if (!document.startsWith(`projects/${ uid }/`)) throw Responses.service.handler.error("Document does not belong to this project", 400);
+            await storage.delete(document);
+            return Responses.service.handler.success();
         } catch (error) {
             if(Responses.schema.data.check(error)) throw error;
             throw Responses.service.handler.error(error);

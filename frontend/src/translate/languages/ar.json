@@ -247,5 +247,11 @@
   "dateAlreadyTaken": "هذا التاريخ له جلسة بالفعل",
   "cannotCreateSessionForPastDate": "لا يمكن إنشاء جلسة لتاريخ ماضٍ",
   "cannotEditPastSession": "لقد مضت هذه الجلسة ولم يعد بالإمكان تعديلها",
-  "cannotMarkPresentForFutureDate": "لا يمكن تسجيل الحضور قبل حلول التاريخ"
+  "cannotMarkPresentForFutureDate": "لا يمكن تسجيل الحضور قبل حلول التاريخ",
+  "upload": "رفع",
+  "editProject": "تعديل المشروع",
+  "updateProject": "تحديث المشروع",
+  "projectUpdatedSuccessfully": "تم تحديث المشروع بنجاح",
+  "failedToUpdateProject": "فشل تحديث المشروع",
+  "areYouSureYouWantToUpdateThisProject?": "هل أنت متأكد أنك تريد تحديث هذا المشروع?"
 }

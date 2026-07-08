@@ -247,5 +247,11 @@
   "dateAlreadyTaken": "Cette date a déjà une session",
   "cannotCreateSessionForPastDate": "Impossible de créer une session pour une date passée",
   "cannotEditPastSession": "Cette session est passée et ne peut plus être modifiée",
-  "cannotMarkPresentForFutureDate": "Impossible de marquer présent avant l'arrivée de la date"
+  "cannotMarkPresentForFutureDate": "Impossible de marquer présent avant l'arrivée de la date",
+  "upload": "Téléverser",
+  "editProject": "Modifier le projet",
+  "updateProject": "Mettre à jour le projet",
+  "projectUpdatedSuccessfully": "Projet mis à jour avec succès",
+  "failedToUpdateProject": "Échec de la mise à jour du projet",
+  "areYouSureYouWantToUpdateThisProject?": "Êtes-vous sûr de vouloir mettre à jour ce projet?"
 }

@@ -38,9 +38,22 @@ const getParams = t.Object({
     uid: project.properties.uid
 });
 
+const updateBody = t.Object({
+    uid: project.properties.uid,
+    ...createBody.properties
+});
+
 const getAllQuery = t.Object({
     ...DataGridSchema.data.properties,
     client_uid: t.Optional(t.String())
+});
+
+const uploadDocumentBody = t.Object({
+    file: t.File({ maxSize: "10m" })
+});
+
+const documentKeyBody = t.Object({
+    document: t.String()
 });
 
 export default { 
@@ -63,6 +76,32 @@ export default {
         validation: {
             auth: true,
             query: getAllQuery
+        }
+    },
+    update: {
+        validation: {
+            auth: true,
+            body: updateBody
+        }
+    },
+    getDocuments: {
+        validation: {
+            auth: true,
+            params: getParams
+        }
+    },
+    uploadDocument: {
+        validation: {
+            auth: true,
+            params: getParams,
+            body: uploadDocumentBody
+        }
+    },
+    deleteDocument: {
+        validation: {
+            auth: true,
+            params: getParams,
+            body: documentKeyBody
         }
     }
 };

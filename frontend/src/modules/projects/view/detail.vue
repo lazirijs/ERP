@@ -7,8 +7,8 @@
             <el-button @click="$router.back()" text class="m-0!">
               <el-icon><el-icon-arrow-left /></el-icon>
             </el-button>
-            <span>General Info</span>
-            <el-button @click="" text class="m-0!">
+            <span class="hidden lg:block">{{ $t('generalInfo') }}</span>
+            <el-button @click="editDialogRef?.open()" text class="m-0!">
               <el-icon><el-icon-edit /></el-icon>
             </el-button>
           </div>
@@ -37,7 +37,12 @@
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">{{ $t('offer') }}</label>
             <span class="block text-sm text-gray-900">{{ $formatter.currency(formData.offer!) }}</span>
-          </div>          
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">{{ $t('note') }}</label>
+            <span v-if="formData.note" class="block text-sm text-gray-900">{{ formData.note }}</span>
+            <span v-else class="block text-sm text-gray-400">{{ $t('notProvided') }}</span>
+          </div>
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">{{ $t('createdAt') }}</label>
             <span class="block text-sm text-gray-900">{{ $formatter.date(formData.created_at) }}</span>
@@ -93,11 +98,12 @@
             </div>
           </el-tab-pane>
           <el-tab-pane :label="$t('documents')" name="documents">
-            <div v-if="tab === 'documents'">Documents</div>
+            <documents-tab v-if="tab === 'documents'" :uid="formData.uid" />
           </el-tab-pane>
         </el-tabs>
       </div>
     </div>
+    <edit-dialog-app ref="editDialogRef" :uid="formData.uid" @submitted="load()" />
   </container-app>
 </template>
 
@@ -122,6 +128,8 @@ import SaleConst from '@/modules/sales/constant';
 import salesItemsApi from '@/modules/sales/items/api';
 
 import CreateSalesDialog from '@/modules/sales/components/dialogs/create.vue';
+import DocumentsTab from '../components/documents-tab.vue';
+import EditDialogApp from '../components/dialogs/edit.vue';
 
 const { t } = useI18n();
 
@@ -131,6 +139,7 @@ const loadingContainer = ref<('detail')[]>(['detail']);
 
 const tab = ref('transactions');
 
+const editDialogRef = ref<InstanceType<typeof EditDialogApp>>();
 const createSalesDialogRef = ref<InstanceType<typeof CreateSalesDialog>>();
 const salesDataGridRef = ref<DataGridAppRef>();
   

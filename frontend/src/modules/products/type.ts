@@ -1,3 +1,5 @@
+import type { StorageObject } from "@/shared/storage/type";
+
 export interface Product {
   uid: string;
   name: string;
@@ -21,4 +23,4 @@ export interface ProductUpdateBody {
   description: string;
 }
 
-export type ProductImage = string;
+export type ProductImage = StorageObject;

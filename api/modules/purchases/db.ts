@@ -158,10 +158,10 @@ export default {
         }
     },
 
-    async getDocuments(uid: PurchaseType["uid"]): Promise<SuccessServiceResponse<string[]>> {
+    async getDocuments(uid: PurchaseType["uid"]): Promise<SuccessServiceResponse<R2Object[]>> {
         try {
             const { objects } = await storage.list({ prefix: `purchases/${ uid }/` });
-            return Responses.service.handler.success(objects.map(object => object.key));
+            return Responses.service.handler.success(objects);
         } catch (error) {
             if(Responses.schema.data.check(error)) throw error;
             throw Responses.service.handler.error(error);
@@ -172,7 +172,7 @@ export default {
         try {
             const extension = file.name.split(".").pop() || "bin";
             const key = `purchases/${ uid }/${ crypto.randomUUID() }.${ extension }`;
-            await storage.put(key, await file.arrayBuffer(), { httpMetadata: { contentType: file.type } });
+            await storage.put(key, await file.arrayBuffer(), { httpMetadata: { contentType: file.type }, customMetadata: { fileName: file.name } });
             return Responses.service.handler.success({ document: key });
         } catch (error) {
             if(Responses.schema.data.check(error)) throw error;

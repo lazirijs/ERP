@@ -24,3 +24,7 @@ export interface ProjectCreateBody {
   note?: string;
   description?: string;
 }
+
+export interface ProjectUpdateBody extends ProjectCreateBody {
+  uid: string;
+}

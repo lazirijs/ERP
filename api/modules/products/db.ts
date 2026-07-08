@@ -3,7 +3,7 @@ import database from '../../database'
 import storage from '../../storage'
 import Responses from '../../utils/response';
 import type { SuccessServiceResponse } from '../../utils/response/type';
-import type { ProductType, ProductCreateBodyType, ProductUpdateBodyType, ProductImageType } from './type';
+import type { ProductType, ProductCreateBodyType, ProductUpdateBodyType } from './type';
 import type { DataGridQuery, DataGridResponse } from '../../utils/devextreme/datagrid/type';
 
 export default {
@@ -102,12 +102,10 @@ export default {
         }
     },
 
-    async getImages(uid: ProductType["uid"]): Promise<SuccessServiceResponse<ProductImageType[]>> {
+    async getImages(uid: ProductType["uid"]): Promise<SuccessServiceResponse<R2Object[]>> {
         try {
             const { objects } = await storage.list({ prefix: `products/${ uid }/` });
-            const images = objects.map(object => object.key);
-
-            return Responses.service.handler.success(images);
+            return Responses.service.handler.success(objects);
         } catch (error) {
             if(Responses.schema.data.check(error)) throw error;
             throw Responses.service.handler.error(error);
@@ -116,8 +114,9 @@ export default {
 
     async uploadImage({ uid, file, primary }: { uid: ProductType["uid"]; file: File; primary?: boolean }): Promise<SuccessServiceResponse<{ image: string }>> {
         try {
-            const key = `products/${ uid }/${ crypto.randomUUID() }.${ file.type.split("/")[1] }`;
-            await storage.put(key, await file.arrayBuffer(), { httpMetadata: { contentType: file.type } });
+            const extension = file.name.split(".").pop() || "bin";
+            const key = `products/${ uid }/${ crypto.randomUUID() }.${ extension }`;
+            await storage.put(key, await file.arrayBuffer(), { httpMetadata: { contentType: file.type }, customMetadata: { fileName: file.name } });
 
             // First image or explicit request => make it the primary
             if (primary) await database.prepare("UPDATE products SET image = ? WHERE uid = ?").bind(key, uid).run();

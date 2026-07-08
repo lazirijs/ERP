@@ -4,6 +4,7 @@ import type { ApiResponse } from "@/api/type";
 import type { DevExtremeDataGridRemoteDataFormat, DevExtremeDataGridRemoteQuery } from "@/components/devextreme/datagrid/type";
 import { defaultQuery } from "@/components/devextreme/datagrid/constant";
 import type { Purchase, PurchaseCreateBody, PurchaseUpdateBody, PurchaseBatchRow } from "@/modules/purchases/type";
+import type { StorageObject } from "@/shared/storage/type";
 
 const endpoint = '/purchases';
 
@@ -55,7 +56,7 @@ export const update = async (body: PurchaseUpdateBody) => {
 
 export const getDocuments = async (uid: Purchase["uid"]) => {
   try {
-    const response = await api.get<ApiResponse<string[]>>(`${endpoint}/${uid}/documents`);
+    const response = await api.get<ApiResponse<StorageObject[]>>(`${endpoint}/${uid}/documents`);
     return response.data;
   } catch (error: any) {
     throw error.response.data;

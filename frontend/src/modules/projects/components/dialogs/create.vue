@@ -51,11 +51,15 @@
         </el-form-item>
         
         <el-form-item :label="$t('offer')" prop="offer" class="mb-0!">
-          <el-input-number v-model="formData.offer" :min="0" :controls="false" :parser="$formatter.number" :formatter="(amount: number) => $formatter.currency(amount, false)" class="w-full!">          
+          <el-input-number v-model="formData.offer" :min="0" :controls="false" :parser="$formatter.number" :formatter="(amount: number) => $formatter.currency(amount, false)" class="w-full!">
             <template #suffix>
               <span>{{ currency }}</span>
             </template>
           </el-input-number>
+        </el-form-item>
+
+        <el-form-item :label="$t('note')" prop="note" class="mb-0!">
+          <el-input v-model="formData.note" type="textarea" :rows="2" :placeholder="$t('note')" />
         </el-form-item>
       </el-form>
       <div class="flex justify-end gap-2 mb-0! mt-8">
@@ -106,8 +110,8 @@ const formRules = reactive<Record<keyof ProjectCreateBody, FormItemRule | FormIt
   category_uid: { required: true, message: t('required'), trigger: 'submit' },
   status: { required: true, message: t('required'), trigger: 'submit' },
   offer: { type: "number", message: t('shouldBeNumber'), trigger: 'submit' },
-  note: { min: 3, max: 50, message: t('lengthShouldBe3To50'), trigger: 'submit' },
-  description: { min: 3, max: 50, message: t('lengthShouldBe3To50'), trigger: 'submit' },
+  note: { max: 255, message: t('lengthShouldBe3To100'), trigger: 'submit' },
+  description: { max: 255, message: t('lengthShouldBe3To100'), trigger: 'submit' },
 });
 
 const formData = ref<ProjectCreateBody>({

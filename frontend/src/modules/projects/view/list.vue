@@ -68,8 +68,8 @@ const dataGridConfig = ref<DataGridPropsConfig>({
     columns: [
         { dataField: 'client.name', caption: t('client'), allowSorting: false },
         { dataField: 'name', caption: t('name') },
-        { dataField: 'region.name', caption: t('region'), allowSorting: false },
-        { dataField: 'category.name', caption: t('category'), allowSorting: false },
+        // { dataField: 'region.name', caption: t('region'), allowSorting: false },
+        // { dataField: 'category.name', caption: t('category'), allowSorting: false },
         {
             dataField: 'status', caption: t('status'), alignment: 'center', 
             cellTemplate: (container: HTMLElement, options: { value: Project["status"] }) => {
