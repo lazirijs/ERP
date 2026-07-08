@@ -19,7 +19,7 @@ import SalesRoute from "./modules/sales/route"
 import EmployeesRoute from "./modules/employees/route"
 import TeamsRoute from "./modules/teams/route"
 import OrdersRoute from "./modules/orders/route"
-import AttendancesRoute from "./modules/attendances/route"
+import SessionsRoute from "./modules/sessions/route"
 
 const origin = env.CLIENT_ORIGIN!
 
@@ -52,6 +52,6 @@ export default new Elysia({ adapter: CloudflareAdapter })
 .use(EmployeesRoute)
 .use(TeamsRoute)
 .use(OrdersRoute)
-.use(AttendancesRoute)
+.use(SessionsRoute)
 
 .compile();

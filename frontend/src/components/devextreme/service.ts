@@ -32,10 +32,10 @@ export class createDevExtremeCustomStore {
                         if (isTotalCountValid) response.detail.totalCount = totalCount;
                         return response.detail;
                     }
-                    const errorMessage = response?.detail?.message || t('failedToLoadUsers');
+                    const errorMessage = response?.detail?.message || t('failedToLoad');
                     ElMessage.error(errorMessage);
                 } catch (error: any) {
-                    const errorMessage = error?.detail?.message || t('failedToLoadUsers');
+                    const errorMessage = error?.detail?.message || t('failedToLoad');
                     ElMessage.error(errorMessage);
                 }
             }
@@ -58,10 +58,10 @@ export class createDevExtremeCustomStore {
                 try {
                     const response = await dataSource.api(queryValues);
                     if(response.success) return response.detail;
-                    const errorMessage = response?.detail?.message || t('failedToLoadUsers');
+                    const errorMessage = response?.detail?.message || t('failedToLoad');
                     ElMessage.error(errorMessage);
                 } catch (error: any) {
-                    const errorMessage = error?.detail?.message || t('failedToLoadUsers');
+                    const errorMessage = error?.detail?.message || t('failedToLoad');
                     ElMessage.error(errorMessage);
                 }
             },

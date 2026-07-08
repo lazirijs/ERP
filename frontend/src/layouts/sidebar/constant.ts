@@ -27,7 +27,7 @@ const menuItems = [
         children: [
             { name: 'employees', icon: 'el-icon-user', routeName: 'employees-list' },
             { name: 'teams', icon: 'el-icon-position', routeName: 'teams-list' },
-            { name: 'attendance', icon: 'el-icon-calendar', routeName: 'attendances-list' }
+            { name: 'sessions', icon: 'el-icon-calendar', routeName: 'sessions-list' }
         ]
     },
     {

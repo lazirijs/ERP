@@ -34,7 +34,7 @@ Both the API and frontend are organized around the same domains:
 |--------|----------------|
 | `auth`, `users`, `roles` | Authentication and role-based access control |
 | `clients`, `suppliers` | Customer (CRM) and vendor (SRM) management |
-| `employees`, `teams`, `attendances` | HR — staff records, team structure, attendance tracking |
+| `employees`, `teams`, `attendances sessions` | HR — staff records, team structure, attendance tracking |
 | `projects` | Project management |
 | `orders`, `sales` | Order processing (with deliveries & line items) and sales |
 | `products` | Product / inventory catalog |

@@ -224,20 +224,20 @@ const routes: Route[] = [
     ],
   },
   {
-    path: "/attendances",
+    path: "/sessions",
     meta: {
       auth: "required",
     },
     children: [
       {
         path: "detail/:uid",
-        name: "attendances-detail",
-        component: () => import("@/modules/attendances/view/detail.vue")
+        name: "sessions-detail",
+        component: () => import("@/modules/sessions/view/detail.vue")
       },
       {
         path: "list",
-        name: "attendances-list",
-        component: () => import("@/modules/attendances/view/list.vue")
+        name: "sessions-list",
+        component: () => import("@/modules/sessions/view/list.vue")
       },
     ],
   },

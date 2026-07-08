@@ -72,15 +72,6 @@
           <el-tab-pane :label="$t('payouts')" name="payouts">
             <div v-if="tab === 'payouts'">Payouts</div>
           </el-tab-pane>
-          <el-tab-pane :label="$t('attendance')" name="attendances">
-            <data-grid-app
-              v-if="tab === 'attendances'"
-              ref="dataGridRef"
-              :config="attendancesDataGridConfig"
-              :columns="attendancesDataGridConfig.columns"
-              @row-click="$router.push({ name: 'attendances-detail', params: { uid: $event.data.attendance_uid } })"
-            />
-          </el-tab-pane>
           <el-tab-pane :label="$t('documents')" name="documents">
             <div v-if="tab === 'documents'">Documents</div>
           </el-tab-pane>
@@ -109,9 +100,6 @@ import type { Order } from '@/modules/orders/type';
 import OrderConst from '@/modules/orders/constant';
 
 import CreateOrdersDialog from '@/modules/orders/components/dialogs/create.vue';
-import attendancesApi from '@/modules/attendances/api';
-import type { AttendanceRegister } from '@/modules/attendances/type';
-import { status as attendanceStatus } from '@/modules/attendances/constant';
 
 const { t } = useI18n();
 
@@ -175,25 +163,6 @@ const ordersDataGridConfig = ref<DataGridPropsConfig>({
         let { label, color } = OrderConst.status[options.value];
         container.innerHTML = `<span class="badge-app-${ color }">${ t(label) }</span>`;
       } 
-    },
-    { dataField: 'created_at', caption: t('createdAt'), ...formatter.devextreme.datetime, sortOrder: 'desc' }
-  ]
-});
-
-const attendancesDataGridConfig = ref<DataGridPropsConfig>({
-  dataSource: {
-    key: 'attendance_uid',
-    api: (query) => attendancesApi.getAllRegisters({ ...query, project_uid: route.params.uid as string })
-  },
-  columns: [
-    { dataField: 'employee.name', caption: t('employee'), allowSorting: false },
-    { dataField: 'team.name', caption: t('team'), allowSorting: false },
-    {
-      dataField: 'status', caption: t('status'), alignment: 'center', 
-      cellTemplate: (container: HTMLElement, options: { value: AttendanceRegister["status"] }) => {
-        let { label, color } = attendanceStatus[options.value];
-        container.innerHTML = `<span class="badge-app-${ color }">${ t(label) }</span>`;
-      }
     },
     { dataField: 'created_at', caption: t('createdAt'), ...formatter.devextreme.datetime, sortOrder: 'desc' }
   ]

@@ -65,8 +65,8 @@ export default {
 
             if (inputs.searchText) {
                 inputs.searchText = `%${ inputs.searchText }%`;
-                if (filter) filter += ` AND search_vector LIKE ?`;
-                else filter = `WHERE name LIKE ?`;
+                if (filter) filter += ` AND employees.name LIKE ?`;
+                else filter = `WHERE employees.name LIKE ?`;
             }
 
             const team_uid = inputs.team_uid && inputs.team_uid != "null" && inputs.team_uid.replace(/"/g, "");
@@ -89,7 +89,6 @@ export default {
             query.push(limit);
             query.push(offset);
             
-            console.log(query.join(" "));
             const prepare = database.prepare(query.join(" "));
             if (inputs.searchText && team_uid) {
                 result = await prepare.bind(inputs.searchText, team_uid).run();

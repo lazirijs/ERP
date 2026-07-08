@@ -7,8 +7,17 @@
         </el-form-item>
         
         <el-form-item :label="$t('status')" prop="status" class="mb-0!">
-          <el-select v-model="formData.status" :placeholder="$t('status')" class="w-full">
-            <el-option v-for="({ label, id }) in status" :key="id" :label="$t(label)" :value="id" />
+          <el-select v-model="formData.status" :placeholder="$t('status')" class="w-full el-select-on-focus-no-outline">
+            <template #label="{ label, value }">
+              <span :class="`badge-app-${status[value as 0 | 1 | 2 | 3].color} p-1!`">
+                {{ $t(label) }}
+              </span>
+            </template>
+            <el-option v-for="({ id, label, color }) in status" :key="id" :label="$t(label)" :value="id">
+              <span :class="`badge-app-${color}`">
+                {{ $t(label) }}
+              </span>
+            </el-option>
           </el-select>
         </el-form-item>
         

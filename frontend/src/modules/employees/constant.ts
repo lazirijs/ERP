@@ -7,7 +7,7 @@ export const status = {
     1: {
         id: 1,
         label: 'inactive',
-        color: 'gray'
+        color: 'red'
     },
     2: {
         id: 2,
