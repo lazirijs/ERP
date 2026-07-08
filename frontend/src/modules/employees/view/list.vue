@@ -75,7 +75,6 @@ const dataGridConfig = ref<DataGridPropsConfig>({
             } 
         },
         { dataField: 'team.name', caption: t('team') },
-        { dataField: 'vacation_start_at', caption: t('vacation_start_at'), ...formatter.devextreme.date },
         { dataField: 'created_at', caption: t('createdAt'), ...formatter.devextreme.datetime, sortOrder: 'desc' }
     ]
 });

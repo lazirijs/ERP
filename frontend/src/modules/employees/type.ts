@@ -13,7 +13,6 @@ export interface EmployeeCreateBody {
   name: string;
   team_uid?: string;
   status: keyof typeof status;
-  vacation_start_at?: string;
 }
 
 export interface EmployeeUpdateBody {
@@ -21,5 +20,4 @@ export interface EmployeeUpdateBody {
   name: string;
   team_uid: string | null;
   status: keyof typeof status;
-  vacation_start_at: string;
 }

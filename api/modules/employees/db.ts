@@ -8,7 +8,7 @@ import type { DataGridResponse } from '../../utils/devextreme/datagrid/type';
 export default {
     async create(input: EmployeeCreateBodyType): Promise<SuccessServiceResponse<undefined>> {
         try {
-            await database.prepare("INSERT INTO employees (name, status, team_uid, vacation_start_at) VALUES (?, ?, ?, ?)").bind(input.name, input.status, input.team_uid || null, input.vacation_start_at).run();
+            await database.prepare("INSERT INTO employees (name, status, team_uid) VALUES (?, ?, ?)").bind(input.name, input.status, input.team_uid || null).run();
             return Responses.service.handler.success();
         } catch (error) {
             throw Responses.service.handler.error(error);
@@ -131,7 +131,7 @@ export default {
 
     async update(input: EmployeeUpdateBodyType): Promise<SuccessServiceResponse<undefined>> {
         try {
-            await database.prepare("UPDATE employees SET name = ?, status = ?, team_uid = ?, vacation_start_at = ? WHERE uid = ?").bind(input.name, input.status, input.team_uid || null, input.vacation_start_at, input.uid).run();
+            await database.prepare("UPDATE employees SET name = ?, status = ?, team_uid = ? WHERE uid = ?").bind(input.name, input.status, input.team_uid || null, input.uid).run();
             return Responses.service.handler.success();
         } catch (error) {
             throw Responses.service.handler.error(error);

@@ -108,7 +108,6 @@ const employeesDataGridConfig = ref<DataGridPropsConfig>({
         container.innerHTML = `<span class="badge-app-${ color }">${ t(label) }</span>`;
       } 
     },
-    { dataField: 'vacation_start_at', caption: t('vacation_start_at'), ...formatter.devextreme.date },
     { dataField: 'created_at', caption: t('createdAt'), ...formatter.devextreme.datetime, sortOrder: 'desc' }
   ]
 });

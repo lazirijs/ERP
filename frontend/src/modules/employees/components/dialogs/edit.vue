@@ -4,14 +4,28 @@
       <el-form-item :label="$t('name')" prop="name">
         <el-input v-model="formData.name" :placeholder="$t('client')" />
       </el-form-item>
+
+      <el-form-item :label="$t('status')" prop="status">
+        <el-select v-model="formData.status" :placeholder="$t('status')" class="w-full el-select-on-focus-no-outline">
+          <template #label="{ label, value }">
+            <span :class="`badge-app-${status[value as 0 | 1 | 2 | 3].color} p-1!`">
+              {{ $t(label) }}
+            </span>
+          </template>
+          <el-option v-for="({ id, label, color }) in status" :key="id" :label="$t(label)" :value="id">
+            <span :class="`badge-app-${color}`">
+              {{ $t(label) }}
+            </span>
+          </el-option>
+        </el-select>
+      </el-form-item>
+
       <el-form-item :label="$t('team')" prop="team_uid">
         <el-select v-model="formData.team_uid" :placeholder="$t('selectTeam')" filterable>
           <el-option v-for="team in teams" :key="team.uid" :label="team.name" :value="team.uid" :disabled="team.uid === formData.team_uid" />
         </el-select>
       </el-form-item>
-      <el-form-item :label="$t('vacationStartAt')" prop="vacation_start_at" class="mb-0!">
-        <el-date-picker v-model="formData.vacation_start_at" type="date" :placeholder="$t('vacationStartAt')" class="w-full!" />
-      </el-form-item>
+
       <el-form-item class="mb-0! mt-8">
         <div class="ml-auto">
           <el-button @click="close()">
@@ -36,6 +50,7 @@ import teamsApi from '@/modules/teams/api';
 import employeesApi from '@/modules/employees/api';
 import type { Team } from '@/modules/teams/type';
 import confirmDialog from '@/services/dialog/confirm';
+import { status } from '@/modules/employees/constant';
 
 const props = defineProps<{
   uid: string;
@@ -65,18 +80,14 @@ const formRules = reactive<Record<keyof EmployeeUpdateBody, FormItemRule | FormI
   ],
   status: [
     { type: 'number', message: t('required'), trigger: 'submit' },
-  ],
-  vacation_start_at: [
-    { type: 'string', message: t('required'), trigger: 'submit' },
-  ],
+  ]
 });
 
 const formData = ref<EmployeeUpdateBody>({ 
   uid: props.uid,
   name: '',
   team_uid: '',
-  status: 0,
-  vacation_start_at: ''
+  status: 0
 });
 
 const reset = (formEl: FormInstance | undefined = formRef.value) => {

@@ -4,8 +4,7 @@ import DataGridSchema from "../../utils/devextreme/datagrid/schema";
 const createBody = t.Object({
     name: t.String(),
     status: t.Union([ t.Literal(0), t.Literal(1), t.Literal(2), t.Literal(3) ]),
-    team_uid: t.Optional(t.Union([ t.String(), t.Null() ])),
-    vacation_start_at: t.Optional(t.String())
+    team_uid: t.Optional(t.Union([ t.String(), t.Null() ]))
 });
 
 const employee = t.Object({

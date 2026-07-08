@@ -24,10 +24,6 @@
         <el-form-item :label="$t('team')" prop="team_uid" class="mb-0!">
           <el-select v-model="formData.team_uid" :options="$formatter.selectOptions(teams)" :placeholder="$t('team')" class="w-full" />
         </el-form-item>
-
-        <el-form-item :label="$t('vacationStartAt')" prop="vacation_start_at" class="mb-0!">
-          <el-date-picker v-model="formData.vacation_start_at" type="date" :placeholder="$t('vacationStartAt')" class="w-full!" />
-        </el-form-item>
       </el-form>
       <div class="flex justify-end gap-2 mb-0! mt-8">
         <el-button @click="close()">
@@ -67,15 +63,13 @@ const dialogModel = ref<boolean>(false);
 const formRules = reactive<Record<keyof EmployeeCreateBody, FormItemRule | FormItemRule[]>>({
   name: { required: true, message: t('required'), trigger: 'submit' },
   status: { required: true, message: t('required'), trigger: 'submit' },
-  team_uid: { type: 'string', message: t('required'), trigger: 'submit' },
-  vacation_start_at: { type: 'string', message: t('required'), trigger: 'submit' },
+  team_uid: { type: 'string', message: t('required'), trigger: 'submit' }
 });
 
 const formData = ref<EmployeeCreateBody>({
   name: '',
   status: 0,
-  team_uid: '',
-  vacation_start_at: ''
+  team_uid: ''
 });
 
 const reset = (formEl: FormInstance | undefined = formRef.value) => {
