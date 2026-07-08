@@ -1,7 +1,7 @@
 <template>
-  <el-dialog v-model="dialogModel" :title="$t('createProject')" align-center class="min-w-11/12 md:min-w-1/3! md:max-w-1/3!" @closed="reset()" :before-close="(done: any) => !$arrayHasAny(loadingContainer, ['loading', 'submit']) && done()">
+  <el-dialog v-model="dialogModel" :title="$t('createProject')" align-center class="min-w-11/12 md:min-w-1/4! md:max-w-1/4!" @closed="reset()" :before-close="(done: any) => !$arrayHasAny(loadingContainer, ['loading', 'submit']) && done()">
     <!-- <el-scrollbar> -->
-      <el-form ref="formRef" v-loading="$arrayHasAny(loadingContainer, ['loading', 'submit'])" :model="formData" :rules="formRules" @submit.prevent="submit()" label-position="top" class="w-full grid grid-cols-2 gap-4">
+      <el-form ref="formRef" v-loading="$arrayHasAny(loadingContainer, ['loading', 'submit'])" :model="formData" :rules="formRules" @submit.prevent="submit()" label-position="top" class="w-full grid gap-4">
         <el-form-item :label="$t('name')" prop="name" class="mb-0!">
           <el-input v-model="formData.name" :placeholder="$t('project')" />
         </el-form-item>
@@ -12,11 +12,11 @@
           </el-select>
         </el-form-item>
         
-        <el-form-item :label="$t('region')" prop="region_uid" class="mb-0!">
+        <!-- <el-form-item :label="$t('region')" prop="region_uid" class="mb-0!">
           <el-select v-model="formData.region_uid" remote :remote-method="getRegions" @change="getRegions" :loading="loadingContainer.includes('regions')" :placeholder="$t('region')" filterable>
             <el-option v-for="region in regions" :key="region.uid" :label="region.name" :value="region.uid" />
           </el-select>
-        </el-form-item>
+        </el-form-item> -->
         
         <el-form-item :label="$t('category')" prop="category_uid" class="mb-0!">
           <el-select v-model="formData.category_uid" :placeholder="$t('category')" filterable>
@@ -51,23 +51,12 @@
         </el-form-item>
         
         <el-form-item :label="$t('offer')" prop="offer" class="mb-0!">
-          <el-input v-model="formData.offer" :placeholder="$t('offer')" :parser="$formatter.number" :formatter="$formatter.currency" />
+          <el-input-number v-model="formData.offer" :min="0" :controls="false" :parser="$formatter.number" :formatter="(amount: number) => $formatter.currency(amount, false)" class="w-full!">          
+            <template #suffix>
+              <span>{{ currency }}</span>
+            </template>
+          </el-input-number>
         </el-form-item>
-        
-        <template v-if="formData.status === 1">
-          <el-form-item :label="$t('competitorName')" prop="competitor_name" class="mb-0!">
-            <el-input v-model="formData.competitor_name" :placeholder="$t('competitorName')" />
-          </el-form-item>
-          
-          <el-form-item :label="$t('competitorOffer')" prop="competitor_offer" class="mb-0!">
-            <el-input v-model="formData.competitor_offer" :placeholder="$t('competitorOffer')" :parser="$formatter.number" :formatter="$formatter.currency" />
-          </el-form-item>
-        </template>
-        
-        <el-form-item v-else-if="[0, 2].includes(formData.status)" :label="$t('guaranteeAmount')" prop="guarantee_amount" class="mb-0!">
-          <el-input v-model="formData.guarantee_amount" :placeholder="$t('guaranteeAmount')" :parser="$formatter.number" :formatter="$formatter.currency" />
-        </el-form-item>
-
       </el-form>
       <div class="flex justify-end gap-2 mb-0! mt-8">
         <el-button @click="close()">
@@ -96,6 +85,7 @@ import ClientApi from '@/modules/clients/api';
 import RegionApi from '@/modules/clients/regions/api';
 import CategoryApi from '@/modules/projects/categories/api';
 import confirmDialog from '@/services/dialog/confirm';
+import { currency } from '@/constants';
 
 const emit = defineEmits(['submitted']);
 
@@ -118,7 +108,6 @@ const formRules = reactive<Record<keyof ProjectCreateBody, FormItemRule | FormIt
   offer: { type: "number", message: t('shouldBeNumber'), trigger: 'submit' },
   competitor_name: { min: 3, max: 50, message: t('lengthShouldBe3To50'), trigger: 'submit' },
   competitor_offer: { type: "number", message: t('shouldBeNumber'), trigger: 'submit' },
-  guarantee_amount: { type: "number", message: t('shouldBeNumber'), trigger: 'submit' },
   note: { min: 3, max: 50, message: t('lengthShouldBe3To50'), trigger: 'submit' },
   description: { min: 3, max: 50, message: t('lengthShouldBe3To50'), trigger: 'submit' },
 });
