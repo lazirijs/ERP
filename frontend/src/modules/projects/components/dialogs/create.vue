@@ -16,7 +16,7 @@
           <el-select v-model="formData.region_uid" remote :remote-method="getRegions" @change="getRegions" :loading="loadingContainer.includes('regions')" :placeholder="$t('region')" filterable>
             <el-option v-for="region in regions" :key="region.uid" :label="region.name" :value="region.uid" />
           </el-select>
-        </el-form-item> -->
+        </el-form-item>
         
         <el-form-item :label="$t('category')" prop="category_uid" class="mb-0!">
           <el-select v-model="formData.category_uid" :placeholder="$t('category')" filterable>
@@ -33,7 +33,7 @@
               />
             </el-option-group>
           </el-select>
-        </el-form-item>
+        </el-form-item> -->
         
         <el-form-item :label="$t('status')" prop="status" class="mb-0!">
           <el-select v-model="formData.status" :placeholder="$t('status')" class="w-full el-select-on-focus-no-outline">

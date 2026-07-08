@@ -15,6 +15,10 @@
         </template>
         <div class="space-y-app">
           <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">{{ $t('status') }}</label>
+            <span :class="`badge-app-${status[formData.status]?.color}`">{{ $t(status[formData.status].label!) }}</span>
+          </div>
+          <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">{{ $t('name') }}</label>
             <span class="block text-sm text-gray-900">{{ formData.name }}</span>
           </div>
@@ -22,18 +26,14 @@
             <label class="block text-sm font-medium text-gray-700 mb-1">{{ $t('client') }}</label>
             <span class="block text-sm text-gray-900">{{ formData.client.name }}</span>
           </div>
-          <div>
+          <!-- <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">{{ $t('region') }}</label>
             <span class="block text-sm text-gray-900">{{ formData.region.name }}</span>
           </div>
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">{{ $t('category') }}</label>
             <span class="block text-sm text-gray-900">{{ formData.category.name }}</span>
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">{{ $t('status') }}</label>
-            <span :class="`badge-app-${status[formData.status]?.color}`">{{ $t(status[formData.status].label!) }}</span>
-          </div>
+          </div> -->
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">{{ $t('offer') }}</label>
             <span class="block text-sm text-gray-900">{{ $formatter.currency(formData.offer!) }}</span>
