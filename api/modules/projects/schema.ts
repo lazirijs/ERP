@@ -10,7 +10,6 @@ const createBody = t.Object({
     offer: t.Optional(t.Number({ default: 0 })),
     competitor_name: t.Optional(t.String({ default: "" })),
     competitor_offer: t.Optional(t.Number({ default: 0 })),
-    guarantee_amount: t.Optional(t.Number({ default: 0 })),
     note: t.Optional(t.String({ default: "" })),
     description: t.Optional(t.String({ default: "" })),
 });

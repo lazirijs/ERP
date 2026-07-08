@@ -80,7 +80,6 @@ const dataGridConfig = ref<DataGridPropsConfig>({
         { dataField: 'offer', caption: t('offer'), customizeText: ({ value }) => formatter.currency(value) },
         { dataField: 'competitor_name', caption: t('competitorName') },
         { dataField: 'competitor_offer', caption: t('competitorOffer'), customizeText: ({ value }) => formatter.currency(value) },
-        { dataField: 'guarantee_amount', caption: t('guaranteeAmount'), customizeText: ({ value }) => formatter.currency(value) },
         { dataField: 'created_at', caption: t('createdAt'), ...formatter.devextreme.datetime, sortOrder: 'desc' }
     ]
 });

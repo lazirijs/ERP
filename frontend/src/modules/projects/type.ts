@@ -23,7 +23,6 @@ export interface ProjectCreateBody {
   offer?: number;
   competitor_name?: string;
   competitor_offer?: number;
-  guarantee_amount?: number;
   note?: string;
   description?: string;
 }

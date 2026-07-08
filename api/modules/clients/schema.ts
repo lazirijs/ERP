@@ -9,7 +9,6 @@ const client = t.Object({
     uid: t.String(),
     ...createBody.properties,
     total_projects: t.Number(),
-    total_guarantee_amount: t.Number(),
     created_at: t.String({ format: "date-time" })
 });
 

@@ -20,8 +20,7 @@ export default {
             const result = await database.prepare(`
                 SELECT 
                     c.*,
-                    COUNT(p.uid) AS total_projects,
-                    COALESCE(SUM(p.guarantee_amount), 0) AS total_guarantee_amount
+                    COUNT(p.uid) AS total_projects
                 FROM clients c
                 LEFT JOIN projects p ON c.uid = p.client_uid
                 WHERE c.uid = ?
@@ -48,8 +47,7 @@ export default {
             const query: string[] = [`
                 SELECT 
                     c.*,
-                    COUNT(p.uid) AS total_projects,
-                    COALESCE(SUM(p.guarantee_amount), 0) AS total_guarantee_amount
+                    COUNT(p.uid) AS total_projects
                 FROM ${ tableName } c
                 LEFT JOIN projects p ON c.uid = p.client_uid
                 GROUP BY c.uid

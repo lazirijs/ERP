@@ -66,7 +66,6 @@ const dataGridConfig = ref<DataGridPropsConfig>({
     columns: [
         { dataField: 'name', caption: t('name') },
         { dataField: 'total_projects', caption: t('totalProjects') },
-        { dataField: 'total_guarantee_amount', caption: t('totalGuaranteeAmount'), customizeText: ({ value }) => formatter.currency(value) },
         { dataField: 'created_at', caption: t('createdAt'), ...formatter.devextreme.datetime, sortOrder: 'desc' }
     ]
 });

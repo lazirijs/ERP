@@ -23,10 +23,6 @@
             <span class="block text-sm text-gray-900">{{ formData.total_projects }}</span>
           </div>
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">{{ $t('totalGuaranteeAmount') }}</label>
-            <span class="block text-sm text-gray-900">{{ $formatter.currency(formData.total_guarantee_amount) }}</span>
-          </div>
-          <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">{{ $t('createdAt') }}</label>
             <span class="block text-sm text-gray-900">{{ $formatter.date(formData.created_at) }}</span>
           </div>
@@ -116,7 +112,6 @@ const projectsDataGridConfig = ref<DataGridPropsConfig>({
     { dataField: 'offer', caption: t('offer'), customizeText: ({ value }) => formatter.currency(value) },
     { dataField: 'competitor_name', caption: t('competitorName') },
     { dataField: 'competitor_offer', caption: t('competitorOffer'), customizeText: ({ value }) => formatter.currency(value) },
-    { dataField: 'guarantee_amount', caption: t('guaranteeAmount'), customizeText: ({ value }) => formatter.currency(value) },
     { dataField: 'created_at', caption: t('createdAt'), ...formatter.devextreme.datetime, sortOrder: 'desc' }
   ]
 });

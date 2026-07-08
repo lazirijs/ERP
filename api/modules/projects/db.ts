@@ -9,8 +9,8 @@ export default {
     async create(inputs: ProjectCreateBodyType): Promise<SuccessServiceResponse<undefined>> {
         try {
             await database
-            .prepare("INSERT INTO projects (name, client_uid, region_uid, category_uid, status, offer, competitor_name, competitor_offer, guarantee_amount, note, description) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
-            .bind(inputs.name, inputs.client_uid, inputs.region_uid, inputs.category_uid, inputs.status, inputs.offer, inputs.competitor_name, inputs.competitor_offer, inputs.guarantee_amount, inputs.note || null, inputs.description || null)
+            .prepare("INSERT INTO projects (name, client_uid, region_uid, category_uid, status, offer, competitor_name, competitor_offer, note, description) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
+            .bind(inputs.name, inputs.client_uid, inputs.region_uid, inputs.category_uid, inputs.status, inputs.offer, inputs.competitor_name, inputs.competitor_offer, inputs.note || null, inputs.description || null)
             .run();
             return Responses.service.handler.success();
         } catch (error) {
