@@ -101,6 +101,12 @@ const itemsDataGridConfig = ref<DataGridPropsConfig>({
     },
     columns: [
         { dataField: 'sale.name', caption: t('sale'), allowSorting: false },
+        { dataField: 'sale.status', caption: t('status'), allowSorting: false, alignment: 'center',
+          cellTemplate: (container: HTMLElement, options: { value: 0 | 1 }) => {
+            const { label, color } = status[options.value];
+            container.innerHTML = `<span class="badge-app-${ color }">${ t(label) }</span>`;
+          }
+        },
         {
           dataField: 'product.image', caption: t('image'), allowSorting: false, alignment: 'center', width: 120, allowEditing: false,
           cellTemplate: (container: HTMLElement, options: { value: string }) => {

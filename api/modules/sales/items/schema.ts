@@ -18,7 +18,7 @@ const item = t.Object({
     note: t.String(),
     total: t.Number(),
     product: t.Object({ uid: t.String(), name: t.String(), image: t.Nullable(t.String()) }),
-    sale: t.Object({ uid: t.String(), name: t.String() }),
+    sale: t.Object({ uid: t.String(), name: t.String(), status: t.Union([t.Literal(0), t.Literal(1)]) }),
     created_at: t.String({ format: "date-time" })
 });
 

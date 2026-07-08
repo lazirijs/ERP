@@ -15,7 +15,7 @@ const selectItem = `
         si.*,
         (si.price * si.quantity) AS total,
         json_object('uid', pr.uid, 'name', pr.name, 'image', pr.image) AS product,
-        json_object('uid', s.uid, 'name', s.name) AS sale
+        json_object('uid', s.uid, 'name', s.name, 'status', s.status) AS sale
     FROM sale_items si
     LEFT JOIN products pr ON si.product_uid = pr.uid
     LEFT JOIN sales s ON si.sale_uid = s.uid
