@@ -22,6 +22,11 @@ const getParams = t.Object({
     uid: purchase.properties.uid
 });
 
+const getAllQuery = t.Object({
+    ...DataGridSchema.data.properties,
+    supplier_uid: t.Optional(t.String())
+});
+
 const updateBody = t.Object({
     uid: purchase.properties.uid,
     name: createBody.properties.name,
@@ -72,7 +77,7 @@ export default {
     getAll: {
         validation: {
             auth: true,
-            query: DataGridSchema.data
+            query: getAllQuery
         }
     },
     update: {

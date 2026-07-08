@@ -34,7 +34,7 @@ export const get = async (uid: PurchaseItem["uid"]) => {
   }
 }
 
-export const getAll = async (query?: DevExtremeDataGridRemoteQuery<{ purchase_uid?: string; product_uid?: string }>) => {
+export const getAll = async (query?: DevExtremeDataGridRemoteQuery<{ purchase_uid?: string; product_uid?: string; supplier_uid?: string }>) => {
   try {
     const queryString = formatter.stringifyForUrlQuery({ ...defaultQuery, ...query });
     const response = await api.get<ApiResponse<DevExtremeDataGridRemoteDataFormat<PurchaseItem>>>(`${endpoint}?${queryString}`);
