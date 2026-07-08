@@ -21,8 +21,6 @@ export interface ProjectCreateBody {
   category_uid: string;
   status: keyof typeof status;
   offer?: number;
-  competitor_name?: string;
-  competitor_offer?: number;
   note?: string;
   description?: string;
 }

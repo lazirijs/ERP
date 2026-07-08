@@ -8,8 +8,6 @@ const createBody = t.Object({
     category_uid: t.String({ required: true }),
     status: t.Union([ t.Literal(0), t.Literal(1), t.Literal(2), t.Literal(3) ]),
     offer: t.Optional(t.Number({ default: 0 })),
-    competitor_name: t.Optional(t.String({ default: "" })),
-    competitor_offer: t.Optional(t.Number({ default: 0 })),
     note: t.Optional(t.String({ default: "" })),
     description: t.Optional(t.String({ default: "" })),
 });

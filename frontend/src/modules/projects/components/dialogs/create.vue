@@ -106,8 +106,6 @@ const formRules = reactive<Record<keyof ProjectCreateBody, FormItemRule | FormIt
   category_uid: { required: true, message: t('required'), trigger: 'submit' },
   status: { required: true, message: t('required'), trigger: 'submit' },
   offer: { type: "number", message: t('shouldBeNumber'), trigger: 'submit' },
-  competitor_name: { min: 3, max: 50, message: t('lengthShouldBe3To50'), trigger: 'submit' },
-  competitor_offer: { type: "number", message: t('shouldBeNumber'), trigger: 'submit' },
   note: { min: 3, max: 50, message: t('lengthShouldBe3To50'), trigger: 'submit' },
   description: { min: 3, max: 50, message: t('lengthShouldBe3To50'), trigger: 'submit' },
 });
