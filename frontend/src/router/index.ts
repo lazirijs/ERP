@@ -90,11 +90,6 @@ const routes: Route[] = [
         name: "transactions-list",
         component: () => import("@/modules/transactions/view/list.vue")
       },
-      {
-        path: "detail/:uid",
-        name: "transactions-detail",
-        component: () => import("@/modules/transactions/view/detail.vue")
-      },
     ],
   },
   {
