@@ -18,6 +18,7 @@ import type { DataGridPropsConfig } from '@/components/devextreme/datagrid/type'
 import { ElMessage } from 'element-plus';
 import type { DxDataGridTypes } from 'devextreme-vue/cjs/data-grid';
 import type { Employee } from '@/modules/employees/type';
+import { previewImage } from '@/services/files';
 
 const props = defineProps<{
   allowPresent?: boolean;
@@ -84,10 +85,17 @@ const gridConfig = ref<DataGridPropsConfig>({
           const employee = await EmployeeApi.get(value);
           newData.team_uid = employee.detail.team?.uid ?? null;
           newData.team_name = employee.detail.team?.name ?? '';
+          newData.image = employee.detail.image ?? '';
         } catch (error: any) {
           ElMessage.error(error?.detail?.message || t('loadingFailed'));
           console.error('Failed to fetch employee data:', error);
         }
+      }
+    },
+    {
+      dataField: 'image', caption: t('image'), allowSorting: false, alignment: 'center', width: 120,
+      cellTemplate: (container: HTMLElement, options: { value: string }) => {
+        container.innerHTML = previewImage({ type: 'avatar', src: options.value, format: 'html' });
       }
     },
     {

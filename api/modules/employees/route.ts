@@ -14,3 +14,12 @@ export default new Elysia({ prefix: "/employees" })
 
 // --- Update ---
 .put("/", ({ body }) => index.db.update(body), index.schema.update.validation)
+
+// --- List documents ---
+.get("/:uid/documents", ({ params }) => index.db.getDocuments(params.uid), index.schema.getDocuments.validation)
+
+// --- Upload document (primary => profile picture) ---
+.post("/:uid/documents", ({ params, query, body: { file } }) => index.db.uploadDocument({ uid: params.uid, file, primary: query.primary }), index.schema.uploadDocument.validation)
+
+// --- Delete document ---
+.delete("/:uid/documents", ({ params, body: { document } }) => index.db.deleteDocument({ uid: params.uid, document }), index.schema.deleteDocument.validation)

@@ -253,5 +253,8 @@
   "updateProject": "Update project",
   "projectUpdatedSuccessfully": "Project updated successfully",
   "failedToUpdateProject": "Failed to update project",
-  "areYouSureYouWantToUpdateThisProject?": "Are you sure you want to update this project?"
+  "areYouSureYouWantToUpdateThisProject?": "Are you sure you want to update this project?",
+  "attendances": "Attendances",
+  "noTeam": "No team",
+  "selectTeam": "Select team"
 }

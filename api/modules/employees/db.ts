@@ -1,15 +1,19 @@
 import Schema from './schema'
 import database from '../../database'
+import storage from '../../storage'
 import Responses from '../../utils/response';
 import type { SuccessServiceResponse } from '../../utils/response/type';
 import type { EmployeeType, EmployeeCreateBodyType, EmployeeGetAllQueryType, EmployeeUpdateBodyType } from './type';
 import type { DataGridResponse } from '../../utils/devextreme/datagrid/type';
 
 export default {
-    async create(input: EmployeeCreateBodyType): Promise<SuccessServiceResponse<undefined>> {
+    async create(input: EmployeeCreateBodyType): Promise<SuccessServiceResponse<{ uid: string }>> {
         try {
-            await database.prepare("INSERT INTO employees (name, status, team_uid) VALUES (?, ?, ?)").bind(input.name, input.status, input.team_uid || null).run();
-            return Responses.service.handler.success();
+            const result = await database
+                .prepare("INSERT INTO employees (name, status, team_uid) VALUES (?, ?, ?) RETURNING uid")
+                .bind(input.name, input.status, input.team_uid || null)
+                .first<{ uid: string }>();
+            return Responses.service.handler.success(result!);
         } catch (error) {
             throw Responses.service.handler.error(error);
         }
@@ -134,6 +138,54 @@ export default {
             await database.prepare("UPDATE employees SET name = ?, status = ?, team_uid = ? WHERE uid = ?").bind(input.name, input.status, input.team_uid || null, input.uid).run();
             return Responses.service.handler.success();
         } catch (error) {
+            throw Responses.service.handler.error(error);
+        }
+    },
+
+    async getDocuments(uid: EmployeeType["uid"]): Promise<SuccessServiceResponse<R2Object[]>> {
+        try {
+            // `include` is required for R2 list() to return customMetadata (original file name)
+            const { objects } = await storage.list({ prefix: `employees/${ uid }/`, include: ["customMetadata", "httpMetadata"] });
+            return Responses.service.handler.success(objects);
+        } catch (error) {
+            if(Responses.schema.data.check(error)) throw error;
+            throw Responses.service.handler.error(error);
+        }
+    },
+
+    // `primary` marks the uploaded file as the employee's profile picture (employees.image).
+    // The profile picture is only ever set via the create/edit dialog (primary=true); documents
+    // uploaded from the documents tab are regular files (primary=false).
+    async uploadDocument({ uid, file, primary }: { uid: EmployeeType["uid"]; file: File; primary?: boolean }): Promise<SuccessServiceResponse<{ document: string }>> {
+        try {
+            const extension = file.name.split(".").pop() || "bin";
+            const key = `employees/${ uid }/${ crypto.randomUUID() }.${ extension }`;
+            await storage.put(key, await file.arrayBuffer(), { httpMetadata: { contentType: file.type }, customMetadata: { fileName: file.name } });
+
+            if (primary) await database.prepare("UPDATE employees SET image = ? WHERE uid = ?").bind(key, uid).run();
+
+            return Responses.service.handler.success({ document: key });
+        } catch (error) {
+            if(Responses.schema.data.check(error)) throw error;
+            throw Responses.service.handler.error(error);
+        }
+    },
+
+    async deleteDocument({ uid, document }: { uid: EmployeeType["uid"]; document: string }): Promise<SuccessServiceResponse<undefined>> {
+        try {
+            if (!document.startsWith(`employees/${ uid }/`)) throw Responses.service.handler.error("Document does not belong to this employee", 400);
+
+            await storage.delete(document);
+
+            // If the deleted file was the profile picture, clear it
+            const employee = await database.prepare("SELECT image FROM employees WHERE uid = ?").bind(uid).first<{ image: string | null }>();
+            if (employee && employee.image === document) {
+                await database.prepare("UPDATE employees SET image = NULL WHERE uid = ?").bind(uid).run();
+            }
+
+            return Responses.service.handler.success();
+        } catch (error) {
+            if(Responses.schema.data.check(error)) throw error;
             throw Responses.service.handler.error(error);
         }
     }

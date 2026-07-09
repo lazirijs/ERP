@@ -4,16 +4,16 @@ import defaultAvatar from '@/assets/avatar.png';
 // Build a download/preview URL for any stored file (documents, invoices, ...)
 export const getFileUrl = (key: string) => `${import.meta.env.VITE_API_URL}/file/${key}`;
 
-const getImageHtml = (src: string) => `<img src="${src}" class="size-20 rounded object-cover mx-auto" />`;
-const useFormat = (format?: 'url' | 'html', src?: string, defaultImageToUse?: string) => {
-    if (src) return format === 'html' ? getImageHtml(getFileUrl(src)) : getFileUrl(src);
-    return format === 'html' ? getImageHtml(defaultImageToUse!) : defaultImageToUse!;
+const getImageHtml = (src: string, type?: 'avatar' | 'image') => `<img src="${src}" class="size-${type === 'avatar' ? '15' : '20'} rounded${type === 'avatar' ? '-full' : ''} object-cover mx-auto" />`;
+const useFormat = (format?: 'url' | 'html', src?: string, defaultImageToUse?: string, type?: 'avatar' | 'image') => {
+    if (src) return format === 'html' ? getImageHtml(getFileUrl(src), type) : getFileUrl(src);
+    return format === 'html' ? getImageHtml(defaultImageToUse!, type) : defaultImageToUse!;
 };
 
 export const previewImage = (options: { src?: string; type?: 'avatar' | 'image', format?: 'url' | 'html' }) => {
     let defaultImageToUse = defaultImage;
     if (options.type === 'avatar') defaultImageToUse = defaultAvatar;
-    return useFormat(options.format, options.src, defaultImageToUse);
+    return useFormat(options.format, options.src, defaultImageToUse, options.type);
 };
 
 export const getFileExtension = (key: string) => (key.split('.').pop() || '').toLowerCase();

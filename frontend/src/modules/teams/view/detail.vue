@@ -39,7 +39,7 @@
                 </el-icon>
               </el-button>
               <add-member-dialog-app ref="addMemberDialogRef" :team_uid="formData.uid" @submitted="getData()" /> -->
-              <data-grid-app :config="employeesDataGridConfig" />
+              <data-grid-app :config="employeesDataGridConfig" @row-click="$router.push({ name: 'employees-detail', params: { uid: $event.data.uid } })" />
             </div>
           </el-tab-pane>
         </el-tabs>
@@ -66,6 +66,7 @@ import ConstEmployee from '../../employees/constant';
 import EditDialogApp from '../components/dialogs/edit.vue';
 // import AddMemberDialogApp from '../members/components/dialogs/add.vue';
 import type { Employee } from '@/modules/employees/type';
+import { previewImage } from '@/services/files.ts';
 
 const { t } = useI18n();
 
@@ -100,6 +101,12 @@ const employeesDataGridConfig = ref<DataGridPropsConfig>({
     api: (query) => employeesApi.getAll({ ...query, team_uid: route.params.uid as string })
   },
   columns: [
+    {
+      dataField: 'image', caption: t('image'), allowSorting: false, alignment: 'center', width: 120,
+      cellTemplate: (container: HTMLElement, options: { value: string }) => {
+        container.innerHTML = previewImage({ type: 'avatar', src: options.value, format: 'html' });
+      }
+    },
     { dataField: 'name', caption: t('name') },
     {
       dataField: 'status', caption: t('status'), alignment: 'center', 

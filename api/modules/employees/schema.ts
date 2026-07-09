@@ -10,6 +10,7 @@ const createBody = t.Object({
 const employee = t.Object({
     uid: t.String(),
     ...createBody.properties,
+    image: t.Optional(t.Nullable(t.String())),
     team: t.Optional(t.Object({
         uid: t.String(),
         name: t.String()
@@ -29,6 +30,18 @@ const getAllQuery = t.Object({
 const updateBody = t.Object({
     uid: employee.properties.uid,
     ...createBody.properties
+});
+
+const uploadDocumentBody = t.Object({
+    file: t.File({ maxSize: "10m" })
+});
+
+const uploadDocumentQuery = t.Object({
+    primary: t.Optional(t.Boolean())
+});
+
+const documentKeyBody = t.Object({
+    document: t.String()
 });
 
 export default { 
@@ -57,6 +70,27 @@ export default {
         validation: {
             auth: true,
             query: getAllQuery
+        }
+    },
+    getDocuments: {
+        validation: {
+            auth: true,
+            params: getParams
+        }
+    },
+    uploadDocument: {
+        validation: {
+            auth: true,
+            params: getParams,
+            query: uploadDocumentQuery,
+            body: uploadDocumentBody
+        }
+    },
+    deleteDocument: {
+        validation: {
+            auth: true,
+            params: getParams,
+            body: documentKeyBody
         }
     }
 };

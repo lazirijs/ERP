@@ -22,11 +22,13 @@ const parseRow = (row: any) => ({
 const selectItem = `
     SELECT
         se.*,
-        json_object('uid', e.uid, 'name', e.name) AS employee,
+        s.date AS date,
+        json_object('uid', e.uid, 'name', e.name, 'image', e.image) AS employee,
         CASE WHEN t.uid IS NOT NULL THEN json_object('uid', t.uid, 'name', t.name) ELSE NULL END AS team
     FROM session_employees se
     LEFT JOIN employees e ON se.employee_uid = e.uid
     LEFT JOIN teams t ON se.team_uid = t.uid
+    LEFT JOIN sessions s ON se.session_uid = s.uid
 `;
 
 const sortable: Record<string, string> = {
@@ -112,6 +114,18 @@ export default {
                 conditions.push("se.session_uid = ?");
                 binds.push(inputs.session_uid);
             }
+            if (inputs.employee_uid) {
+                conditions.push("se.employee_uid = ?");
+                binds.push(inputs.employee_uid);
+            }
+            if (inputs.from) {
+                conditions.push("s.date >= ?");
+                binds.push(inputs.from);
+            }
+            if (inputs.to) {
+                conditions.push("s.date <= ?");
+                binds.push(inputs.to);
+            }
             if (inputs.searchText) {
                 conditions.push("e.name LIKE ?");
                 binds.push(`%${ inputs.searchText }%`);
@@ -133,7 +147,7 @@ export default {
 
             let countResult = { count: -1 };
             if (inputs.requireTotalCount) {
-                const countQuery = `SELECT COUNT(*) as count FROM session_employees se LEFT JOIN employees e ON se.employee_uid = e.uid ${ where }`;
+                const countQuery = `SELECT COUNT(*) as count FROM session_employees se LEFT JOIN employees e ON se.employee_uid = e.uid LEFT JOIN sessions s ON se.session_uid = s.uid ${ where }`;
                 countResult = binds.length
                     ? await database.prepare(countQuery).bind(...binds).first() as { count: number }
                     : await database.prepare(countQuery).first() as { count: number };

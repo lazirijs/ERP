@@ -16,7 +16,7 @@ export const get = async (uid: SessionEmployee["uid"]) => {
   }
 }
 
-export const getAll = async (query?: DevExtremeDataGridRemoteQuery<{ session_uid?: string }>) => {
+export const getAll = async (query?: DevExtremeDataGridRemoteQuery<{ session_uid?: string; employee_uid?: string; from?: string; to?: string }>) => {
   try {
     const queryString = formatter.stringifyForUrlQuery({ ...defaultQuery, ...query });
     const response = await api.get<ApiResponse<DevExtremeDataGridRemoteDataFormat<SessionEmployee>>>(`${endpoint}?${queryString}`);

@@ -18,7 +18,8 @@ const sessionEmployee = t.Object({
     team_uid: t.Nullable(t.String()),
     status,
     note: t.String(),
-    employee: t.Object({ uid: t.String(), name: t.String() }),
+    date: t.String(),
+    employee: t.Object({ uid: t.String(), name: t.String(), image: t.Nullable(t.String()) }),
     team: t.Nullable(t.Object({ uid: t.String(), name: t.String() })),
     created_at: t.String({ format: "date-time" })
 });
@@ -29,7 +30,10 @@ const getParams = t.Object({
 
 const getAllQuery = t.Object({
     ...DataGridSchema.data.properties,
-    session_uid: t.Optional(t.String())
+    session_uid: t.Optional(t.String()),
+    employee_uid: t.Optional(t.String()),
+    from: t.Optional(t.String()),
+    to: t.Optional(t.String())
 });
 
 const batchBody = t.Object({

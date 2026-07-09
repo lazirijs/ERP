@@ -253,5 +253,8 @@
   "updateProject": "تحديث المشروع",
   "projectUpdatedSuccessfully": "تم تحديث المشروع بنجاح",
   "failedToUpdateProject": "فشل تحديث المشروع",
-  "areYouSureYouWantToUpdateThisProject?": "هل أنت متأكد أنك تريد تحديث هذا المشروع?"
+  "areYouSureYouWantToUpdateThisProject?": "هل أنت متأكد أنك تريد تحديث هذا المشروع?",
+  "attendances": "الحضور",
+  "noTeam": "لا يوجد فريق",
+  "selectTeam": "اختر فريقًا"
 }

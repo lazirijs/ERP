@@ -41,7 +41,7 @@
         <el-tabs v-model="tab" type="border-card">
           <el-tab-pane :label="$t('employees')" name="employees">
             <div v-if="tab === 'employees'" class="flex flex-col items-end gap-4">
-              <el-button @click="onAdd" type="success">
+              <el-button v-if="editable" @click="onAdd" type="success">
                 {{ $t('addEmployees') }}
                 <el-icon class="ml-2">
                   <el-icon-plus />
@@ -82,6 +82,7 @@ import formatter from '@/services/formatter';
 import EditDialogApp from '../components/dialogs/edit.vue';
 import BatchAddDialogApp from '../employees/components/dialogs/batch-add.vue';
 import RowEditDialogApp from '../employees/components/dialogs/edit.vue';
+import { previewImage } from '@/services/files.ts';
 
 const { t } = useI18n();
 const route = useRoute();
@@ -148,6 +149,12 @@ const employeesDataGridConfig = ref<DataGridPropsConfig>({
     api: (query) => sessionEmployeesApi.getAll({ ...query, session_uid: route.params.uid as string })
   },
   columns: [
+    {
+      dataField: 'employee.image', caption: t('image'), allowSorting: false, alignment: 'center', width: 120,
+      cellTemplate: (container: HTMLElement, options: { value: string }) => {
+        container.innerHTML = previewImage({ type: 'avatar', src: options.value, format: 'html' });
+      }
+    },
     { dataField: 'employee.name', caption: t('employee'), allowSorting: false },
     { dataField: 'team.name', caption: t('team'), allowSorting: false },
     {

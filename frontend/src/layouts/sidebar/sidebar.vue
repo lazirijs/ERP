@@ -20,7 +20,7 @@
 
         <el-scrollbar>
             <el-menu
-                :default-active="$route.name"
+                :default-active="$route.name?.toString().replace('-detail', '-list')"
                 :collapse="isCollapsed && !app.isMobile"
                 class="flex-1 border-none!"
                 :collapse-transition="false"

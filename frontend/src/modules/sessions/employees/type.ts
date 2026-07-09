@@ -7,7 +7,8 @@ export interface SessionEmployee {
   team_uid: string | null;
   status: keyof typeof status;
   note: string;
-  employee: { uid: string; name: string };
+  date: string;
+  employee: { uid: string; name: string; image: string | null };
   team: { uid: string; name: string } | null;
   created_at: string;
 }

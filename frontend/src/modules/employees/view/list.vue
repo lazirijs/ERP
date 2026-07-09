@@ -44,6 +44,7 @@ import type { DataGridAppRef, DataGridPropsConfig } from '@/components/devextrem
 import formatter from '@/services/formatter';
 import { status } from '../constant';
 import type { Employee } from '../type';
+import { previewImage } from '@/services/files.ts';
 
 const { t } = useI18n();
 
@@ -66,6 +67,12 @@ const dataGridConfig = ref<DataGridPropsConfig>({
         api: indexApi.getAll
     },
     columns: [
+        {
+            dataField: 'image', caption: t('image'), allowSorting: false, alignment: 'center', width: 120,
+            cellTemplate: (container: HTMLElement, options: { value: string }) => {
+                container.innerHTML = previewImage({ type: 'avatar', src: options.value, format: 'html' });
+            }
+        },
         { dataField: 'name', caption: t('name') },
         {
             dataField: 'status', caption: t('status'), alignment: 'center', 

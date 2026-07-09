@@ -253,5 +253,8 @@
   "updateProject": "Mettre à jour le projet",
   "projectUpdatedSuccessfully": "Projet mis à jour avec succès",
   "failedToUpdateProject": "Échec de la mise à jour du projet",
-  "areYouSureYouWantToUpdateThisProject?": "Êtes-vous sûr de vouloir mettre à jour ce projet?"
+  "areYouSureYouWantToUpdateThisProject?": "Êtes-vous sûr de vouloir mettre à jour ce projet?",
+  "attendances": "Présences",
+  "noTeam": "Aucune équipe",
+  "selectTeam": "Sélectionner une équipe"
 }

@@ -7,20 +7,21 @@
             <el-button @click="$router.back()" text class="m-0!">
               <el-icon><el-icon-arrow-left /></el-icon>
             </el-button>
-            <span>General Info</span>
+            <span class="hidden lg:block">{{ $t('generalInfo') }}</span>
             <el-button @click="editDialogRef?.open()" text class="m-0!">
               <el-icon><el-icon-edit /></el-icon>
             </el-button>
           </div>
         </template>
         <div class="space-y-app">
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">{{ $t('name') }}</label>
-            <span class="block text-sm text-gray-900">{{ formData.name }}</span>
-          </div>
+          <img :src="$previewImage({ type: 'avatar', src: formData.image })" class="size-32 mx-auto rounded-full object-cover border border-gray-200" />
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">{{ $t('status') }}</label>
             <span :class="`badge-app-${status[formData.status]?.color}`">{{ $t(status[formData.status].label!) }}</span>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">{{ $t('name') }}</label>
+            <span class="block text-sm text-gray-900">{{ formData.name }}</span>
           </div>
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">{{ $t('team') }}</label>
@@ -40,15 +41,10 @@
       <div class="col-span-1 md:col-span-3 flex-1 space-y-app">
         <el-tabs v-model="tab" type="border-card">
           <el-tab-pane :label="$t('attendances')" name="attendances">
-            <!-- <data-grid-app
-              v-if="tab === 'attendances'"
-              ref="dataGridRef"
-              :config=""
-              @row-click="$router.push({})"
-            /> -->
+            <attendances-tab v-if="tab === 'attendances' && formData.uid" :employee_uid="formData.uid" />
           </el-tab-pane>
           <el-tab-pane :label="$t('documents')" name="documents">
-            <div v-if="tab === 'documents'">Documents</div>
+            <documents-tab v-if="tab === 'documents' && formData.uid" :uid="formData.uid" @changed="loud()" />
           </el-tab-pane>
         </el-tabs>
       </div>
@@ -63,6 +59,8 @@ import { useRoute } from 'vue-router';
 
 import { status } from '@/modules/employees/constant';
 import EditDialogApp from '../components/dialogs/edit.vue';
+import DocumentsTab from '../components/documents-tab.vue';
+import AttendancesTab from '../components/attendances-tab.vue';
 import type { Employee } from '../type';
 import employeesApi from '../api';
 

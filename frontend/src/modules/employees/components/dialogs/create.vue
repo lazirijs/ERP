@@ -1,9 +1,25 @@
 <template>
   <el-dialog v-model="dialogModel" :title="$t('createEmployee')" align-center class="min-w-11/12 md:min-w-1/4! md:max-w-1/4!" @closed="reset()" :before-close="(done: any) => !loadingContainer.includes('submit') && done()">
     <!-- <el-scrollbar> -->
-      <el-form ref="formRef" v-loading="loadingContainer.length" :model="formData" :rules="formRules" @submit.prevent="submit()" label-position="top" class="w-full grid gap-4">        
+      <el-form ref="formRef" v-loading="loadingContainer.length" :model="formData" :rules="formRules" @submit.prevent="submit()" label-position="top" class="w-full grid gap-4">
+        <el-form-item class="mb-0! relative">
+          <el-upload class="mx-auto relative" :auto-upload="false" :show-file-list="false" accept="image/*" @change="onImageChange">
+            <el-button v-if="preview" text type="danger" class="absolute -top-1 -right-1" size="small" circle @click.stop="removeImagePreview">
+              <el-icon :size="15"><el-icon-close /></el-icon>
+            </el-button>
+            <div class="absolute size-40 hover:bg-black/10 transition-colors duration-300 rounded-full" />
+            <div class="size-40 overflow-hidden rounded-full bg-gray-100 border border-gray-200 flex items-center justify-center cursor-pointer">              
+              <img :src="preview || previewImage({ type: 'avatar' })" class="object-cover size-full" />
+            </div>
+          </el-upload>
+        </el-form-item>
+
         <el-form-item :label="$t('name')" prop="name" class="mb-0!">
           <el-input v-model="formData.name" :placeholder="$t('name')" />
+        </el-form-item>
+
+        <el-form-item :label="$t('team')" prop="team_uid" class="mb-0!">
+          <el-select v-model="formData.team_uid" :options="$formatter.selectOptions(teams)" :placeholder="$t('team')" class="w-full" />
         </el-form-item>
         
         <el-form-item :label="$t('status')" prop="status" class="mb-0!">
@@ -21,9 +37,6 @@
           </el-select>
         </el-form-item>
         
-        <el-form-item :label="$t('team')" prop="team_uid" class="mb-0!">
-          <el-select v-model="formData.team_uid" :options="$formatter.selectOptions(teams)" :placeholder="$t('team')" class="w-full" />
-        </el-form-item>
       </el-form>
       <div class="flex justify-end gap-2 mb-0! mt-8">
         <el-button @click="close()">
@@ -40,7 +53,7 @@
 <script setup lang="ts">
 import { ref, reactive } from 'vue';
 import { ElMessage } from 'element-plus';
-import type { FormInstance, FormItemRule } from 'element-plus'
+import type { FormInstance, FormItemRule, UploadFile } from 'element-plus'
 import type { EmployeeCreateBody } from '@/modules/employees/type';
 import { useI18n } from 'vue-i18n';
 import EmployeeApi from '@/modules/employees/api';
@@ -48,6 +61,7 @@ import TeamApi from '@/modules/teams/api';
 import { status } from '@/modules/employees/constant';
 import type { Team } from '@/modules/teams/type';
 import confirmDialog from '@/services/dialog/confirm';
+import { previewImage } from '@/services/files';
 
 const emit = defineEmits(['submitted']);
 
@@ -56,6 +70,9 @@ const { t } = useI18n();
 const loadingContainer = ref<('loading' | 'submit')[]>([]);
 
 const teams = ref<Team[]>([]);
+
+const image = ref<File | null>(null);
+const preview = ref<string>('');
 
 const formRef = ref<FormInstance>();
 const dialogModel = ref<boolean>(false);
@@ -72,7 +89,19 @@ const formData = ref<EmployeeCreateBody>({
   team_uid: ''
 });
 
+const removeImagePreview = () => {
+  image.value = null;
+  preview.value = '';
+};
+
+const onImageChange = (uploadFile: UploadFile) => {
+  image.value = uploadFile.raw ?? null;
+  preview.value = uploadFile.raw ? URL.createObjectURL(uploadFile.raw) : '';
+};
+
 const reset = (formEl: FormInstance | undefined = formRef.value) => {
+  image.value = null;
+  preview.value = '';
   if (!formEl) return;
   formEl.resetFields();
 };
@@ -97,7 +126,8 @@ const submit = async (formEl: FormInstance | undefined = formRef.value) => {
       })
       try {
         loadingContainer.value.push('submit');
-        await EmployeeApi.create(formData.value);
+        const response = await EmployeeApi.create(formData.value);
+        if (image.value) await EmployeeApi.uploadDocument(response.detail.uid, image.value, true);
         ElMessage.success(t('employeeCreatedSuccessfully'));
         close(formEl, true);
       } catch (error: any) {

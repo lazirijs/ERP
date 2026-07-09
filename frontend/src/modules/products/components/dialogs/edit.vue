@@ -95,14 +95,14 @@ const formData = ref<ProductUpdateBody>({
   description: ''
 });
 
-const removeImagePreview = () => {
-  onImageChange();
-  preview.value = originalProductImage.value ? previewImage({ type: 'image', src: originalProductImage.value }) : '';
-};
-
 const onImageChange = (uploadFile?: UploadFile) => {
   image.value = uploadFile?.raw;
   preview.value = uploadFile?.raw ? URL.createObjectURL(uploadFile.raw) : '';
+};
+
+const removeImagePreview = () => {
+  onImageChange();
+  preview.value = originalProductImage.value ? previewImage({ type: 'image', src: originalProductImage.value }) : '';
 };
 
 const reset = (formEl: FormInstance | undefined = formRef.value) => {
