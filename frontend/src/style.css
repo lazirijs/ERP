@@ -73,3 +73,11 @@
 .dx-scheduler-header > .dx-toolbar {
   @apply flex flex-col justify-center;
 }
+
+.img-preview {
+  @apply size-20 rounded object-cover;
+}
+
+.avatar-preview {
+  @apply size-15 rounded-full object-cover;
+}
