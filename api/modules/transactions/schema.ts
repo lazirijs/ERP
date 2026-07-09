@@ -26,6 +26,7 @@ const transaction = t.Object({
     employee: t.Object({
         uid: t.String(),
         name: t.String(),
+        image: t.Nullable(t.String()),
         created_at: t.String({ format: "date-time" })
     }),
     created_at: t.String({ format: "date-time" })
@@ -38,7 +39,8 @@ const getParams = t.Object({
 const getAllQuery = t.Object({
     ...DataGridSchema.data.properties,
     project_uid: t.Optional(t.String()),
-    account_uid: t.Optional(t.String())
+    account_uid: t.Optional(t.String()),
+    employee_uid: t.Optional(t.String())
 });
 
 export default { 

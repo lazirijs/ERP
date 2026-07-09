@@ -1,55 +1,62 @@
 <template>
   <el-dialog v-model="dialogModel" :title="$t('createTransaction')" align-center class="min-w-11/12 md:min-w-1/4! md:max-w-1/4!" @closed="reset()" :before-close="(done: any) => !loadingContainer.includes('submit') && done()">
-    <!-- <el-scrollbar> -->
-      <el-form ref="formRef" v-loading="loadingContainer.length" :model="formData" :rules="formRules" @submit.prevent="submit()" label-position="top" class="w-full grid gap-4">
-        
-        <el-form-item :label="$t('amount')" prop="amount" class="mb-0!">
-          <el-input-number v-model="formData.amount" :min="0" :controls="false" :parser="$formatter.number" :formatter="(amount: number) => $formatter.currency(amount, false)" class="w-full!">          
-            <template #suffix>
-              <span>{{ currency }}</span>
-            </template>
-          </el-input-number>
-        </el-form-item>
+    <el-form ref="formRef" v-loading="loadingContainer.length" :model="formData" :rules="formRules" @submit.prevent="submit()" label-position="top" class="w-full grid gap-4">
+      
+      <el-form-item :label="$t('type')" prop="type" class="mb-0!">
+        <el-select v-model="formData.type" @change="handleTypeChange" :placeholder="$t('type')" class="w-full el-select-on-focus-no-outline">
+          <template #label="{ label, value }">
+            <span :class="`badge-app-${transactionsCons.type[value as '-' | '+'].color} p-1!`">
+              {{ $t(label) }}
+            </span>
+          </template>
+          <el-option v-for="({ id, label, color }) in transactionsCons.type" :key="id" :label="$t(label)" :value="id">
+            <span :class="`badge-app-${color}`">
+              {{ $t(label) }}
+            </span>
+          </el-option>
+        </el-select>
+      </el-form-item>
 
-        <el-form-item :label="$t('project')" prop="project_uid" class="mb-0!">
-          <el-select v-model="formData.project_uid" clearable filterable :placeholder="$t('project')">
-            <el-option v-for="project in projects" :key="project.uid" :label="project.name" :value="project.uid" />
+      <el-form-item :label="$t('amount')" prop="amount" class="mb-0!">
+        <el-input-number v-model="formData.amount" :min="0" :controls="false" :parser="$formatter.number" :formatter="(amount: number) => $formatter.currency(amount, false)" class="w-full!">          
+          <template #suffix>
+            <span>{{ currency }}</span>
+          </template>
+        </el-input-number>
+      </el-form-item>
+
+      <el-form-item :label="$t('project')" prop="project_uid" class="mb-0!">
+        <el-select v-model="formData.project_uid" clearable filterable :placeholder="$t('project')">
+          <el-option v-for="project in projects" :key="project.uid" :label="project.name" :value="project.uid" />
+        </el-select>
+      </el-form-item>
+      
+      <template v-if="formData.type === '-'">
+        <el-form-item :label="$t('account')" prop="account_uid" class="mb-0!">
+          <el-select v-model="formData.account_uid" clearable filterable :placeholder="$t('account')">
+            <el-option v-for="account in accounts" :key="account.uid" :label="account.name" :value="account.uid" />
           </el-select>
         </el-form-item>
-
-        <!-- <el-form-item :label="$t('type')" prop="type" class="mb-0!">
-          <el-select v-model="formData.type" @change="handleTypeChange" filterable :placeholder="$t('type')">
-            <el-option v-for="({ label, id }) in type" :key="id" :label="$t(label)" :value="id" />
+  
+        <el-form-item :label="$t('employee')" prop="employee_uid" class="mb-0!">
+          <el-select v-model="formData.employee_uid" clearable filterable :placeholder="$t('employee')">
+            <el-option v-for="employee in employees" :key="employee.uid" :label="employee.name" :value="employee.uid" />
           </el-select>
-        </el-form-item> -->
-        
-        <template v-if="formData.type == '-'">
-          <el-form-item :label="$t('account')" prop="account_uid" class="mb-0!">
-            <el-select v-model="formData.account_uid" clearable filterable :placeholder="$t('account')">
-              <el-option v-for="account in accounts" :key="account.uid" :label="account.name" :value="account.uid" />
-            </el-select>
-          </el-form-item>
-
-          <!-- <el-form-item :label="$t('employee')" prop="employee_uid" class="mb-0!">
-            <el-select v-model="formData.employee_uid" clearable filterable :placeholder="$t('employee')">
-              <el-option v-for="employee in employees" :key="employee.uid" :label="employee.name" :value="employee.uid" />
-            </el-select>
-          </el-form-item> -->
-        </template>
-
-        <el-form-item :label="$t('note')" prop="note" class="mb-0!">
-          <el-input v-model="formData.note" :placeholder="$t('note')" />
         </el-form-item>
-      </el-form>
-      <div class="flex justify-end gap-2 mb-0! mt-8">
-        <el-button @click="close()">
-          {{ $t("close") }}
-        </el-button>
-        <el-button type="primary" @click="submit()">
-          {{ $t("create") }}
-        </el-button>
-      </div>
-    <!-- </el-scrollbar> -->
+      </template>
+
+      <el-form-item :label="$t('note')" prop="note" class="mb-0!">
+        <el-input v-model="formData.note" type="textarea" :placeholder="$t('note')" />
+      </el-form-item>
+    </el-form>
+    <div class="flex justify-end gap-2 mb-0! mt-8">
+      <el-button @click="close()">
+        {{ $t("close") }}
+      </el-button>
+      <el-button type="primary" @click="submit()">
+        {{ $t("create") }}
+      </el-button>
+    </div>
   </el-dialog>
 </template>
 
@@ -60,15 +67,15 @@ import type { FormInstance, FormItemRule } from 'element-plus'
 import type { TransactionCreateBody } from '@/modules/transactions/type';
 import { useI18n } from 'vue-i18n';
 import TransactionApi from '@/modules/transactions/api';
-// import { type } from '@/modules/transactions/constant';
 import ProjectApi from '@/modules/projects/api';
 import AccountApi from '@/modules/accounts/api';
-// import EmployeeApi from '@/modules/employees/api';
+import EmployeeApi from '@/modules/employees/api';
 import type { Project } from '@/modules/projects/type';
 import type { Account } from '@/modules/accounts/type';
 import { currency } from '@/constants';
-// import type { Employee } from '@/modules/employees/type';
+import type { Employee } from '@/modules/employees/type';
 import confirmDialog from '@/services/dialog/confirm';
+import transactionsCons from '../../constant';
 
 const emit = defineEmits(['submitted']);
 
@@ -99,14 +106,14 @@ const formData = ref<TransactionCreateBody>({
 
 const projects = ref<Project[]>([]);
 const accounts = ref<Account[]>([]);
-// const employees = ref<Employee[]>([]);
+const employees = ref<Employee[]>([]);
 
-// const handleTypeChange = (type: TransactionCreateBody['type']) => {
-//   if (type == '+') { 
-//     formData.value.account_uid = '';
-//     formData.value.employee_uid = '';
-//   }
-// };
+const handleTypeChange = (type: TransactionCreateBody['type']) => {
+  if (type == '+') {
+    formData.value.account_uid = '';
+    formData.value.employee_uid = '';
+  }
+};
 
 const reset = (formEl: FormInstance | undefined = formRef.value) => {
   if (!formEl) return;
@@ -156,11 +163,11 @@ const open = async () => {
     const res = await Promise.all([
       ProjectApi.getAll(),
       AccountApi.getAll(),
-      // EmployeeApi.getAll()
+      EmployeeApi.getAll()
     ]);
     projects.value = res[0].detail.data;
     accounts.value = res[1].detail.data;
-    // employees.value = res[2].detail.data;
+    employees.value = res[2].detail.data;
   } catch (error: any) {
     const errorMessage = error?.detail?.message || t('loadingFailed');
     ElMessage.error(errorMessage);

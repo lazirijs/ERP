@@ -15,6 +15,7 @@ export interface Transaction extends TransactionCreateBody {
   employee?: {
     uid: string;
     name: string;
+    image: string | null;
     created_at: string;
   };
   created_at: string;

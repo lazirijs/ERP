@@ -85,6 +85,12 @@ export default {
                 binds.push(inputs.account_uid);
             }
 
+            if (inputs.employee_uid) {
+                if (filter) filter += ` AND t.employee_uid = ?`;
+                else filter = `WHERE t.employee_uid = ?`;
+                binds.push(inputs.employee_uid);
+            }
+
             query.push(filter);
             
             if (inputs.sort?.length) {
