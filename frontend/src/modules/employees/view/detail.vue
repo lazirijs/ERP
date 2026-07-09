@@ -43,6 +43,12 @@
           <el-tab-pane :label="$t('attendances')" name="attendances">
             <attendances-tab v-if="tab === 'attendances' && formData.uid" :employee_uid="formData.uid" />
           </el-tab-pane>
+          <el-tab-pane :label="$t('transactions')" name="transactions">
+            <data-grid-app
+              v-if="tab === 'transactions'"
+              :config="transactionsDataGridConfig"
+            />
+          </el-tab-pane>
           <el-tab-pane :label="$t('documents')" name="documents">
             <documents-tab v-if="tab === 'documents' && formData.uid" :uid="formData.uid" @changed="loud()" />
           </el-tab-pane>
@@ -63,7 +69,14 @@ import DocumentsTab from '../components/documents-tab.vue';
 import AttendancesTab from '../components/attendances-tab.vue';
 import type { Employee } from '../type';
 import employeesApi from '../api';
+import type { DataGridPropsConfig } from '@/components/devextreme/datagrid/type';
+import transactionsApi from '@/modules/transactions/api';
+import type { Transaction } from '@/modules/transactions/type';
+import transactionCont from '@/modules/transactions/constant';
+import formatter from '@/services/formatter';
+import { useI18n } from 'vue-i18n';
 
+const { t } = useI18n();
 const route = useRoute();
 
 const loadingContainer = ref<('detail')[]>(['detail']);
@@ -87,4 +100,24 @@ const loud = async () => {
 };
 
 onMounted(loud);
+
+const transactionsDataGridConfig = ref<DataGridPropsConfig>({
+  dataSource: {
+    key: 'uid',
+    api: (query) => transactionsApi.getAll({ ...query, employee_uid: route.params.uid as string })
+  },
+  columns: [
+    { dataField: 'project.name', caption: t('project'), allowSorting: false },
+    {
+      dataField: 'type', caption: t('type'), alignment: 'center',
+      cellTemplate: (container: HTMLElement, options: { value: Transaction["type"] }) => {
+        let { label, color } = transactionCont.type[options.value];
+        container.innerHTML = `<span class="badge-app-${ color }">${ t(label) }</span>`;
+      }
+    },
+    { dataField: 'amount', caption: t('amount'), customizeText: ({ value }) => formatter.currency(value) },
+    { dataField: 'note', caption: t('note') },
+    { dataField: 'created_at', caption: t('createdAt'), ...formatter.devextreme.datetime, sortOrder: 'desc' }
+  ]
+});
 </script>
