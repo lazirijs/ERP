@@ -104,7 +104,8 @@ export default {
 
     async getImages(uid: ProductType["uid"]): Promise<SuccessServiceResponse<R2Object[]>> {
         try {
-            const { objects } = await storage.list({ prefix: `products/${ uid }/` });
+            // `include` is required for R2 list() to return customMetadata (original file name)
+            const { objects } = await storage.list({ prefix: `products/${ uid }/`, include: ["customMetadata", "httpMetadata"] });
             return Responses.service.handler.success(objects);
         } catch (error) {
             if(Responses.schema.data.check(error)) throw error;

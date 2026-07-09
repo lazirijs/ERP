@@ -145,7 +145,8 @@ export default {
 
     async getDocuments(uid: ProjectType["uid"]): Promise<SuccessServiceResponse<R2Object[]>> {
         try {
-            const { objects } = await storage.list({ prefix: `projects/${ uid }/` });
+            // `include` is required for R2 list() to return customMetadata (original file name)
+            const { objects } = await storage.list({ prefix: `projects/${ uid }/`, include: ["customMetadata", "httpMetadata"] });
             return Responses.service.handler.success(objects);
         } catch (error) {
             if(Responses.schema.data.check(error)) throw error;
