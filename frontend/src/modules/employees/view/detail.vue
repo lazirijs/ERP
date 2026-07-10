@@ -44,18 +44,22 @@
             <attendances-tab v-if="tab === 'attendances' && formData.uid" :employee_uid="formData.uid" />
           </el-tab-pane>
           <el-tab-pane :label="$t('transactions')" name="transactions">
-            <data-grid-app
-              v-if="tab === 'transactions'"
-              :config="transactionsDataGridConfig"
-            />
+            <div v-if="tab === 'transactions'" class="flex flex-col items-end gap-4">
+              <el-button v-if="formData.status === 0" @click="transactionCreateDialogRef?.open()" type="success">
+                {{ $t('add') }}
+                <el-icon class="ml-2"><el-icon-plus /></el-icon>
+              </el-button>
+              <data-grid-app :config="transactionsDataGridConfig" />
+            </div>
           </el-tab-pane>
           <el-tab-pane :label="$t('documents')" name="documents">
-            <documents-tab v-if="tab === 'documents' && formData.uid" :uid="formData.uid" @changed="loud()" />
+            <documents-tab v-if="tab === 'documents' && formData.uid" :uid="formData.uid" @changed="load()" />
           </el-tab-pane>
         </el-tabs>
       </div>
     </div>
-    <edit-dialog-app ref="editDialogRef" :uid="formData.uid" @submitted="loud()" />
+    <edit-dialog-app ref="editDialogRef" :uid="formData.uid" @submitted="load()" />
+    <transaction-create-dialog-app ref="transactionCreateDialogRef" :employee="formData" @submitted="load()" />
   </container-app>
 </template>
 
@@ -70,9 +74,8 @@ import AttendancesTab from '../components/attendances-tab.vue';
 import type { Employee } from '../type';
 import employeesApi from '../api';
 import type { DataGridPropsConfig } from '@/components/devextreme/datagrid/type';
+import TransactionCreateDialogApp from '@/modules/transactions/components/dialogs/create.vue';
 import transactionsApi from '@/modules/transactions/api';
-import type { Transaction } from '@/modules/transactions/type';
-import transactionCont from '@/modules/transactions/constant';
 import formatter from '@/services/formatter';
 import { useI18n } from 'vue-i18n';
 
@@ -84,10 +87,11 @@ const loadingContainer = ref<('detail')[]>(['detail']);
 const tab = ref('attendances');
 
 const editDialogRef = ref<InstanceType<typeof EditDialogApp>>();
+const transactionCreateDialogRef = ref<InstanceType<typeof TransactionCreateDialogApp>>();
 
 const formData = ref<Employee>({} as Employee);
 
-const loud = async () => {
+const load = async () => {
   try {
     loadingContainer.value.push('detail');
     const response = await employeesApi.get(route.params.uid as string);
@@ -99,7 +103,7 @@ const loud = async () => {
   }
 };
 
-onMounted(loud);
+onMounted(load);
 
 const transactionsDataGridConfig = ref<DataGridPropsConfig>({
   dataSource: {
@@ -108,13 +112,8 @@ const transactionsDataGridConfig = ref<DataGridPropsConfig>({
   },
   columns: [
     { dataField: 'project.name', caption: t('project'), allowSorting: false },
-    {
-      dataField: 'type', caption: t('type'), alignment: 'center',
-      cellTemplate: (container: HTMLElement, options: { value: Transaction["type"] }) => {
-        let { label, color } = transactionCont.type[options.value];
-        container.innerHTML = `<span class="badge-app-${ color }">${ t(label) }</span>`;
-      }
-    },
+    { dataField: 'account.name', caption: t('account'), allowSorting: false },
+    { dataField: 'purchase.name', caption: t('purchase'), allowSorting: false },
     { dataField: 'amount', caption: t('amount'), customizeText: ({ value }) => formatter.currency(value) },
     { dataField: 'note', caption: t('note') },
     { dataField: 'created_at', caption: t('createdAt'), ...formatter.devextreme.datetime, sortOrder: 'desc' }

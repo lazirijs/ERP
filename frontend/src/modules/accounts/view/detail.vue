@@ -32,15 +32,19 @@
       <div class="col-span-1 md:col-span-3 flex-1 space-y-app">
         <el-tabs v-model="tab" type="border-card">
           <el-tab-pane :label="$t('transactions')" name="transactions">
-            <data-grid-app
-              v-if="tab === 'transactions'"
-              :config="transactionsDataGridConfig"
-            />
+            <div v-if="tab === 'transactions'" class="flex flex-col items-end gap-4">
+              <el-button @click="transactionCreateDialogRef?.open()" type="success">
+                {{ $t('add') }}
+                <el-icon class="ml-2"><el-icon-plus /></el-icon>
+              </el-button>
+              <data-grid-app :config="transactionsDataGridConfig" />
+            </div>
           </el-tab-pane>
         </el-tabs>
       </div>
     </div>
-    <edit-dialog-app ref="dialogRef" :account_uid="formData.uid" @submitted="getData()" />
+    <edit-dialog-app ref="dialogRef" :account_uid="formData.uid" @submitted="load()" />
+    <transaction-create-dialog ref="transactionCreateDialogRef" :account="formData" @submitted="load()" />
   </container-app>
 </template>
 
@@ -54,9 +58,8 @@ import type { DataGridPropsConfig } from '@/components/devextreme/datagrid/type'
 import transactionsApi from '@/modules/transactions/api';
 import { useI18n } from 'vue-i18n';
 import formatter from '@/services/formatter';
-import { type } from '@/modules/transactions/constant';
-import type { Transaction } from '@/modules/transactions/type';
 import EditDialogApp from '../components/dialogs/edit.vue';
+import TransactionCreateDialog from '@/modules/transactions/components/dialogs/create.vue';
 
 const { t } = useI18n();
 
@@ -67,10 +70,11 @@ const loadingContainer = ref<('detail')[]>([]);
 const tab = ref('transactions');
 
 const dialogRef = ref<InstanceType<typeof EditDialogApp>>();
+const transactionCreateDialogRef = ref<InstanceType<typeof TransactionCreateDialog>>();
 
 const formData = ref<Account>({} as Account);
 
-const getData = async () => {
+const load = async () => {
   try {
     loadingContainer.value.push('detail');
     const response = await get(route.params.uid as string);
@@ -82,7 +86,7 @@ const getData = async () => {
   }
 };
 
-onMounted(getData);
+onMounted(load);
 
 const transactionsDataGridConfig = ref<DataGridPropsConfig>({
   dataSource: {
@@ -91,14 +95,8 @@ const transactionsDataGridConfig = ref<DataGridPropsConfig>({
   },
   columns: [
     { dataField: 'project.name', caption: t('project'), allowSorting: false },
+    { dataField: 'purchase.name', caption: t('purchase'), allowSorting: false },
     { dataField: 'employee.name', caption: t('employee'), allowSorting: false },
-    {
-      dataField: 'type', caption: t('type'), alignment: 'center',
-      cellTemplate: (container: HTMLElement, options: { value: Transaction["type"] }) => {
-        let { label, color } = type[options.value];
-        container.innerHTML = `<span class="badge-app-${ color }">${ t(label) }</span>`;
-      }
-    },
     { dataField: 'amount', caption: t('amount'), customizeText: ({ value }) => formatter.currency(value) },
     { dataField: 'note', caption: t('note') },
     { dataField: 'created_at', caption: t('createdAt'), ...formatter.devextreme.datetime, sortOrder: 'desc' }

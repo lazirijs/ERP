@@ -52,10 +52,13 @@
       <div class="col-span-1 md:col-span-3 flex-1 space-y-app">
         <el-tabs v-model="tab" type="border-card">
           <el-tab-pane :label="$t('transactions')" name="transactions">
-            <data-grid-app 
-              v-if="tab === 'transactions'"
-              :config="transactionsDataGridConfig"
-            />
+            <div v-if="tab === 'transactions'" class="flex flex-col items-end gap-4">
+              <el-button @click="transactionCreateDialogRef?.open()" type="success">
+                {{ $t('add') }}
+                <el-icon class="ml-2"><el-icon-plus /></el-icon>
+              </el-button>
+              <data-grid-app :config="transactionsDataGridConfig" />
+            </div>
           </el-tab-pane>
           <el-tab-pane :label="$t('sales')" name="sales">
             <div v-if="tab === 'sales'" class="space-y-app">
@@ -104,6 +107,7 @@
       </div>
     </div>
     <edit-dialog-app ref="editDialogRef" :uid="formData.uid" @submitted="load()" />
+    <transaction-create-dialog-app ref="transactionCreateDialogRef" :project="formData" @submitted="load()" />
   </container-app>
 </template>
 
@@ -130,6 +134,7 @@ import salesItemsApi from '@/modules/sales/items/api';
 import CreateSalesDialog from '@/modules/sales/components/dialogs/create.vue';
 import DocumentsTab from '../components/documents-tab.vue';
 import EditDialogApp from '../components/dialogs/edit.vue';
+import TransactionCreateDialogApp from '@/modules/transactions/components/dialogs/create.vue';
 
 const { t } = useI18n();
 
@@ -141,6 +146,7 @@ const tab = ref('transactions');
 
 const editDialogRef = ref<InstanceType<typeof EditDialogApp>>();
 const createSalesDialogRef = ref<InstanceType<typeof CreateSalesDialog>>();
+const transactionCreateDialogRef = ref<InstanceType<typeof TransactionCreateDialogApp>>();
 const salesDataGridRef = ref<DataGridAppRef>();
   
 const salesView = ref<'sale' | 'product'>('sale');
