@@ -32,20 +32,20 @@
         <el-tabs v-model="tab" type="border-card">
           <el-tab-pane :label="$t('employees')" name="employees">
             <div v-if="tab === 'employees'" class="flex flex-col items-end gap-4">
-              <!-- <el-button @click="addMemberDialogRef?.open()" type="success">
+              <el-button @click="addMemberDialogRef?.open" type="success">
                 {{ $t('add') }}
                 <el-icon class="ml-2">
                   <el-icon-plus />
                 </el-icon>
               </el-button>
-              <add-member-dialog-app ref="addMemberDialogRef" :team_uid="formData.uid" @submitted="getData()" /> -->
+              <add-member-dialog-app ref="addMemberDialogRef" :team_uid="formData.uid" @submitted="load()" />
               <data-grid-app :config="employeesDataGridConfig" @row-click="$router.push({ name: 'employees-detail', params: { uid: $event.data.uid } })" />
             </div>
           </el-tab-pane>
         </el-tabs>
       </div>
     </div>
-    <edit-dialog-app ref="editDialogRef" :uid="formData.uid" @submitted="getData()" />
+    <edit-dialog-app ref="editDialogRef" :uid="formData.uid" @submitted="load()" />
   </container-app>
 </template>
 
@@ -64,7 +64,7 @@ import employeesApi from '../../employees/api';
 import ConstEmployee from '../../employees/constant';
 
 import EditDialogApp from '../components/dialogs/edit.vue';
-// import AddMemberDialogApp from '../members/components/dialogs/add.vue';
+import AddMemberDialogApp from '../components/dialogs/add-member.vue';
 import type { Employee } from '@/modules/employees/type';
 import { previewImage } from '@/services/files.ts';
 
@@ -77,11 +77,11 @@ const loadingContainer = ref<('detail')[]>(['detail']);
 const tab = ref('employees');
 
 const editDialogRef = ref<InstanceType<typeof EditDialogApp>>();
-// const addMemberDialogRef = ref<InstanceType<typeof AddMemberDialogApp>>();
+const addMemberDialogRef = ref<InstanceType<typeof AddMemberDialogApp>>();
 
 const formData = ref<Team>({} as Team);
 
-const getData = async () => {
+const load = async () => {
   try {
     loadingContainer.value.push('detail');
     const response = await teamsApi.get(route.params.uid as string);
@@ -93,7 +93,7 @@ const getData = async () => {
   }
 };
 
-onMounted(getData);
+onMounted(load);
 
 const employeesDataGridConfig = ref<DataGridPropsConfig>({
   dataSource: {
