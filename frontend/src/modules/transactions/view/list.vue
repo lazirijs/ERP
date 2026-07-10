@@ -14,6 +14,7 @@
                         <el-icon-refresh />
                     </el-icon>
                 </el-button>
+                <el-segmented v-model="view" :options="viewOptions" />
             </div>
             <el-button @click="dialogRef?.open()" type="success">
                 {{ $t('create') }}
@@ -22,18 +23,18 @@
                 </el-icon>
             </el-button>
         </div>
-        <div class="flex-1 min-h-0 min-w-0">
-            <data-grid-app
+        <div :key="viewOptions.findIndex(option => option.value === view)" class="flex-1 min-h-0 min-w-0">
+            <data-grid-app                
                 ref="dataGridRef"
-                :config="dataGridConfig"
+                :config="dataGridConfig()"
             />
         </div>
-        <create-dialog-app ref="dialogRef" @submitted="dataGridRef?.instance?.refresh()" />
+        <create-dialog-app ref="dialogRef" :default-type="view" @submitted="dataGridRef?.instance?.refresh()" />
     </container-app>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import indexApi from '../api';
 import { useI18n } from 'vue-i18n';
 import CreateDialogApp from '../components/dialogs/create.vue';
@@ -48,6 +49,13 @@ const dialogRef = ref<InstanceType<typeof CreateDialogApp>>();
 
 const dataGridRef = ref<DataGridAppRef>();
 
+const view = ref<undefined | keyof typeof type>();
+const viewOptions = computed(() => [
+    { label: t('all'), value: undefined },
+    { label: t('expense'), value: '-' },
+    { label: t('payout'), value: '+' }
+]);
+
 const search = ref('');
 
 const onSearchChange = (value: string) => {
@@ -57,13 +65,15 @@ const onSearchChange = (value: string) => {
     }, 500);
 };
 
-const dataGridConfig = ref<DataGridPropsConfig>({
+const dataGridConfig = () => ({
     dataSource: {
         key: 'uid',
-        api: indexApi.getAll
+        api: (query) => indexApi.getAll({ ...query, type: view.value })
     },
     columns: [
         { dataField: 'project.name', caption: t('project'), allowSorting: false },
+        { dataField: 'sale.name', caption: t('sale'), allowSorting: false },
+        { dataField: 'purchase.name', caption: t('purchase'), allowSorting: false },
         { dataField: 'account.name', caption: t('account'), allowSorting: false },
         { dataField: 'employee.name', caption: t('employee'), allowSorting: false },
         {
@@ -71,11 +81,15 @@ const dataGridConfig = ref<DataGridPropsConfig>({
             cellTemplate: (container: HTMLElement, options: { value: Transaction["type"] }) => {
                 let { label, color } = type[options.value];
                 container.innerHTML = `<span class="badge-app-${ color }">${ t(label) }</span>`;
-            } 
+            }
         },
-        { dataField: 'amount', caption: t('amount'), customizeText: ({ value }) => formatter.currency(value) },
+        { dataField: 'amount', caption: t('amount'), customizeText: ({ value }: { value: number }) => formatter.currency(value) },
         { dataField: 'note', caption: t('note') },
         { dataField: 'created_at', caption: t('createdAt'), ...formatter.devextreme.datetime, sortOrder: 'desc' }
-    ]
-});
+    ].filter(({ dataField }) => {
+        if (view.value === '+') return !['type', 'account.name', 'employee.name', 'purchase.name'].includes(dataField);
+        else if (view.value === '-') return !['type'].includes(dataField);
+        else return true
+    }),
+} as DataGridPropsConfig);
 </script>
