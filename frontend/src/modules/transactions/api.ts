@@ -3,7 +3,7 @@ import formatter from '@/services/formatter';
 import type { ApiResponse } from "@/api/type";
 import { defaultQuery } from "@/components/devextreme/datagrid/constant";
 import type { DevExtremeDataGridRemoteDataFormat, DevExtremeDataGridRemoteQuery } from "@/components/devextreme/datagrid/type";
-import type { Transaction, TransactionCreateBody } from "./type";
+import type { Transaction, TransactionCreateBody, TransactionGetAllQuery } from "./type";
 
 const endpoint = '/transactions';
 
@@ -25,7 +25,7 @@ export const get = async (uid: Transaction["uid"]) => {
   }
 }
 
-export const getAll = async (query?: DevExtremeDataGridRemoteQuery<{ project_uid?: string; account_uid?: string; employee_uid?: string }>) => {
+export const getAll = async (query?: DevExtremeDataGridRemoteQuery<TransactionGetAllQuery>) => {
   try {
     const queryString = formatter.stringifyForUrlQuery({ ...defaultQuery, ...query });
     const response = await api.get<ApiResponse<DevExtremeDataGridRemoteDataFormat<Transaction>>>(`${endpoint}?${queryString}`);
