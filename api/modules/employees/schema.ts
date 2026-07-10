@@ -11,10 +11,10 @@ const employee = t.Object({
     uid: t.String(),
     ...createBody.properties,
     image: t.Optional(t.Nullable(t.String())),
-    team: t.Optional(t.Object({
-        uid: t.String(),
-        name: t.String()
-    })),
+    team: t.Object({
+        uid: t.Nullable(t.String()),
+        name: t.Nullable(t.String())
+    }),
     created_at: t.String({ format: "date-time" })
 });
 

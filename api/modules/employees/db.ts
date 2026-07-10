@@ -25,10 +25,7 @@ export default {
             const result = await database.prepare(`
                 SELECT 
                     employees.*,
-                    CASE WHEN employees.team_uid IS NOT NULL
-                        THEN json_object('uid', teams.uid, 'name', teams.name) 
-                        ELSE NULL 
-                    END as team
+                    json_object('uid', teams.uid, 'name', teams.name) as team
                 FROM employees
                 LEFT JOIN teams ON employees.team_uid = teams.uid
                 WHERE employees.uid = ?
@@ -55,10 +52,7 @@ export default {
             const query: string[] = [`
                 SELECT 
                     employees.*,
-                    CASE WHEN employees.team_uid IS NOT NULL
-                        THEN json_object('uid', teams.uid, 'name', teams.name) 
-                        ELSE NULL 
-                    END as team
+                    json_object('uid', teams.uid, 'name', teams.name) as team
                 FROM ${ tableName }
                 LEFT JOIN teams ON employees.team_uid = teams.uid
             `];
@@ -102,10 +96,7 @@ export default {
                 result = await prepare.run();
             }
 
-            result.results = result.results.map((employee: any) => {
-                if (employee.team) employee.team = JSON.parse(employee.team);
-                return employee;
-            });
+            result.results = result.results.map((employee: any) => ({ ...employee, team: JSON.parse(employee.team) }));
 
             let countResult = { count: -1 };
             if(inputs.requireTotalCount) {
