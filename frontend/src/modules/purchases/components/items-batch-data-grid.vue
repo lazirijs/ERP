@@ -102,8 +102,6 @@ const itemsDataGridConfig = ref<DataGridPropsConfig>({
     startEditAction: 'click'
   },
   toolbar: { visible: false },
-  paging: { pageSize: 10 },
-  pager: { showInfo: true, showNavigationButtons: true }
 });
 
 const onInitNewRow = (e: any) => {

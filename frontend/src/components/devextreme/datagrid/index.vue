@@ -54,13 +54,13 @@ const dataGridConfig = ref<DataGridPropsConfig>({
   editing: {},
   toolbar: {},
   paging: {
-    pageSize: 20
+    pageSize: 10
   },
   pager: {
     showInfo: true,
     showNavigationButtons: true,
-    // showPageSizeSelector: true,
-    // allowedPageSizes: [20, 50, 100],
+    showPageSizeSelector: true,
+    allowedPageSizes: [10, 20, 50, 100],
   },
   ...props.config
 });
