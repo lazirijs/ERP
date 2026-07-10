@@ -6,8 +6,8 @@
     </el-button>
   </el-upload>
   <div v-loading="loading" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-    <el-empty v-if="!loading && !documents.length" :description="$t('noDocuments')" class="col-span-full" />
-    <div v-for="(doc, index) in documents" :key="index" :title="doc.customMetadata?.fileName" class="relative group aspect-square rounded-lg overflow-hidden border bg-gray-100 border-gray-200">
+    <el-empty v-if="!documents.length" :description="$t('noDocuments')" class="col-span-full" />
+    <div v-else v-for="(doc, index) in documents" :key="index" :title="doc.customMetadata?.fileName" class="relative group aspect-square rounded-lg overflow-hidden border bg-gray-100 border-gray-200">
       <a :href="$getFileUrl(doc.key)" target="_blank" rel="noopener" download class="block size-full">
         <img v-if="isImage(doc.key)" :src="$previewImage({ type: 'image', src: doc.key })" class="object-cover size-full" />
         <div v-else class="flex flex-col items-center justify-center size-full gap-2 text-gray-400">
