@@ -32,6 +32,6 @@ export default {
     return options.map(option => ({ label: option[labelKey], value: option[valueKey], disabled: excludeArray.includes(option[valueKey]) }))
   },
   stringifyForUrlQuery: (obj: Record<string, any>) => {
-    return Object.entries(obj).map(([i, j]) => [i, typeof j === 'string' ? j : JSON.stringify(j)].join("=")).join("&");
+    return Object.entries(obj).map(([i, j]) => [i, encodeURIComponent(j === undefined ? '' : (typeof j === 'string' ? j : JSON.stringify(j)))].join("=")).join("&");
   }
 }
