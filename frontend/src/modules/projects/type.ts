@@ -12,6 +12,9 @@ export interface Project extends ProjectCreateBody {
   region: Region;
   category: Category;
   created_at: string;
+  total_amount_received: number;
+  total_amount_expensed: number;
+  total_amount_sold: number;
 }
 
 export interface ProjectCreateBody {

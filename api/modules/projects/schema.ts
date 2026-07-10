@@ -15,6 +15,9 @@ const createBody = t.Object({
 const project = t.Object({
     uid: t.String(),
     ...createBody.properties,
+    total_amount_received: t.Number(),
+    total_amount_expensed: t.Number(),
+    total_amount_sold: t.Number(),
     client: t.Object({
         uid: t.String(),
         name: t.String(),

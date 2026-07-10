@@ -89,7 +89,9 @@ const salesDataGridConfig = ref<DataGridPropsConfig>({
             }
         },
         { dataField: 'items_count', caption: t('itemsCount') },
-        { dataField: 'total_amount', caption: t('total'), customizeText: ({ value }) => formatter.currency(value) },
+        { dataField: 'total_amount', caption: t('totalAmountItems'), customizeText: ({ value }) => formatter.currency(value) },
+        { dataField: 'total_amount_received', caption: t('totalAmountReceived'), customizeText: ({ value }) => formatter.currency(value) },
+        { dataField: 'total_amount_expensed', caption: t('totalAmountExpensed'), customizeText: ({ value }) => formatter.currency(value) },
         { dataField: 'created_at', caption: t('createdAt'), ...formatter.devextreme.datetime, sortOrder: 'desc' }
     ]
 });

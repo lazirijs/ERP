@@ -29,8 +29,16 @@
             <span v-else class="block text-sm text-gray-400">{{ $t('notProvided') }}</span>
           </div>
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">{{ $t('total') }}</label>
+            <label class="block text-sm font-medium text-gray-700 mb-1">{{ $t('totalAmountItems') }}</label>
             <span class="block text-sm text-gray-900">{{ $formatter.currency(formData.total_amount) }}</span>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">{{ $t('totalAmountReceived') }}</label>
+            <span class="block text-sm text-gray-900">{{ $formatter.currency(formData.total_amount_received) }}</span>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">{{ $t('totalAmountExpensed') }}</label>
+            <span class="block text-sm text-gray-900">{{ $formatter.currency(formData.total_amount_expensed) }}</span>
           </div>
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">{{ $t('note') }}</label>

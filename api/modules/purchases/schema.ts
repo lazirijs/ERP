@@ -15,6 +15,7 @@ const purchase = t.Object({
     supplier: t.Nullable(t.Object({ uid: t.String(), name: t.String() })),
     total_amount: t.Number(),
     items_count: t.Number(),
+    total_amount_expensed: t.Number(),
     created_at: t.String({ format: "date-time" })
 });
 

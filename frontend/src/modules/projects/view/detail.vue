@@ -39,6 +39,18 @@
             <span class="block text-sm text-gray-900">{{ $formatter.currency(formData.offer!) }}</span>
           </div>
           <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">{{ $t('totalAmountReceived') }}</label>
+            <span class="block text-sm text-gray-900">{{ $formatter.currency(formData.total_amount_received) }}</span>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">{{ $t('totalAmountExpensed') }}</label>
+            <span class="block text-sm text-gray-900">{{ $formatter.currency(formData.total_amount_expensed) }}</span>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">{{ $t('totalAmountSold') }}</label>
+            <span class="block text-sm text-gray-900">{{ $formatter.currency(formData.total_amount_sold) }}</span>
+          </div>
+          <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">{{ $t('note') }}</label>
             <span v-if="formData.note" class="block text-sm text-gray-900">{{ formData.note }}</span>
             <span v-else class="block text-sm text-gray-400">{{ $t('notProvided') }}</span>
@@ -215,7 +227,9 @@ const salesDataGridConfig = ref<DataGridPropsConfig>({
       } 
     },
     { dataField: 'items_count', caption: t('itemsCount') },
-    { dataField: 'total_amount', caption: t('total'), customizeText: ({ value }) => formatter.currency(value) },
+    { dataField: 'total_amount', caption: t('totalAmountItems'), customizeText: ({ value }) => formatter.currency(value) },
+    { dataField: 'total_amount_received', caption: t('totalAmountReceived'), customizeText: ({ value }) => formatter.currency(value) },
+    { dataField: 'total_amount_expensed', caption: t('totalAmountExpensed'), customizeText: ({ value }) => formatter.currency(value) },
     { dataField: 'created_at', caption: t('createdAt'), ...formatter.devextreme.datetime, sortOrder: 'desc' }
   ]
 });

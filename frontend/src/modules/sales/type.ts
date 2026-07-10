@@ -11,6 +11,8 @@ export interface Sale {
   client?: { uid: string; name: string } | null;
   total_amount: number;
   items_count: number;
+  total_amount_received: number;
+  total_amount_expensed: number;
   created_at: string;
 }
 

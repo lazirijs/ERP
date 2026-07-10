@@ -106,7 +106,9 @@ const salesDataGridConfig = ref<DataGridPropsConfig>({
     { dataField: 'sale.name', caption: t('sale'), allowSorting: false },
     { dataField: 'price', caption: t('unitPrice'), customizeText: ({ value }) => formatter.currency(value) },
     { dataField: 'quantity', caption: t('quantity') },
-    { dataField: 'total', caption: t('total'), customizeText: ({ value }) => formatter.currency(value) },
+    { dataField: 'total_amount', caption: t('totalAmountItems'), customizeText: ({ value }) => formatter.currency(value) },
+    { dataField: 'total_amount_received', caption: t('totalAmountReceived'), customizeText: ({ value }) => formatter.currency(value) },
+    { dataField: 'total_amount_expensed', caption: t('totalAmountExpensed'), customizeText: ({ value }) => formatter.currency(value) },
     { dataField: 'note', caption: t('note') },
     { dataField: 'created_at', caption: t('createdAt'), ...formatter.devextreme.datetime, sortOrder: 'desc' }
   ]
@@ -122,7 +124,8 @@ const purchasesDataGridConfig = ref<DataGridPropsConfig>({
     { dataField: 'supplier.name', caption: t('supplier'), allowSorting: false },
     { dataField: 'price', caption: t('unitPrice'), customizeText: ({ value }) => formatter.currency(value) },
     { dataField: 'quantity', caption: t('quantity') },
-    { dataField: 'total', caption: t('total'), customizeText: ({ value }) => formatter.currency(value) },
+    { dataField: 'total_amount', caption: t('totalAmountItems'), customizeText: ({ value }) => formatter.currency(value) },
+    { dataField: 'total_amount_expensed', caption: t('totalAmountExpensed'), customizeText: ({ value }) => formatter.currency(value) },
     { dataField: 'note', caption: t('note') },
     { dataField: 'created_at', caption: t('createdAt'), ...formatter.devextreme.datetime, sortOrder: 'desc' }
   ]
