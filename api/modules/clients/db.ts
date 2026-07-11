@@ -48,9 +48,9 @@ export default {
                 SELECT 
                     c.*,
                     COUNT(p.uid) AS total_projects
-                FROM ${ tableName } c
-                LEFT JOIN projects p ON c.uid = p.client_uid
-                GROUP BY c.uid
+                FROM clients c
+                LEFT JOIN projects p ON c.uid = p.client_uid                
+                
             `];
             let filter: string;
             let orderBy: string;
@@ -58,9 +58,11 @@ export default {
 
             if (inputs.searchText) {
                 inputs.searchText = `%${ inputs.searchText }%`;
-                filter = `WHERE name LIKE ?`;
+                filter = `WHERE c.name LIKE ?`;
                 query.push(filter);
             }
+
+            query.push("GROUP BY c.uid");
             
             if (inputs.sort?.length) {
                 const { selector, desc } = inputs.sort[0]!;
@@ -78,7 +80,7 @@ export default {
 
             let countResult = { count: -1 };
             if(inputs.requireTotalCount) {
-                const countQuery = `SELECT COUNT(*) as count FROM ${tableName}`;
+                const countQuery = `SELECT COUNT(*) as count FROM ${tableName} c`;
                 if (inputs.searchText) {
                     countResult = await database.prepare([countQuery, filter!].join(" ")).bind(inputs.searchText).first() as { count: number };
                 }
