@@ -18,6 +18,8 @@
 
     :editing="dataGridConfig.editing"
     :toolbar="dataGridConfig.toolbar"
+    :header-filter="dataGridConfig.headerFilter"
+    :filter-row="dataGridConfig.filterRow"
     
     :search-panel="dataGridConfig.searchPanel"
     :selection="dataGridConfig.selection"
@@ -53,6 +55,9 @@ const dataGridConfig = ref<DataGridPropsConfig>({
   wordWrapEnabled: true,
   editing: {},
   toolbar: {},
+  headerFilter: {},
+  filterRow: {},
+  searchPanel: {},
   paging: {
     pageSize: 10
   },
@@ -70,7 +75,7 @@ const previewsSearchText = ref<string>("");
 onBeforeMount(() => {
   dataGridConfig.value.remoteOperations = !Array.isArray(props.config.dataSource);
   if (Array.isArray(props.config.dataSource)) dataSource.value = props.config.dataSource;
-  else dataSource.value = new createDevExtremeCustomStore().dataGrid(dataGridRef.value!, props.config.dataSource, { value: previewsSearchText.value, setter: (searchText: string) => previewsSearchText.value = searchText });
+  else dataSource.value = new createDevExtremeCustomStore().dataGrid(() => dataGridRef.value, props.config.dataSource, { value: previewsSearchText.value, setter: (searchText: string) => previewsSearchText.value = searchText });
 });
 
 defineExpose({
