@@ -8,7 +8,7 @@
     </el-button>
   </el-upload>
   <div v-loading="loading" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-    <el-empty v-if="images.length === 0" :description="$t('noImages')" />
+    <el-empty v-if="images.length === 0" :description="$t('noImages')" class="col-span-full" />
     <div v-else v-for="(img, index) in images" :key="index" :title="img.customMetadata?.fileName" class="relative group aspect-square rounded-lg overflow-hidden border bg-gray-100 border-gray-200">
       <img :src="$previewImage({ type: 'image', src: img.key })" class="object-cover size-full" />
       <el-button :type="props.image === img.key ? 'primary' : 'default'" class="absolute top-1 left-1" rounded size="small" circle @click="setPrimary(img.key)">
