@@ -78,8 +78,9 @@ const toggleFilterRowVisibility = (toggle: boolean = true): boolean => {
 const dataGridConfig = () => ({
     dataSource: {
         key: 'uid',
-        api: (query) => indexApi.getAll({ ...query, type: view.value })
+        api: indexApi.getAll
     },
+    headerFilter: { visible: true },
     columns: [
         { dataField: 'project.name', caption: t('project'), allowSorting: false },
         { dataField: 'sale.name', caption: t('sale'), allowSorting: false },
@@ -87,11 +88,12 @@ const dataGridConfig = () => ({
         { dataField: 'account.name', caption: t('account'), allowSorting: false },
         { dataField: 'employee.name', caption: t('employee'), allowSorting: false },
         {
-            dataField: 'type', caption: t('type'), alignment: 'center', 
+            dataField: 'type', caption: t('type'), alignment: 'center', allowHeaderFiltering: true, allowFiltering: false,
             cellTemplate: (container: HTMLElement, options: { value: Transaction["type"] }) => {
                 let { label, color } = type[options.value];
                 container.innerHTML = `<span class="badge-app-${ color }">${ t(label) }</span>`;
-            }
+            },
+            headerFilter: { dataSource: Object.values(type).map(i => ({ value: i.id, text: t(i.label) })) }
         },
         { dataField: 'amount', caption: t('amount'), customizeText: ({ value }: { value: number }) => formatter.currency(value) },
         { dataField: 'note', caption: t('note') },
