@@ -112,10 +112,15 @@ export default {
                 binds.push(inputs.purchase_uid);
             }
 
-            if (inputs.type) {
-                if (filter) filter += ` AND t.type = ?`;
-                else filter = `WHERE t.type = ?`;
-                binds.push(inputs.type);
+            const findFilter = (field: string) => inputs.filters?.find(filter => filter.field === field);
+
+            if (findFilter('type')) {
+                const { values, type } = findFilter('type')!;
+                if (values?.length && values.every(value => ["+", "-"].includes(value))) {
+                    if (filter) filter += ` AND t.type ${ type === 'exclude' ? 'NOT IN' : 'IN' } (${values.map(() => '?').join(',')})`;
+                    else filter = `WHERE t.type ${ type === 'exclude' ? 'NOT IN' : 'IN' } (${values.map(() => '?').join(',')})`;
+                    binds.push(...values);
+                }
             }
 
             query.push(filter);
@@ -130,6 +135,9 @@ export default {
             query.push(limit);
             query.push(offset);
             
+            // console.log(query.join(" "));
+            // console.log(binds);
+
             const prepare = database.prepare(query.join(" "));
             result = binds.length ? await prepare.bind(...binds).run() : await prepare.run();
 

@@ -48,5 +48,4 @@ export interface TransactionGetAllQuery {
   employee_uid?: string;
   sale_uid?: string;
   purchase_uid?: string;
-  type?: keyof typeof type;
 }

@@ -54,8 +54,7 @@ const getAllQuery = t.Object({
     account_uid: t.Optional(t.String()),
     employee_uid: t.Optional(t.String()),
     sale_uid: t.Optional(t.String()),
-    purchase_uid: t.Optional(t.String()),
-    type: t.Optional(t.Union([t.Literal(""), t.Literal("+"), t.Literal("-")]))
+    purchase_uid: t.Optional(t.String())
 });
 
 export default { 
