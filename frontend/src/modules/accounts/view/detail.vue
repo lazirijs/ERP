@@ -32,7 +32,7 @@
       <div class="col-span-1 md:col-span-3 flex-1 space-y-app">
         <el-tabs v-model="tab" type="border-card">
           <el-tab-pane :label="$t('transactions')" name="transactions">
-            <transaction-list-app v-if="tab === 'transactions'" :view="{ type: 'account', data: formData }" @updated="load()" />
+            <transaction-list-app v-if="tab === 'transactions'" :view="{ type: 'account', data: formData }" />
           </el-tab-pane>
         </el-tabs>
       </div>

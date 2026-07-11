@@ -44,7 +44,7 @@
             <attendances-tab v-if="tab === 'attendances' && formData.uid" :employee_uid="formData.uid" />
           </el-tab-pane>
           <el-tab-pane :label="$t('transactions')" name="transactions">
-            <transaction-list-app v-if="tab === 'transactions'" :view="{ type: 'employee', data: formData }" :hide-create="formData.status === 1" @updated="load()" />
+            <transaction-list-app v-if="tab === 'transactions'" :view="{ type: 'employee', data: formData }" :hide-create="formData.status === 1" />
           </el-tab-pane>
           <el-tab-pane :label="$t('documents')" name="documents">
             <documents-tab v-if="tab === 'documents' && formData.uid" :uid="formData.uid" @changed="load()" />
