@@ -32,10 +32,10 @@ export class createDevExtremeCustomStore {
                 queryValues.filters = dataGridRef()?.instance?.getVisibleColumns().map(column => ({
                     field: column.dataField!,
                     values: column.filterValues!,
-                    searchText: column.filterValue! || "",
+                    searchText: column.filterValue! ?? "",
                     type: column.filterType,
                     operation: column.selectedFilterOperation || (column as any).defaultFilterOperation
-                })).filter(filter => filter.values?.length || filter.searchText)!;
+                })).filter(filter => filter.values?.length || filter.searchText != "" || filter.searchText != null || filter.searchText != undefined)!;
 
                 // console.log(queryValues.filters);
                 // console.log('dataGrid', loadOptions, queryValues);
@@ -53,10 +53,10 @@ export class createDevExtremeCustomStore {
                         if (isTotalCountValid) response.detail.totalCount = totalCount;
                         return response.detail;
                     }
-                    const errorMessage = response?.detail?.message || t('failedToLoad');
+                    const errorMessage = response?.detail?.message || t('loadingFailed');
                     ElMessage.error(errorMessage);
                 } catch (error: any) {
-                    const errorMessage = error?.detail?.message || t('failedToLoad');
+                    const errorMessage = error?.detail?.message || t('loadingFailed');
                     ElMessage.error(errorMessage);
                 }
             }
@@ -84,10 +84,10 @@ export class createDevExtremeCustomStore {
                         if (dataSource.map) response.detail.data = response.detail.data.map(dataSource.map);                        
                         return response.detail.data;
                     }
-                    const errorMessage = response?.detail?.message || t('failedToLoad');
+                    const errorMessage = response?.detail?.message || t('loadingFailed');
                     ElMessage.error(errorMessage);
                 } catch (error: any) {
-                    const errorMessage = error?.detail?.message || t('failedToLoad');
+                    const errorMessage = error?.detail?.message || t('loadingFailed');
                     ElMessage.error(errorMessage);
                 }
             },
@@ -99,10 +99,10 @@ export class createDevExtremeCustomStore {
                         if (dataSource.map) response.detail.data = dataSource.map(response.detail.data);
                         return response.detail;
                     }
-                    const errorMessage = response?.detail?.message || t('failedToLoad');
+                    const errorMessage = response?.detail?.message || t('loadingFailed');
                     ElMessage.error(errorMessage);
                 } catch (error: any) {
-                    const errorMessage = error?.detail?.message || t('failedToLoad');
+                    const errorMessage = error?.detail?.message || t('loadingFailed');
                     ElMessage.error(errorMessage);
                 }
             },
