@@ -95,7 +95,11 @@ const dataGridConfig = () => ({
             },
             headerFilter: { dataSource: Object.values(type).map(i => ({ value: i.id, text: t(i.label) })) }
         },
-        { dataField: 'amount', caption: t('amount'), customizeText: ({ value }: { value: number }) => formatter.currency(value) },
+        {
+            dataField: 'amount', caption: t('amount'), dataType: "number", allowFiltering: true, allowHeaderFiltering: false,
+            customizeText: ({ value }: { value: number }) => formatter.currency(value),
+            filterOperations: ['=', 'between']
+        },
         { dataField: 'note', caption: t('note') },
         { dataField: 'created_at', caption: t('createdAt'), ...formatter.devextreme.datetime, sortOrder: 'desc' }
     ].filter(({ dataField }) => {
