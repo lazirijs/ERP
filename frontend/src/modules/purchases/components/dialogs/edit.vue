@@ -33,7 +33,7 @@ import { ElMessage } from 'element-plus';
 import type { FormInstance, FormItemRule } from 'element-plus'
 import type { PurchaseUpdateBody } from '@/modules/purchases/type';
 import { useI18n } from 'vue-i18n';
-import indexApi from '../../api';
+import PurchaseApi from '../../api';
 import SupplierApi from '@/modules/suppliers/api';
 import type { Supplier } from '@/modules/suppliers/type';
 import confirmDialog from '@/services/dialog/confirm';
@@ -95,7 +95,7 @@ const submit = async (formEl: FormInstance | undefined = formRef.value) => {
       });
       try {
         loadingContainer.value.push('submit');
-        await indexApi.update({ ...formData.value, note: formData.value.note || undefined });
+        await PurchaseApi.update({ ...formData.value, note: formData.value.note || undefined });
         ElMessage.success(t('purchaseUpdatedSuccessfully'));
         close(formEl, true);
       } catch (error: any) {
@@ -115,7 +115,7 @@ const open = async () => {
   try {
     loadingContainer.value.push('loading');
     const [purchaseRes, suppliersRes] = await Promise.all([
-      indexApi.get(props.purchase_uid),
+      PurchaseApi.get(props.purchase_uid),
       SupplierApi.getAll()
     ]);
     suppliers.value = suppliersRes.detail.data;

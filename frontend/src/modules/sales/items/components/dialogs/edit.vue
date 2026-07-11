@@ -39,7 +39,7 @@ import { ElMessage } from 'element-plus';
 import type { FormInstance, FormItemRule } from 'element-plus'
 import type { SaleItemUpdateBody } from '../../type';
 import { useI18n } from 'vue-i18n';
-import indexApi from '../../api';
+import SaleItemsApi from '../../api';
 import ProductApi from '@/modules/products/api';
 import type { Product } from '@/modules/products/type';
 import { currency } from '@/constants';
@@ -93,7 +93,7 @@ const submit = async (formEl: FormInstance | undefined = formRef.value) => {
       });
       try {
         loadingContainer.value.push('submit');
-        await indexApi.update({ ...formData.value, note: formData.value.note || undefined });
+        await SaleItemsApi.update({ ...formData.value, note: formData.value.note || undefined });
         ElMessage.success(t('itemUpdatedSuccessfully'));
         close(formEl, true);
       } catch (error: any) {
@@ -115,7 +115,7 @@ const remove = async () => {
   });
   try {
     loadingContainer.value.push('submit');
-    await indexApi.remove(formData.value.uid);
+    await SaleItemsApi.remove(formData.value.uid);
     ElMessage.success(t('itemDeletedSuccessfully'));
     close(formRef.value, true);
   } catch (error: any) {

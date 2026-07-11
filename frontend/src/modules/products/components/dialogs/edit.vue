@@ -52,7 +52,7 @@ import type { FormInstance, FormItemRule, UploadFile } from 'element-plus'
 import type { ProductUpdateBody } from '@/modules/products/type';
 import { useI18n } from 'vue-i18n';
 import { previewImage } from '@/services/files';
-import indexApi from '../../api';
+import ProductApi from '../../api';
 import { currency } from '@/constants';
 import confirmDialog from '@/services/dialog/confirm';
 
@@ -132,8 +132,8 @@ const submit = async (formEl: FormInstance | undefined = formRef.value) => {
       })
       try {
         loadingContainer.value.push('submit');
-        await indexApi.update(formData.value);
-        if (image.value) await indexApi.uploadImage(formData.value.uid, image.value, true);
+        await ProductApi.update(formData.value);
+        if (image.value) await ProductApi.uploadImage(formData.value.uid, image.value, true);
         ElMessage.success(t('productUpdatedSuccessfully'));
         close(formEl, true);
       } catch (error: any) {
@@ -153,7 +153,7 @@ const open = async () => {
   dialogModel.value = true;
   try {
     loadingContainer.value.push('loading');
-    const response = await indexApi.get(props.product_uid);
+    const response = await ProductApi.get(props.product_uid);
     formData.value.uid = response.detail.uid;
     formData.value.name = response.detail.name;
     formData.value.price = response.detail.price;

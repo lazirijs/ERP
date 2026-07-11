@@ -26,7 +26,7 @@ import { ref, onMounted } from 'vue';
 import { ElMessage } from 'element-plus';
 import type { UploadFile } from 'element-plus';
 import { useI18n } from 'vue-i18n';
-import indexApi from '../api';
+import ProductApi from '../api';
 import type { ProductImage } from '../type';
 import confirmDialog from '@/services/dialog/confirm';
 
@@ -45,7 +45,7 @@ const images = ref<ProductImage[]>([]);
 const load = async () => {
   try {
     loading.value = true;
-    const response = await indexApi.getImages(props.uid);
+    const response = await ProductApi.getImages(props.uid);
     images.value = response.detail;
   } catch (error: any) {
     ElMessage.error(error?.detail?.message || t('loadingFailed'));
@@ -60,7 +60,7 @@ const onAdd = async (uploadFile: UploadFile) => {
   if (!uploadFile.raw) return;
   try {
     loading.value = true;
-    await indexApi.uploadImage(props.uid, uploadFile.raw, false);
+    await ProductApi.uploadImage(props.uid, uploadFile.raw, false);
     await load();
     emit('changed');
     ElMessage.success(t('imageUploadedSuccessfully'));
@@ -74,7 +74,7 @@ const onAdd = async (uploadFile: UploadFile) => {
 const setPrimary = async (image: string) => {
   try {
     loading.value = true;
-    await indexApi.setPrimaryImage(props.uid, image);
+    await ProductApi.setPrimaryImage(props.uid, image);
     await load();
     emit('changed');
   } catch (error: any) {
@@ -96,7 +96,7 @@ const remove = async (image: string) => {
 
   try {
     loading.value = true;
-    await indexApi.deleteImage(props.uid, image);
+    await ProductApi.deleteImage(props.uid, image);
     await load();
     emit('changed');
     ElMessage.success(t('imageDeletedSuccessfully'));

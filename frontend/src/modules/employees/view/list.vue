@@ -35,10 +35,9 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
-import indexApi from '../api';
+import EmployeeApi from '../api';
 import { useI18n } from 'vue-i18n';
 import CreateDialogApp from '../components/dialogs/create.vue';
-
 
 import type { DataGridAppRef, DataGridPropsConfig } from '@/components/devextreme/datagrid/type';
 import formatter from '@/services/formatter';
@@ -56,15 +55,13 @@ const search = ref('');
 
 const onSearchChange = (value: string) => {
     value = value.trim();
-    setTimeout(() => {
-        if (value === search.value) dataGridRef.value?.instance?.searchByText(value);
-    }, 500);
+    setTimeout(() => value === search.value && dataGridRef.value?.instance?.searchByText(value), 500);
 };
 
 const dataGridConfig = ref<DataGridPropsConfig>({
     dataSource: {
         key: 'uid',
-        api: indexApi.getAll
+        api: EmployeeApi.getAll
     },
     columns: [
         {

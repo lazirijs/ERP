@@ -24,7 +24,7 @@ import { ElMessage } from 'element-plus';
 import type { FormInstance, FormItemRule } from 'element-plus'
 import type { ClientUpdateBody } from '@/modules/clients/type';
 import { useI18n } from 'vue-i18n';
-import indexApi from '../../api';
+import ClientApi from '../../api';
 import confirmDialog from '@/services/dialog/confirm';
 
 const props = defineProps<{
@@ -80,7 +80,7 @@ const submit = async (formEl: FormInstance | undefined = formRef.value) => {
       })
       try {
         loadingContainer.value.push('submit');
-        await indexApi.update(formData.value);
+        await ClientApi.update(formData.value);
         ElMessage.success(t('clientUpdatedSuccessfully'));
         close(formEl, true);
       } catch (error: any) {
@@ -100,7 +100,7 @@ const open = async () => {
   dialogModel.value = true;
   try {
     loadingContainer.value.push('loading');
-    const response = await indexApi.get(props.client_uid);
+    const response = await ClientApi.get(props.client_uid);
     formData.value.name = response.detail.name;
     formData.value.uid = response.detail.uid;
   } catch (error: any) {

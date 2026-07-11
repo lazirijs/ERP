@@ -43,7 +43,7 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue';
-import indexApi from '../api';
+import SaleApi from '../api';
 import itemsApi from '../items/api';
 import { useI18n } from 'vue-i18n';
 import CreateDialogApp from '../components/dialogs/create.vue';
@@ -67,15 +67,13 @@ const viewOptions = computed(() => [
 const search = ref('');
 const onSearchChange = (value: string) => {
     value = value.trim();
-    setTimeout(() => {
-        if (value === search.value) dataGridRef.value?.instance?.searchByText(value);
-    }, 500);
+    setTimeout(() => value === search.value && dataGridRef.value?.instance?.searchByText(value), 500);
 };
 
 const salesDataGridConfig = ref<DataGridPropsConfig>({
     dataSource: {
         key: 'uid',
-        api: indexApi.getAll
+        api: SaleApi.getAll
     },
     columns: [
         { dataField: 'name', caption: t('name') },

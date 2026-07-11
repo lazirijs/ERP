@@ -52,7 +52,7 @@ import { ElMessage } from 'element-plus';
 import type { FormInstance, FormItemRule } from 'element-plus'
 import type { SaleUpdateBody } from '@/modules/sales/type';
 import { useI18n } from 'vue-i18n';
-import indexApi from '../../api';
+import SaleApi from '../../api';
 import ProjectApi from '@/modules/projects/api';
 import ClientApi from '@/modules/clients/api';
 import type { Project } from '@/modules/projects/type';
@@ -128,7 +128,7 @@ const submit = async (formEl: FormInstance | undefined = formRef.value) => {
     });
     try {
       loadingContainer.value.push('submit');
-      await indexApi.update({ ...formData.value, note: formData.value.note || undefined });
+      await SaleApi.update({ ...formData.value, note: formData.value.note || undefined });
       ElMessage.success(t('saleUpdatedSuccessfully'));
       close(formEl, true);
     } catch (error: any) {
@@ -144,7 +144,7 @@ const open = async () => {
   try {
     loadingContainer.value.push('loading');
     const [saleRes, projectsRes, clientsRes] = await Promise.all([
-      indexApi.get(props.sale_uid),
+      SaleApi.get(props.sale_uid),
       ProjectApi.getAll(),
       ClientApi.getAll()
     ]);

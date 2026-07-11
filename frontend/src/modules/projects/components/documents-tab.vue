@@ -27,7 +27,7 @@ import { ref, onMounted } from 'vue';
 import { ElMessage } from 'element-plus';
 import type { UploadFile } from 'element-plus';
 import { useI18n } from 'vue-i18n';
-import indexApi from '../api';
+import ProjectApi from '../api';
 import confirmDialog from '@/services/dialog/confirm';
 import { getFileExtension, isImage } from '@/services/files';
 import type { StorageObject } from '@/shared/storage/type';
@@ -44,7 +44,7 @@ const documents = ref<StorageObject[]>([]);
 const load = async () => {
   try {
     loading.value = true;
-    const response = await indexApi.getDocuments(props.uid);
+    const response = await ProjectApi.getDocuments(props.uid);
     documents.value = response.detail;
   } catch (error: any) {
     ElMessage.error(error?.detail?.message || t('loadingFailed'));
@@ -59,7 +59,7 @@ const onAdd = async (uploadFile: UploadFile) => {
   if (!uploadFile.raw) return;
   try {
     loading.value = true;
-    await indexApi.uploadDocument(props.uid, uploadFile.raw);
+    await ProjectApi.uploadDocument(props.uid, uploadFile.raw);
     await load();
     ElMessage.success(t('documentUploadedSuccessfully'));
   } catch (error: any) {
@@ -76,7 +76,7 @@ const remove = async (document: string) => {
   });
   try {
     loading.value = true;
-    await indexApi.deleteDocument(props.uid, document);
+    await ProjectApi.deleteDocument(props.uid, document);
     await load();
     ElMessage.success(t('documentDeletedSuccessfully'));
   } catch (error: any) {
