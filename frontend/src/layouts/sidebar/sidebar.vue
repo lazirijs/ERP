@@ -68,7 +68,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, onMounted, onUnmounted, onBeforeMount } from 'vue';
 import { useRouter } from 'vue-router';
 import AppStore from '@/stores/app';
 import Const from './constant';
@@ -85,6 +85,7 @@ const isCollapsed = ref(app.isMobile);
 
 const toggleCollapse = (value: boolean) => {
   isCollapsed.value = value;
+  localStorage.setItem('sidebarCollapsed', value.toString());
   emit('collapsed', value);
 };
 
@@ -95,6 +96,7 @@ const handleMenuItemClick = (name: string) => {
     router.push({ name });
 }
 
+onBeforeMount(() => !app.isMobile && toggleCollapse(localStorage.sidebarCollapsed === 'true'));
 onMounted(() => window.addEventListener('resize', checkMobile));
 onUnmounted(() => window.removeEventListener('resize', checkMobile));
 
