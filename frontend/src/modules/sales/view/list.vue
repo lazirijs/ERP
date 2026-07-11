@@ -68,7 +68,7 @@ const search = ref('');
 const onSearchChange = (value: string) => {
     value = value.trim();
     setTimeout(() => {
-        if (value === search.value) dataGridRef.value?.instance?.option('searchPanel.text', value);
+        if (value === search.value) dataGridRef.value?.instance?.searchByText(value);
     }, 500);
 };
 

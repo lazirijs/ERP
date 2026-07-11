@@ -26,6 +26,7 @@
             <data-grid-app
                 ref="dataGridRef"
                 :config="dataGridConfig"
+                :header-filter="{ visible: true }"
                 @row-click="$router.push({ name: 'clients-detail', params: { uid: $event.data.uid } })"
             />
         </div>
@@ -54,7 +55,7 @@ const search = ref('');
 const onSearchChange = (value: string) => {
     value = value.trim();
     setTimeout(() => {
-        if (value === search.value) dataGridRef.value?.instance?.option('searchPanel.text', value);
+        if (value === search.value) dataGridRef.value?.instance?.searchByText(value);
     }, 500);
 };
 
@@ -65,7 +66,10 @@ const dataGridConfig = ref<DataGridPropsConfig>({
     },
     columns: [
         { dataField: 'name', caption: t('name') },
-        { dataField: 'total_projects', caption: t('totalProjects') },
+        {
+            dataField: 'total_projects', caption: t('totalProjects'),
+            headerFilter: { dataSource: [{ text: '-1', value: -1 }, { text: '0', value: 0 }, { text: '+1', value: 1 }] }
+        },
         { dataField: 'created_at', caption: t('createdAt'), ...formatter.devextreme.datetime, sortOrder: 'desc' }
     ]
 });
