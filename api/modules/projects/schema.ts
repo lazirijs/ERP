@@ -4,8 +4,8 @@ import DataGridSchema from "../../utils/devextreme/datagrid/schema";
 const createBody = t.Object({
     name: t.String({ minLength: 3, maxLength: 255 }),
     client_uid: t.String({ required: true }),
-    region_uid: t.String({ required: true }),
-    category_uid: t.String({ required: true }),
+    region_uid: t.Optional(t.String()),
+    category_uid: t.Optional(t.String()),
     status: t.Union([ t.Literal(0), t.Literal(1), t.Literal(2), t.Literal(3) ]),
     offer: t.Optional(t.Number({ default: 0 })),
     note: t.Optional(t.String({ default: "" })),

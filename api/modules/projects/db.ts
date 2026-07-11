@@ -11,7 +11,7 @@ export default {
         try {
             await database
             .prepare("INSERT INTO projects (name, client_uid, region_uid, category_uid, status, offer, note, description) VALUES (?, ?, ?, ?, ?, ?, ?, ?)")
-            .bind(inputs.name, inputs.client_uid, inputs.region_uid, inputs.category_uid, inputs.status, inputs.offer, inputs.note || null, inputs.description || null)
+            .bind(inputs.name, inputs.client_uid, inputs.region_uid || null, inputs.category_uid || null, inputs.status, inputs.offer, inputs.note || null, inputs.description || null)
             .run();
             return Responses.service.handler.success();
         } catch (error) {
