@@ -47,6 +47,18 @@ import type { DataGridAppRef, DataGridPropsConfig } from '@/components/devextrem
 import { type } from '../constant';
 import type { Transaction } from '../type';
 import formatter from '@/services/formatter';
+import { createDevExtremeCustomStore } from '@/components/devextreme/service';
+
+import ProjectApi from '@/modules/projects/api';
+import type { Project } from '@/modules/projects/type.ts';
+import EmployeeApi from '@/modules/employees/api';
+import type { Employee } from '@/modules/employees/type.ts';
+import SaleApi from '@/modules/sales/api';
+import type { Sale } from '@/modules/sales/type.ts';
+import PurchaseApi from '@/modules/purchases/api';
+import type { Purchase } from '@/modules/purchases/type.ts';
+import AccountApi from '@/modules/accounts/api';
+import type { Account } from '@/modules/accounts/type.ts';
 
 const { t } = useI18n();
 
@@ -75,6 +87,8 @@ const toggleFilterRowVisibility = (toggle: boolean = true): boolean => {
     return dataGridRef.value?.instance?.option('filterRow.visible') as boolean;
 }
 
+const devExtremeCustomStore = new createDevExtremeCustomStore();
+
 const dataGridConfig = () => ({
     dataSource: {
         key: 'uid',
@@ -82,11 +96,56 @@ const dataGridConfig = () => ({
     },
     headerFilter: { visible: true },
     columns: [
-        { dataField: 'project.name', caption: t('project'), allowSorting: false },
-        { dataField: 'sale.name', caption: t('sale'), allowSorting: false },
-        { dataField: 'purchase.name', caption: t('purchase'), allowSorting: false },
-        { dataField: 'account.name', caption: t('account'), allowSorting: false },
-        { dataField: 'employee.name', caption: t('employee'), allowSorting: false },
+        {
+            dataField: 'project.name', caption: t('project'), allowSorting: false,
+            headerFilter: {
+                dataSource: devExtremeCustomStore.lookup({
+                    key: 'value',
+                    api: ProjectApi.getAll,
+                    map: (i: Project) => ({ value: i.uid, text: i.name })
+                })
+            }
+        },
+        { 
+            dataField: 'sale.name', caption: t('sale'), allowSorting: false,
+            headerFilter: {
+                dataSource: devExtremeCustomStore.lookup({
+                    key: 'value',
+                    api: SaleApi.getAll,
+                    map: (i: Sale) => ({ value: i.uid, text: i.name })
+                })
+            }
+        },
+        { 
+            dataField: 'purchase.name', caption: t('purchase'), allowSorting: false,
+            headerFilter: {
+                dataSource: devExtremeCustomStore.lookup({
+                    key: 'value',
+                    api: PurchaseApi.getAll,
+                    map: (i: Purchase) => ({ value: i.uid, text: i.name })
+                })
+            }
+        },
+        { 
+            dataField: 'account.name', caption: t('account'), allowSorting: false,
+            headerFilter: {
+                dataSource: devExtremeCustomStore.lookup({
+                    key: 'value',
+                    api: AccountApi.getAll,
+                    map: (i: Account) => ({ value: i.uid, text: i.name })
+                })
+            }
+        },
+        {
+            dataField: 'employee.name', caption: t('employee'), allowSorting: false,
+            headerFilter: {
+                dataSource: devExtremeCustomStore.lookup({
+                    key: 'value',
+                    api: EmployeeApi.getAll,
+                    map: (i: Employee) => ({ value: i.uid, text: i.name })
+                })
+            }
+        },
         {
             dataField: 'type', caption: t('type'), alignment: 'center', allowHeaderFiltering: true, allowFiltering: false,
             cellTemplate: (container: HTMLElement, options: { value: Transaction["type"] }) => {
@@ -102,10 +161,11 @@ const dataGridConfig = () => ({
         },
         { dataField: 'note', caption: t('note') },
         { dataField: 'created_at', caption: t('createdAt'), ...formatter.devextreme.datetime, sortOrder: 'desc' }
-    ].filter(({ dataField }) => {
-        if (view.value === '+') return !['type', 'account.name', 'employee.name', 'purchase.name'].includes(dataField);
-        else if (view.value === '-') return !['type'].includes(dataField);
-        else return true
-    }),
+    ]
+    // .filter(({ dataField }) => {
+    //     if (view.value === '+') return !['type', 'purchase.name', 'account.name', 'employee.name' ].includes(dataField);
+    //     else if (view.value === '-') return !['type'].includes(dataField);
+    //     else return true
+    // }),
 } as DataGridPropsConfig);
 </script>
