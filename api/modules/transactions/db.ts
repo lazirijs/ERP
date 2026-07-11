@@ -4,6 +4,7 @@ import Responses from '../../utils/response';
 import type { SuccessServiceResponse } from '../../utils/response/type';
 import type { TransactionType, TransactionCreateBodyType, TransactionGetAllQueryType } from './type';
 import type { DataGridResponse } from '../../utils/devextreme/datagrid/type';
+import { buildDataGridSQLiteConditions } from '../../utils/devextreme/datagrid/service';
 
 export default {
     async create(input: TransactionCreateBodyType): Promise<SuccessServiceResponse<undefined>> {
@@ -47,9 +48,10 @@ export default {
     
     async getAll(inputs: TransactionGetAllQueryType): Promise<SuccessServiceResponse<DataGridResponse<TransactionType>>> {
         try {
-            const tableName = "transactions";
-            let limit = "LIMIT " + inputs.take;
-            let offset = "OFFSET " + inputs.skip;
+            const limit = "LIMIT " + inputs.take;
+            const offset = "OFFSET " + inputs.skip;
+            let orderBy: string = "";
+            let result;
 
             // console.log(inputs);
 
@@ -71,59 +73,24 @@ export default {
                     LEFT JOIN purchases pur ON t.purchase_uid = pur.uid
             `];
 
-            let filter: string = "";
-            let orderBy: string = "";
-            let result;
-            const binds: unknown[] = [];
+            const { conditions, binds } = buildDataGridSQLiteConditions({
+                searchText: inputs.searchText,
+                filters: inputs.filters,
+                columns: {
+                    'project.name': { searchTextColumn: 'p.name', valuesColumn: 't.project_uid' },
+                    'account.name': { searchTextColumn: 'a.name', valuesColumn: 't.account_uid' },
+                    'employee.name': { searchTextColumn: 'e.name', valuesColumn: 't.employee_uid' },
+                    'sale.name': { searchTextColumn: 's.name', valuesColumn: 't.sale_uid' },
+                    'purchase.name': { searchTextColumn: 'pur.name', valuesColumn: 't.purchase_uid' },
+                    'type': { searchTextColumn: 't.type', valuesColumn: 't.type' },
+                    'amount': { searchTextColumn: 't.amount', valuesColumn: 't.amount' },
+                    'note': { searchTextColumn: 't.note', valuesColumn: 't.note' },
+                    'created_at': { searchTextColumn: 't.created_at', valuesColumn: 't.created_at' }
+                },
+                excludeColumnsFromSearchText: ['t.type']
+            });
 
-            if (inputs.searchText) {
-                inputs.searchText = `%${ inputs.searchText }%`;
-                filter = `WHERE name LIKE ?`;
-                binds.push(inputs.searchText);
-            }
-
-            if (inputs.project_uid) {
-                if (filter) filter += ` AND t.project_uid = ?`;
-                else filter = `WHERE t.project_uid = ?`;
-                binds.push(inputs.project_uid);
-            }
-
-            if (inputs.account_uid) {
-                if (filter) filter += ` AND t.account_uid = ?`;
-                else filter = `WHERE t.account_uid = ?`;
-                binds.push(inputs.account_uid);
-            }
-
-            if (inputs.employee_uid) {
-                if (filter) filter += ` AND t.employee_uid = ?`;
-                else filter = `WHERE t.employee_uid = ?`;
-                binds.push(inputs.employee_uid);
-            }
-
-            if (inputs.sale_uid) {
-                if (filter) filter += ` AND t.sale_uid = ?`;
-                else filter = `WHERE t.sale_uid = ?`;
-                binds.push(inputs.sale_uid);
-            }
-
-            if (inputs.purchase_uid) {
-                if (filter) filter += ` AND t.purchase_uid = ?`;
-                else filter = `WHERE t.purchase_uid = ?`;
-                binds.push(inputs.purchase_uid);
-            }
-
-            const findFilter = (field: string) => inputs.filters?.find(filter => filter.field === field);
-
-            if (findFilter('type')) {
-                const { values, type } = findFilter('type')!;
-                if (values?.length && values.every(value => ["+", "-"].includes(value))) {
-                    if (filter) filter += ` AND t.type ${ type === 'exclude' ? 'NOT IN' : 'IN' } (${values.map(() => '?').join(',')})`;
-                    else filter = `WHERE t.type ${ type === 'exclude' ? 'NOT IN' : 'IN' } (${values.map(() => '?').join(',')})`;
-                    binds.push(...values);
-                }
-            }
-
-            query.push(filter);
+            query.push(...conditions);
             
             if (inputs.sort?.length) {
                 const { selector, desc } = inputs.sort[0]!;
@@ -135,8 +102,8 @@ export default {
             query.push(limit);
             query.push(offset);
             
-            // console.log(query.join(" "));
-            // console.log(binds);
+            console.log(query.join(" "));
+            console.log(binds);
 
             const prepare = database.prepare(query.join(" "));
             result = binds.length ? await prepare.bind(...binds).run() : await prepare.run();
@@ -155,11 +122,10 @@ export default {
 
             let countResult = { count: -1 };
             if(inputs.requireTotalCount) {
-                const countQuery = `SELECT COUNT(*) as count FROM ${tableName} t`;
-                if (binds.length) {
-                    countResult = await database.prepare([countQuery, filter].join(" ")).bind(...binds).first() as { count: number };
-                }
-                else countResult = await database.prepare([countQuery, filter].join(" ")).first() as { count: number };
+                const countQuery = [`SELECT COUNT(*) as count FROM transactions t`, ...conditions].join(" ");
+                const prepare = database.prepare(countQuery);
+                if (!binds.length) countResult = await prepare.first() as { count: number };
+                else countResult = await prepare.bind(...binds).first() as { count: number };
             }
 
             // console.log(countResult);
