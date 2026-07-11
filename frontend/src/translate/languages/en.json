@@ -1,4 +1,8 @@
 {
+  "totalAmountSold": "Total sold",
+  "totalAmountReceived": "Total received",
+  "totalAmountExpensed": "Total expensed",
+  "totalAmountItems": "Total items",
   "products": "Products",
   "remainingQuantity": "Remaining quantity",
   "product": "Product",
@@ -103,6 +107,7 @@
   "amount": "Amount",
   "payout": "Payout",
   "expense": "Expense",
+  "account": "Account",
   "editAccount": "Edit account",
   "updateAccount": "Update account",
   "areYouSureYouWantToUpdateThisAccount?": "Are you sure you want to update this account?",
