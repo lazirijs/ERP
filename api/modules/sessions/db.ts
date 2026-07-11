@@ -4,6 +4,7 @@ import Responses from '../../utils/response';
 import type { SuccessServiceResponse } from '../../utils/response/type';
 import type { SessionType, SessionCreateBodyType, SessionUpdateBodyType, SessionGetAllQueryType } from './type';
 import type { DataGridResponse } from '../../utils/devextreme/datagrid/type';
+import { buildDataGridSQLiteConditions } from '../../utils/devextreme/datagrid/service';
 
 const today = () => new Date().toISOString().slice(0, 10);
 
@@ -43,22 +44,26 @@ export default {
 
             const waitList = Object.keys(Schema.data.value.properties);
 
-            const conditions: string[] = [];
-            const binds: unknown[] = [];
+            const from = `FROM sessions`;
 
+            const { conditions, binds } = buildDataGridSQLiteConditions({
+                searchText: inputs.searchText,
+                filters: inputs.filters,
+                columns: {
+                    date: { searchText: 'date', values: 'date' },
+                    note: { searchText: 'note', values: 'note' }
+                }
+            });
+
+            // `from` / `to` are a separate date-range query param.
             if (inputs.from) {
-                conditions.push("date >= ?");
+                conditions.push(conditions.length ? "AND" : "WHERE", "date >= ?");
                 binds.push(inputs.from);
             }
             if (inputs.to) {
-                conditions.push("date <= ?");
+                conditions.push(conditions.length ? "AND" : "WHERE", "date <= ?");
                 binds.push(inputs.to);
             }
-            if (inputs.searchText) {
-                conditions.push("date LIKE ?");
-                binds.push(`%${ inputs.searchText }%`);
-            }
-            const where = conditions.length ? "WHERE " + conditions.join(" AND ") : "";
 
             let orderBy = "ORDER BY date DESC";
             if (inputs.sort?.length) {
@@ -67,16 +72,17 @@ export default {
                 orderBy = `ORDER BY ${ selector } ${ desc ? "DESC" : "ASC" }`;
             }
 
-            const query = [`SELECT * FROM sessions`, where, orderBy, limit, offset].join(" ");
+            const query = [`SELECT * ${ from }`, ...conditions, orderBy, limit, offset].join(" ");
             const prepare = database.prepare(query);
             const result = binds.length ? await prepare.bind(...binds).run() : await prepare.run();
 
             let countResult = { count: -1 };
             if (inputs.requireTotalCount) {
-                const countQuery = [`SELECT COUNT(*) as count FROM sessions`, where].join(" ");
+                const countQuery = [`SELECT COUNT(*) as count ${ from }`, ...conditions].join(" ");                
+                const countPrepare = database.prepare(countQuery);
                 countResult = binds.length
-                    ? await database.prepare(countQuery).bind(...binds).first() as { count: number }
-                    : await database.prepare(countQuery).first() as { count: number };
+                    ? await countPrepare.bind(...binds).first() as { count: number }
+                    : await countPrepare.first() as { count: number };
             }
 
             return Responses.service.handler.success({

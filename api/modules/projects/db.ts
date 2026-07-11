@@ -4,6 +4,7 @@ import storage from '../../storage'
 import Responses from '../../utils/response';
 import type { SuccessServiceResponse } from '../../utils/response/type';
 import type { DataGridResponse } from '../../utils/devextreme/datagrid/type';
+import { buildDataGridSQLiteConditions } from '../../utils/devextreme/datagrid/service';
 import type { ProjectType, ProjectCreateBodyType, ProjectUpdateBodyType, ProjectGetAllQueryType } from './type';
 
 export default {
@@ -54,47 +55,55 @@ export default {
 
             const waitList = Object.keys(Schema.data.value.properties);
             
-            const query: string[] = [`
-                SELECT 
-                    p.*,
-                    json_object('uid', c.uid, 'name', c.name, 'created_at', c.created_at) as client,
-                    json_object('uid', r.uid, 'name', r.name, 'created_at', r.created_at) as region,
-                    json_object('uid', cat.uid, 'parent_uid', cat.parent_uid, 'name', cat.name, 'created_at', cat.created_at) as category
+            const from = `
                 FROM ${ tableName } p
                 LEFT JOIN clients c ON p.client_uid = c.uid
                 LEFT JOIN regions r ON p.region_uid = r.uid
                 LEFT JOIN categories cat ON p.category_uid = cat.uid
+            `;
+
+            const query: string[] = [`
+                SELECT
+                    p.*,
+                    json_object('uid', c.uid, 'name', c.name, 'created_at', c.created_at) as client,
+                    json_object('uid', r.uid, 'name', r.name, 'created_at', r.created_at) as region,
+                    json_object('uid', cat.uid, 'parent_uid', cat.parent_uid, 'name', cat.name, 'created_at', cat.created_at) as category
+                ${ from }
             `];
-            let filter: string = "";
             let orderBy: string = "";
             let result;
-            const binds: unknown[] = [];
 
-            if (inputs.searchText) {
-                inputs.searchText = `%${ inputs.searchText }%`;
-                filter = `WHERE p.name LIKE ?`;
-                binds.push(inputs.searchText);
-            }
+            const { conditions, binds } = buildDataGridSQLiteConditions({
+                searchText: inputs.searchText,
+                filters: inputs.filters,
+                columns: {
+                    name: { searchText: 'p.name', values: 'p.name' },
+                    'client.name': { searchText: 'c.name', values: 'p.client_uid' },
+                    'region.name': { searchText: 'r.name', values: 'p.region_uid' },
+                    'category.name': { searchText: 'cat.name', values: 'p.category_uid' },
+                    status: { searchText: 'p.status', values: 'p.status' },
+                    created_at: { searchText: 'p.created_at', values: 'p.created_at' }
+                },
+                excludeColumnsFromSearchText: ['status', 'created_at']
+            });
 
             if (inputs.client_uid) {
-                if (filter) filter += ` AND p.client_uid = ?`;
-                else filter = `WHERE p.client_uid = ?`;
+                conditions.push(conditions.length ? "AND" : "WHERE", "p.client_uid = ?");
                 binds.push(inputs.client_uid);
             }
 
-            query.push(filter);
-            
+            query.push(...conditions);
+
             if (inputs.sort?.length) {
                 const { selector, desc } = inputs.sort[0]!;
                 if(!waitList.includes(selector)) throw Responses.service.handler.error("Invalid sort field: " + selector, 400);
-                orderBy = `ORDER BY ${ selector } ${ desc ? "DESC" : "ASC" }`;
+                orderBy = `ORDER BY p.${ selector } ${ desc ? "DESC" : "ASC" }`;
                 query.push(orderBy);
             }
-            
+
             query.push(limit);
             query.push(offset);
-            
-            // console.log(query.join(" "));
+
             const prepare = database.prepare(query.join(" "));
             result = binds.length ? await prepare.bind(...binds).run() : await prepare.run();
 
@@ -110,11 +119,9 @@ export default {
 
             let countResult = { count: -1 };
             if(inputs.requireTotalCount) {
-                const countQuery = `SELECT COUNT(*) as count FROM ${ tableName } p`;
-                if (binds.length) {
-                    countResult = await database.prepare([countQuery, filter].join(" ")).bind(...binds).first() as { count: number };
-                }
-                else countResult = await database.prepare([countQuery, filter].join(" ")).first() as { count: number };
+                const countQuery = [`SELECT COUNT(*) as count ${ from }`, ...conditions].join(" ");
+                const prepareCount = database.prepare(countQuery);
+                countResult = binds.length ? await prepareCount.bind(...binds).first() as { count: number } : await prepareCount.first() as { count: number };
             }
 
             // console.log(countResult);

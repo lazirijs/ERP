@@ -3,6 +3,7 @@ import Responses from '../../../utils/response';
 import type { SuccessServiceResponse } from '../../../utils/response/type';
 import type { DataGridResponse } from '../../../utils/devextreme/datagrid/type';
 import type { ItemType, ItemCreateBodyType, ItemUpdateBodyType, ItemBatchBodyType, ItemGetAllQueryType } from './type';
+import { buildDataGridSQLiteConditions } from '../../../utils/devextreme/datagrid/service';
 
 const parseRow = (row: any) => ({
     ...row,
@@ -10,15 +11,19 @@ const parseRow = (row: any) => ({
     sale: row.sale ? JSON.parse(row.sale) : null
 });
 
+const itemsFrom = `
+    FROM sale_items si
+    LEFT JOIN products pr ON si.product_uid = pr.uid
+    LEFT JOIN sales s ON si.sale_uid = s.uid
+`;
+
 const selectItem = `
     SELECT
         si.*,
         (si.price * si.quantity) AS total,
         json_object('uid', pr.uid, 'name', pr.name, 'image', pr.image) AS product,
         json_object('uid', s.uid, 'name', s.name, 'status', s.status) AS sale
-    FROM sale_items si
-    LEFT JOIN products pr ON si.product_uid = pr.uid
-    LEFT JOIN sales s ON si.sale_uid = s.uid
+    ${ itemsFrom }
 `;
 
 const sortable: Record<string, string> = {
@@ -93,26 +98,35 @@ export default {
             const limit = "LIMIT " + inputs.take;
             const offset = "OFFSET " + inputs.skip;
 
-            const conditions: string[] = [];
-            const binds: unknown[] = [];
+            const { conditions, binds } = buildDataGridSQLiteConditions({
+                searchText: inputs.searchText,
+                filters: inputs.filters,
+                columns: {
+                    'product.name': { searchText: 'pr.name', values: 'si.product_uid' },
+                    'sale.name': { searchText: 's.name', values: 'si.sale_uid' },
+                    'sale.status': { searchText: 's.status', values: 's.status' },
+                    note: { searchText: 'si.note', values: 'si.note' },
+                    price: { searchText: 'si.price', values: 'si.price' },
+                    quantity: { searchText: 'si.quantity', values: 'si.quantity' },
+                    // total: { searchText: 'si.total', values: 'si.total' }, // no such column si.total
+                    created_at: { searchText: 'si.created_at', values: 'si.created_at' }
+                }
+            });
+
+            console.log({ conditions, binds });
 
             if (inputs.sale_uid) {
-                conditions.push("si.sale_uid = ?");
+                conditions.push(conditions.length ? "AND" : "WHERE", "si.sale_uid = ?");
                 binds.push(inputs.sale_uid);
             }
             if (inputs.product_uid) {
-                conditions.push("si.product_uid = ?");
+                conditions.push(conditions.length ? "AND" : "WHERE", "si.product_uid = ?");
                 binds.push(inputs.product_uid);
             }
             if (inputs.project_uid) {
-                conditions.push("s.project_uid = ?");
+                conditions.push(conditions.length ? "AND" : "WHERE", "s.project_uid = ?");
                 binds.push(inputs.project_uid);
             }
-            if (inputs.searchText) {
-                conditions.push("pr.name LIKE ?");
-                binds.push(`%${ inputs.searchText }%`);
-            }
-            const where = conditions.length ? "WHERE " + conditions.join(" AND ") : "";
 
             let orderBy = "ORDER BY si.created_at DESC";
             if (inputs.sort?.length) {
@@ -121,18 +135,18 @@ export default {
                 if (col) orderBy = `ORDER BY ${ col } ${ desc ? "DESC" : "ASC" }`;
             }
 
-            const query = [selectItem, where, orderBy, limit, offset].join(" ");
-            const result = binds.length
-                ? await database.prepare(query).bind(...binds).run()
-                : await database.prepare(query).run();
+            const query = [selectItem, ...conditions, orderBy, limit, offset].join(" ");
+            const prepare = database.prepare(query);
+            const result = binds.length ? await prepare.bind(...binds).run() : await prepare.run();
             const data = (result.results as any[]).map(parseRow);
 
             let countResult = { count: -1 };
             if(inputs.requireTotalCount) {
-                const countQuery = `SELECT COUNT(*) as count FROM sale_items si LEFT JOIN products pr ON si.product_uid = pr.uid LEFT JOIN sales s ON si.sale_uid = s.uid ${ where }`;
+                const countQuery = [`SELECT COUNT(*) as count`, itemsFrom, ...conditions].join(" ");
+                const countPrepare = database.prepare(countQuery);
                 countResult = binds.length
-                    ? await database.prepare(countQuery).bind(...binds).first() as { count: number }
-                    : await database.prepare(countQuery).first() as { count: number };
+                    ? await countPrepare.bind(...binds).first() as { count: number }
+                    : await countPrepare.first() as { count: number };
             }
 
             return Responses.service.handler.success({

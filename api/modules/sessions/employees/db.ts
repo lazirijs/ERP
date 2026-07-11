@@ -10,6 +10,7 @@ import type {
     SessionEmployeeUpdateBodyType,
     SessionEmployeeGetAllQueryType
 } from './type';
+import { buildDataGridSQLiteConditions } from '../../../utils/devextreme/datagrid/service';
 
 const today = () => new Date().toISOString().slice(0, 10);
 
@@ -19,16 +20,20 @@ const parseRow = (row: any) => ({
     team: row.team ? JSON.parse(row.team) : null
 });
 
+const itemsFrom = `
+    FROM session_employees se
+    LEFT JOIN employees e ON se.employee_uid = e.uid
+    LEFT JOIN teams t ON se.team_uid = t.uid
+    LEFT JOIN sessions s ON se.session_uid = s.uid
+`;
+
 const selectItem = `
     SELECT
         se.*,
         s.date AS date,
         json_object('uid', e.uid, 'name', e.name, 'image', e.image) AS employee,
         CASE WHEN t.uid IS NOT NULL THEN json_object('uid', t.uid, 'name', t.name) ELSE NULL END AS team
-    FROM session_employees se
-    LEFT JOIN employees e ON se.employee_uid = e.uid
-    LEFT JOIN teams t ON se.team_uid = t.uid
-    LEFT JOIN sessions s ON se.session_uid = s.uid
+    ${ itemsFrom }
 `;
 
 const sortable: Record<string, string> = {
@@ -107,30 +112,32 @@ export default {
             const limit = "LIMIT " + inputs.take;
             const offset = "OFFSET " + inputs.skip;
 
-            const conditions: string[] = [];
-            const binds: unknown[] = [];
+            const { conditions, binds } = buildDataGridSQLiteConditions({
+                searchText: inputs.searchText,
+                filters: inputs.filters,
+                columns: {
+                    'employee.name': { searchText: 'e.name', values: 'se.employee_uid' },
+                    'team.name': { searchText: 't.name', values: 'se.team_uid' },
+                    note: { searchText: 'se.note', values: 'se.note' }
+                }
+            });
 
             if (inputs.session_uid) {
-                conditions.push("se.session_uid = ?");
+                conditions.push(conditions.length ? "AND" : "WHERE", "se.session_uid = ?");
                 binds.push(inputs.session_uid);
             }
             if (inputs.employee_uid) {
-                conditions.push("se.employee_uid = ?");
+                conditions.push(conditions.length ? "AND" : "WHERE", "se.employee_uid = ?");
                 binds.push(inputs.employee_uid);
             }
             if (inputs.from) {
-                conditions.push("s.date >= ?");
+                conditions.push(conditions.length ? "AND" : "WHERE", "s.date >= ?");
                 binds.push(inputs.from);
             }
             if (inputs.to) {
-                conditions.push("s.date <= ?");
+                conditions.push(conditions.length ? "AND" : "WHERE", "s.date <= ?");
                 binds.push(inputs.to);
             }
-            if (inputs.searchText) {
-                conditions.push("e.name LIKE ?");
-                binds.push(`%${ inputs.searchText }%`);
-            }
-            const where = conditions.length ? "WHERE " + conditions.join(" AND ") : "";
 
             let orderBy = "ORDER BY se.created_at DESC";
             if (inputs.sort?.length) {
@@ -139,18 +146,18 @@ export default {
                 if (col) orderBy = `ORDER BY ${ col } ${ desc ? "DESC" : "ASC" }`;
             }
 
-            const query = [selectItem, where, orderBy, limit, offset].join(" ");
-            const result = binds.length
-                ? await database.prepare(query).bind(...binds).run()
-                : await database.prepare(query).run();
+            const query = [selectItem, ...conditions, orderBy, limit, offset].join(" ");
+            const prepare = database.prepare(query);
+            const result = binds.length ? await prepare.bind(...binds).run() : await prepare.run();
             const data = (result.results as any[]).map(parseRow);
 
             let countResult = { count: -1 };
             if (inputs.requireTotalCount) {
-                const countQuery = `SELECT COUNT(*) as count FROM session_employees se LEFT JOIN employees e ON se.employee_uid = e.uid LEFT JOIN sessions s ON se.session_uid = s.uid ${ where }`;
+                const countQuery = [`SELECT COUNT(*) as count`, itemsFrom, ...conditions].join(" ");
+                const countPrepare = database.prepare(countQuery);
                 countResult = binds.length
-                    ? await database.prepare(countQuery).bind(...binds).first() as { count: number }
-                    : await database.prepare(countQuery).first() as { count: number };
+                    ? await countPrepare.bind(...binds).first() as { count: number }
+                    : await countPrepare.first() as { count: number };
             }
 
             return Responses.service.handler.success({

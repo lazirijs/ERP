@@ -5,6 +5,7 @@ import Responses from '../../utils/response';
 import type { SuccessServiceResponse } from '../../utils/response/type';
 import type { ProductType, ProductCreateBodyType, ProductUpdateBodyType } from './type';
 import type { DataGridQuery, DataGridResponse } from '../../utils/devextreme/datagrid/type';
+import { buildDataGridSQLiteConditions } from '../../utils/devextreme/datagrid/service';
 
 export default {
     async create(input: ProductCreateBodyType): Promise<SuccessServiceResponse<{ uid: string }>> {
@@ -41,18 +42,25 @@ export default {
 
             const waitList = Object.keys(Schema.data.value.properties);
 
-            const query: string[] = [`
-                SELECT * FROM ${ tableName }
-            `];
-            let filter: string;
+            const from = `FROM ${ tableName }`;
+
+            const query: string[] = [`SELECT * ${ from }`];
             let orderBy: string;
             let result;
 
-            if (inputs.searchText) {
-                inputs.searchText = `%${ inputs.searchText }%`;
-                filter = `WHERE name LIKE ?`;
-                query.push(filter);
-            }
+            const { conditions, binds } = buildDataGridSQLiteConditions({
+                searchText: inputs.searchText,
+                filters: inputs.filters,
+                columns: {
+                    name: { searchText: 'name', values: 'name' },
+                    description: { searchText: 'description', values: 'description' },
+                    price: { searchText: 'price', values: 'price' },
+                    created_at: { searchText: 'created_at', values: 'created_at' }
+                },
+                excludeColumnsFromSearchText: ['price', 'created_at']
+            });
+
+            query.push(...conditions);
 
             if (inputs.sort?.length) {
                 const { selector, desc } = inputs.sort[0]!;
@@ -65,15 +73,13 @@ export default {
             query.push(offset);
 
             const prepare = database.prepare(query.join(" "));
-            result = inputs.searchText ? await prepare.bind(inputs.searchText).run() : await prepare.run();
+            result = binds.length ? await prepare.bind(...binds).run() : await prepare.run();
 
             let countResult = { count: -1 };
             if(inputs.requireTotalCount) {
-                const countQuery = `SELECT COUNT(*) as count FROM ${ tableName }`;
-                if (inputs.searchText) {
-                    countResult = await database.prepare([countQuery, filter!].join(" ")).bind(inputs.searchText).first() as { count: number };
-                }
-                else countResult = await database.prepare(countQuery).first() as { count: number };
+                const countQuery = [`SELECT COUNT(*) as count ${ from }`, ...conditions].join(" ");
+                const prepareCount = database.prepare(countQuery);
+                countResult = binds.length ? await prepareCount.bind(...binds).first() as { count: number } : await prepareCount.first() as { count: number };
             }
 
             return Responses.service.handler.success({

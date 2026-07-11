@@ -4,6 +4,7 @@ import Responses from '../../utils/response';
 import type { SuccessServiceResponse } from '../../utils/response/type';
 import type { ClientType, ClientCreateBodyType, ClientUpdateBodyType } from './type';
 import type { DataGridQuery, DataGridResponse } from '../../utils/devextreme/datagrid/type';
+import { buildDataGridSQLiteConditions } from '../../utils/devextreme/datagrid/service';
 
 export default {
     async create(input: ClientCreateBodyType): Promise<SuccessServiceResponse<undefined>> {
@@ -45,46 +46,47 @@ export default {
             const waitList = Object.keys(Schema.data.value.properties);
             
             const query: string[] = [`
-                SELECT 
+                SELECT
                     c.*,
                     COUNT(p.uid) AS total_projects
                 FROM clients c
-                LEFT JOIN projects p ON c.uid = p.client_uid                
-                
+                LEFT JOIN projects p ON c.uid = p.client_uid
             `];
-            let filter: string;
             let orderBy: string;
             let result;
 
-            if (inputs.searchText) {
-                inputs.searchText = `%${ inputs.searchText }%`;
-                filter = `WHERE c.name LIKE ?`;
-                query.push(filter);
-            }
+            const { conditions, binds } = buildDataGridSQLiteConditions({
+                searchText: inputs.searchText,
+                filters: inputs.filters,
+                columns: {
+                    name: { searchText: 'c.name', values: 'c.name' },
+                    created_at: { searchText: 'c.created_at', values: 'c.created_at' }
+                },
+                excludeColumnsFromSearchText: ['created_at']
+            });
 
+            query.push(...conditions);
             query.push("GROUP BY c.uid");
-            
+
             if (inputs.sort?.length) {
                 const { selector, desc } = inputs.sort[0]!;
                 if(!waitList.includes(selector)) throw Responses.service.handler.error("Invalid sort field: " + selector, 400);
                 orderBy = `ORDER BY ${ selector } ${ desc ? "DESC" : "ASC" }`;
                 query.push(orderBy);
             }
-            
+
             query.push(limit);
             query.push(offset);
-            
-            // console.log(query.join(" "));
-            const prepare = database.prepare(query.join(" "));
-            result = inputs.searchText ? await prepare.bind(inputs.searchText).run() : await prepare.run();
 
+            const prepare = database.prepare(query.join(" "));
+            result = binds.length ? await prepare.bind(...binds).run() : await prepare.run();
+
+            // total_projects is an aggregate; header-filtering it would need HAVING and is left as-is.
             let countResult = { count: -1 };
             if(inputs.requireTotalCount) {
-                const countQuery = `SELECT COUNT(*) as count FROM ${tableName} c`;
-                if (inputs.searchText) {
-                    countResult = await database.prepare([countQuery, filter!].join(" ")).bind(inputs.searchText).first() as { count: number };
-                }
-                else countResult = await database.prepare(countQuery).first() as { count: number };
+                const countQuery = [`SELECT COUNT(*) as count FROM ${ tableName } c`, ...conditions].join(" ");
+                const prepareCount = database.prepare(countQuery);
+                countResult = binds.length ? await prepareCount.bind(...binds).first() as { count: number } : await prepareCount.first() as { count: number };
             }
 
             // console.log(countResult);

@@ -3,6 +3,7 @@ import Responses from '../../../utils/response';
 import type { SuccessServiceResponse } from '../../../utils/response/type';
 import type { DataGridResponse } from '../../../utils/devextreme/datagrid/type';
 import type { ItemType, ItemCreateBodyType, ItemUpdateBodyType, ItemBatchBodyType, ItemGetAllQueryType } from './type';
+import { buildDataGridSQLiteConditions } from '../../../utils/devextreme/datagrid/service';
 
 const parseRow = (row: any) => ({
     ...row,
@@ -11,6 +12,13 @@ const parseRow = (row: any) => ({
     supplier: row.supplier ? JSON.parse(row.supplier) : null
 });
 
+const itemsFrom = `
+    FROM purchase_items pi
+    LEFT JOIN products pr ON pi.product_uid = pr.uid
+    LEFT JOIN purchases pu ON pi.purchase_uid = pu.uid
+    LEFT JOIN suppliers s ON pu.supplier_uid = s.uid
+`;
+
 const selectItem = `
     SELECT
         pi.*,
@@ -18,10 +26,7 @@ const selectItem = `
         json_object('uid', pr.uid, 'name', pr.name, 'image', pr.image) AS product,
         json_object('uid', pu.uid, 'name', pu.name) AS purchase,
         CASE WHEN s.uid IS NOT NULL THEN json_object('uid', s.uid, 'name', s.name) ELSE NULL END AS supplier
-    FROM purchase_items pi
-    LEFT JOIN products pr ON pi.product_uid = pr.uid
-    LEFT JOIN purchases pu ON pi.purchase_uid = pu.uid
-    LEFT JOIN suppliers s ON pu.supplier_uid = s.uid
+    ${ itemsFrom }
 `;
 
 const sortable: Record<string, string> = {
@@ -75,26 +80,28 @@ export default {
             const limit = "LIMIT " + inputs.take;
             const offset = "OFFSET " + inputs.skip;
 
-            const conditions: string[] = [];
-            const binds: unknown[] = [];
+            const { conditions, binds } = buildDataGridSQLiteConditions({
+                searchText: inputs.searchText,
+                filters: inputs.filters,
+                columns: {
+                    'product.name': { searchText: 'pr.name', values: 'pi.product_uid' },
+                    'supplier.name': { searchText: 's.name', values: 'pu.supplier_uid' },
+                    note: { searchText: 'pi.note', values: 'pi.note' }
+                }
+            });
 
             if (inputs.purchase_uid) {
-                conditions.push("pi.purchase_uid = ?");
+                conditions.push(conditions.length ? "AND" : "WHERE", "pi.purchase_uid = ?");
                 binds.push(inputs.purchase_uid);
             }
             if (inputs.product_uid) {
-                conditions.push("pi.product_uid = ?");
+                conditions.push(conditions.length ? "AND" : "WHERE", "pi.product_uid = ?");
                 binds.push(inputs.product_uid);
             }
             if (inputs.supplier_uid) {
-                conditions.push("pu.supplier_uid = ?");
+                conditions.push(conditions.length ? "AND" : "WHERE", "pu.supplier_uid = ?");
                 binds.push(inputs.supplier_uid);
             }
-            if (inputs.searchText) {
-                conditions.push("pr.name LIKE ?");
-                binds.push(`%${ inputs.searchText }%`);
-            }
-            const where = conditions.length ? "WHERE " + conditions.join(" AND ") : "";
 
             let orderBy = "ORDER BY pi.created_at DESC";
             if (inputs.sort?.length) {
@@ -103,18 +110,18 @@ export default {
                 if (col) orderBy = `ORDER BY ${ col } ${ desc ? "DESC" : "ASC" }`;
             }
 
-            const query = [selectItem, where, orderBy, limit, offset].join(" ");
-            const result = binds.length
-                ? await database.prepare(query).bind(...binds).run()
-                : await database.prepare(query).run();
+            const query = [selectItem, ...conditions, orderBy, limit, offset].join(" ");
+            const prepare = database.prepare(query);
+            const result = binds.length ? await prepare.bind(...binds).run() : await prepare.run();
             const data = (result.results as any[]).map(parseRow);
 
             let countResult = { count: -1 };
             if(inputs.requireTotalCount) {
-                const countQuery = `SELECT COUNT(*) as count FROM purchase_items pi LEFT JOIN products pr ON pi.product_uid = pr.uid LEFT JOIN purchases pu ON pi.purchase_uid = pu.uid ${ where }`;
+                const countQuery = [`SELECT COUNT(*) as count`, itemsFrom, ...conditions].join(" ");
+                const countPrepare = database.prepare(countQuery);
                 countResult = binds.length
-                    ? await database.prepare(countQuery).bind(...binds).first() as { count: number }
-                    : await database.prepare(countQuery).first() as { count: number };
+                    ? await countPrepare.bind(...binds).first() as { count: number }
+                    : await countPrepare.first() as { count: number };
             }
 
             return Responses.service.handler.success({

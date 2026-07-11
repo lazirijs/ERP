@@ -88,10 +88,10 @@ export default {
                     'employee.name': { searchText: 'e.name', values: 't.employee_uid' },
                     'sale.name': { searchText: 's.name', values: 't.sale_uid' },
                     'purchase.name': { searchText: 'pur.name', values: 't.purchase_uid' },
-                    'type': { searchText: 't.type', values: 't.type' },
-                    'amount': { searchText: 't.amount', values: 't.amount' },
-                    'note': { searchText: 't.note', values: 't.note' },
-                    'created_at': { searchText: 't.created_at', values: 't.created_at' }
+                    type: { searchText: 't.type', values: 't.type' },
+                    amount: { searchText: 't.amount', values: 't.amount' },
+                    note: { searchText: 't.note', values: 't.note' },
+                    created_at: { searchText: 't.created_at', values: 't.created_at' }
                 },
                 excludeColumnsFromSearchText: [...(inputs.excludeColumnsFromSearchText || []), 'type']
             });

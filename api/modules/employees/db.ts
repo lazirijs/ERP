@@ -5,6 +5,7 @@ import Responses from '../../utils/response';
 import type { SuccessServiceResponse } from '../../utils/response/type';
 import type { EmployeeType, EmployeeCreateBodyType, EmployeeGetAllQueryType, EmployeeUpdateBodyType } from './type';
 import type { DataGridResponse } from '../../utils/devextreme/datagrid/type';
+import { buildDataGridSQLiteConditions } from '../../utils/devextreme/datagrid/service';
 
 export default {
     async create(input: EmployeeCreateBodyType): Promise<SuccessServiceResponse<{ uid: string }>> {
@@ -49,65 +50,64 @@ export default {
 
             const waitList = Object.keys(Schema.data.value.properties);
             
-            const query: string[] = [`
-                SELECT 
-                    employees.*,
-                    json_object('uid', teams.uid, 'name', teams.name) as team
+            const from = `
                 FROM ${ tableName }
                 LEFT JOIN teams ON employees.team_uid = teams.uid
+            `;
+
+            const query: string[] = [`
+                SELECT
+                    employees.*,
+                    json_object('uid', teams.uid, 'name', teams.name) as team
+                ${ from }
             `];
-            let filter: string = inputs.team_uid === "null" ? "WHERE employees.team_uid IS NULL" : "";
-            let groupBy: string = "GROUP BY employees.uid";
             let orderBy: string = "";
             let result;
 
-            if (inputs.searchText) {
-                inputs.searchText = `%${ inputs.searchText }%`;
-                if (filter) filter += ` AND employees.name LIKE ?`;
-                else filter = `WHERE employees.name LIKE ?`;
-            }
+            const { conditions, binds } = buildDataGridSQLiteConditions({
+                searchText: inputs.searchText,
+                filters: inputs.filters,
+                columns: {
+                    name: { searchText: 'employees.name', values: 'employees.name' },
+                    status: { searchText: 'employees.status', values: 'employees.status' },
+                    'team.name': { searchText: 'teams.name', values: 'employees.team_uid' },
+                    created_at: { searchText: 'employees.created_at', values: 'employees.created_at' }
+                },
+                excludeColumnsFromSearchText: ['status', 'created_at']
+            });
 
+            // team_uid comes as a separate query param: "null" -> employees with no team, otherwise a specific team.
             const team_uid = inputs.team_uid && inputs.team_uid != "null" && inputs.team_uid.replace(/"/g, "");
-
-            if (team_uid) {
-                if (filter) filter += ` AND employees.team_uid = ?`;
-                else filter = `WHERE employees.team_uid = ?`;
+            if (inputs.team_uid === "null") {
+                conditions.push(conditions.length ? "AND" : "WHERE", "employees.team_uid IS NULL");
+            } else if (team_uid) {
+                conditions.push(conditions.length ? "AND" : "WHERE", "employees.team_uid = ?");
+                binds.push(team_uid);
             }
-            
-            query.push(filter);
-            query.push(groupBy);
-            
+
+            query.push(...conditions);
+            query.push("GROUP BY employees.uid");
+
             if (inputs.sort?.length) {
                 const { selector, desc } = inputs.sort[0]!;
                 if(!waitList.includes(selector)) throw Responses.service.handler.error("Invalid sort field: " + selector, 400);
-                orderBy = `ORDER BY ${ selector } ${ desc ? "DESC" : "ASC" }`;
+                orderBy = `ORDER BY employees.${ selector } ${ desc ? "DESC" : "ASC" }`;
                 query.push(orderBy);
             }
-            
+
             query.push(limit);
             query.push(offset);
-            
+
             const prepare = database.prepare(query.join(" "));
-            if (inputs.searchText && team_uid) {
-                result = await prepare.bind(inputs.searchText, team_uid).run();
-            } else if (team_uid || inputs.searchText) {
-                result = await prepare.bind(team_uid || inputs.searchText).run();
-            } else {
-                result = await prepare.run();
-            }
+            result = binds.length ? await prepare.bind(...binds).run() : await prepare.run();
 
             result.results = result.results.map((employee: any) => ({ ...employee, team: JSON.parse(employee.team) }));
 
             let countResult = { count: -1 };
             if(inputs.requireTotalCount) {
-                const countQuery = `SELECT COUNT(*) as count FROM ${tableName} ${filter}`;
+                const countQuery = [`SELECT COUNT(*) as count ${ from }`, ...conditions].join(" ");
                 const prepareCount = database.prepare(countQuery);
-                if (team_uid && inputs.searchText) {
-                    countResult = await prepareCount.bind(team_uid, inputs.searchText).first() as { count: number };
-                } else if (team_uid || inputs.searchText) {
-                    countResult = await prepareCount.bind(team_uid || inputs.searchText).first() as { count: number };
-                }
-                else countResult = await prepareCount.first() as { count: number };
+                countResult = binds.length ? await prepareCount.bind(...binds).first() as { count: number } : await prepareCount.first() as { count: number };
             }
 
             // console.log(countResult);

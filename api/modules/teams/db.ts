@@ -4,6 +4,7 @@ import Responses from '../../utils/response';
 import type { SuccessServiceResponse } from '../../utils/response/type';
 import type { TeamType, TeamCreateBodyType, TeamUpdateBodyType } from './type';
 import type { DataGridQuery, DataGridResponse } from '../../utils/devextreme/datagrid/type';
+import { buildDataGridSQLiteConditions } from '../../utils/devextreme/datagrid/service';
 
 export default {
     async create(input: TeamCreateBodyType): Promise<SuccessServiceResponse<undefined>> {
@@ -45,36 +46,45 @@ export default {
 
             const waitList = Object.keys(Schema.data.value.properties);
             
-            const query: string[] = [`
-                SELECT 
-                    t.*,
-                    json_object('uid', e.uid, 'name', e.name, 'created_at', e.created_at) as supervisor
+            const from = `
                 FROM ${ tableName } t
                 LEFT JOIN employees e ON t.supervisor_uid = e.uid
+            `;
+
+            const query: string[] = [`
+                SELECT
+                    t.*,
+                    json_object('uid', e.uid, 'name', e.name, 'created_at', e.created_at) as supervisor
+                ${ from }
             `];
-            let filter: string;
             let orderBy: string;
             let result;
 
-            if (inputs.searchText) {
-                inputs.searchText = `%${ inputs.searchText }%`;
-                filter = `WHERE name LIKE ?`;
-                query.push(filter);
-            }
-            
+            const { conditions, binds } = buildDataGridSQLiteConditions({
+                searchText: inputs.searchText,
+                filters: inputs.filters,
+                columns: {
+                    name: { searchText: 't.name', values: 't.name' },
+                    'supervisor.name': { searchText: 'e.name', values: 't.supervisor_uid' },
+                    created_at: { searchText: 't.created_at', values: 't.created_at' }
+                },
+                excludeColumnsFromSearchText: ['created_at']
+            });
+
+            query.push(...conditions);
+
             if (inputs.sort?.length) {
                 const { selector, desc } = inputs.sort[0]!;
                 if(!waitList.includes(selector)) throw Responses.service.handler.error("Invalid sort field: " + selector, 400);
-                orderBy = `ORDER BY ${ selector } ${ desc ? "DESC" : "ASC" }`;
+                orderBy = `ORDER BY t.${ selector } ${ desc ? "DESC" : "ASC" }`;
                 query.push(orderBy);
             }
-            
+
             query.push(limit);
             query.push(offset);
-            
-            // console.log(query.join(" "));
+
             const prepare = database.prepare(query.join(" "));
-            result = inputs.searchText ? await prepare.bind(inputs.searchText).run() : await prepare.run();
+            result = binds.length ? await prepare.bind(...binds).run() : await prepare.run();
 
             // parse result
             result.results = result.results.map((team: any) => {
@@ -86,11 +96,9 @@ export default {
 
             let countResult = { count: -1 };
             if(inputs.requireTotalCount) {
-                const countQuery = `SELECT COUNT(*) as count FROM ${ tableName }`;
-                if (inputs.searchText) {
-                    countResult = await database.prepare([countQuery, filter!].join(" ")).bind(inputs.searchText).first() as { count: number };
-                }
-                else countResult = await database.prepare(countQuery).first() as { count: number };
+                const countQuery = [`SELECT COUNT(*) as count ${ from }`, ...conditions].join(" ");
+                const prepareCount = database.prepare(countQuery);
+                countResult = binds.length ? await prepareCount.bind(...binds).first() as { count: number } : await prepareCount.first() as { count: number };
             }
 
             // console.log(countResult);

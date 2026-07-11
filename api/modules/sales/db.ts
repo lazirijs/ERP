@@ -4,12 +4,19 @@ import Responses from '../../utils/response';
 import type { SuccessServiceResponse } from '../../utils/response/type';
 import type { SaleType, SaleCreateBodyType, SaleUpdateBodyType, SaleGetAllQueryType } from './type';
 import type { DataGridResponse } from '../../utils/devextreme/datagrid/type';
+import { buildDataGridSQLiteConditions } from '../../utils/devextreme/datagrid/service';
 
 const parseRow = (row: any) => ({
     ...row,
     project: row.project ? JSON.parse(row.project) : null,
     client: row.client ? JSON.parse(row.client) : null
 });
+
+const salesFrom = `
+    FROM sales s
+    LEFT JOIN projects pr ON s.project_uid = pr.uid
+    LEFT JOIN clients c ON s.client_uid = c.uid
+`;
 
 const selectSale = `
     SELECT
@@ -18,9 +25,7 @@ const selectSale = `
         s.items_count,
         CASE WHEN pr.uid IS NOT NULL THEN json_object('uid', pr.uid, 'name', pr.name) ELSE NULL END AS project,
         CASE WHEN c.uid IS NOT NULL THEN json_object('uid', c.uid, 'name', c.name) ELSE NULL END AS client
-    FROM sales s
-    LEFT JOIN projects pr ON s.project_uid = pr.uid
-    LEFT JOIN clients c ON s.client_uid = c.uid
+    ${ salesFrom }
 `;
 
 export default {
@@ -54,18 +59,27 @@ export default {
 
             const waitList = Object.keys(Schema.data.value.properties);
 
-            const conditions: string[] = [];
-            const binds: unknown[] = [];
+            const { conditions, binds } = buildDataGridSQLiteConditions({
+                searchText: inputs.searchText,
+                filters: inputs.filters,
+                columns: {
+                    name: { searchText: 's.name', values: 's.name' },
+                    'project.name': { searchText: 'pr.name', values: 's.project_uid' },
+                    'client.name': { searchText: 'c.name', values: 's.client_uid' },
+                    status: { searchText: 's.status', values: 's.status' },
+                    items_count: { searchText: 's.items_count', values: 's.items_count' },
+                    total_amount: { searchText: 's.total_amount', values: 's.total_amount' },
+                    total_amount_received: { searchText: 's.total_amount_received', values: 's.total_amount_received' },
+                    total_amount_expensed: { searchText: 's.total_amount_expensed', values: 's.total_amount_expensed' },
+                    created_at: { searchText: 's.created_at', values: 's.created_at' }
+                },
+                excludeColumnsFromSearchText: ['status', 'created_at']
+            });
 
             if (inputs.project_uid) {
-                conditions.push("s.project_uid = ?");
+                conditions.push(conditions.length ? "AND" : "WHERE", "s.project_uid = ?");
                 binds.push(inputs.project_uid);
             }
-            if (inputs.searchText) {
-                conditions.push("s.name LIKE ?");
-                binds.push(`%${ inputs.searchText }%`);
-            }
-            const where = conditions.length ? "WHERE " + conditions.join(" AND ") : "";
 
             let orderBy = "";
             if (inputs.sort?.length) {
@@ -75,17 +89,18 @@ export default {
                 orderBy = `ORDER BY ${ sortCol } ${ desc ? "DESC" : "ASC" }`;
             }
 
-            const query = [selectSale, where, "GROUP BY s.uid", orderBy, limit, offset].join(" ");
+            const query = [selectSale, ...conditions, "GROUP BY s.uid", orderBy, limit, offset].join(" ");
             const prepare = database.prepare(query);
             const result = binds.length ? await prepare.bind(...binds).run() : await prepare.run();
             result.results = (result.results as any[]).map(parseRow);
 
             let countResult = { count: -1 };
             if(inputs.requireTotalCount) {
-                const countQuery = [`SELECT COUNT(*) as count FROM sales s`, where].join(" ");
+                const countQuery = [`SELECT COUNT(*) as count`, salesFrom, ...conditions].join(" ");                
+                const countPrepare = database.prepare(countQuery);
                 countResult = binds.length
-                    ? await database.prepare(countQuery).bind(...binds).first() as { count: number }
-                    : await database.prepare(countQuery).first() as { count: number };
+                    ? await countPrepare.bind(...binds).first() as { count: number }
+                    : await countPrepare.first() as { count: number };
             }
 
             return Responses.service.handler.success({

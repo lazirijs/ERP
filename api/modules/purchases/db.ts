@@ -5,6 +5,7 @@ import Responses from '../../utils/response';
 import type { SuccessServiceResponse } from '../../utils/response/type';
 import type { PurchaseType, PurchaseCreateBodyType, PurchaseUpdateBodyType, PurchaseBatchBodyType, PurchaseGetAllQueryType } from './type';
 import type { DataGridResponse } from '../../utils/devextreme/datagrid/type';
+import { buildDataGridSQLiteConditions } from '../../utils/devextreme/datagrid/service';
 
 const parseSupplier = (row: any) => ({ ...row, supplier: row.supplier ? JSON.parse(row.supplier) : null });
 
@@ -89,18 +90,27 @@ export default {
 
             const waitList = Object.keys(Schema.data.value.properties);
 
-            const conditions: string[] = [];
-            const binds: unknown[] = [];
+            const from = `
+                FROM purchases p
+                LEFT JOIN suppliers s ON p.supplier_uid = s.uid
+            `;
+
+            const { conditions, binds } = buildDataGridSQLiteConditions({
+                searchText: inputs.searchText,
+                filters: inputs.filters,
+                columns: {
+                    name: { searchText: 'p.name', values: 'p.name' },
+                    'supplier.name': { searchText: 's.name', values: 'p.supplier_uid' },
+                    note: { searchText: 'p.note', values: 'p.note' },
+                    created_at: { searchText: 'p.created_at', values: 'p.created_at' }
+                },
+                excludeColumnsFromSearchText: ['created_at']
+            });
 
             if (inputs.supplier_uid) {
-                conditions.push("p.supplier_uid = ?");
+                conditions.push(conditions.length ? "AND" : "WHERE", "p.supplier_uid = ?");
                 binds.push(inputs.supplier_uid);
             }
-            if (inputs.searchText) {
-                conditions.push("p.name LIKE ?");
-                binds.push(`%${ inputs.searchText }%`);
-            }
-            const where = conditions.length ? "WHERE " + conditions.join(" AND ") : "";
 
             let orderBy = "";
             if (inputs.sort?.length) {
@@ -116,9 +126,8 @@ export default {
                     p.total_amount,
                     p.items_count,
                     CASE WHEN s.uid IS NOT NULL THEN json_object('uid', s.uid, 'name', s.name) ELSE NULL END AS supplier
-                FROM purchases p
-                LEFT JOIN suppliers s ON p.supplier_uid = s.uid
-            `, where, orderBy, limit, offset].join(" ");
+                ${ from }
+            `, ...conditions, orderBy, limit, offset].join(" ");
 
             const prepare = database.prepare(query);
             const result = binds.length ? await prepare.bind(...binds).run() : await prepare.run();
@@ -126,10 +135,11 @@ export default {
 
             let countResult = { count: -1 };
             if(inputs.requireTotalCount) {
-                const countQuery = [`SELECT COUNT(*) as count FROM purchases p`, where].join(" ");
+                const countQuery = [`SELECT COUNT(*) as count ${ from }`, ...conditions].join(" ");                
+                const countPrepare = database.prepare(countQuery);
                 countResult = binds.length
-                    ? await database.prepare(countQuery).bind(...binds).first() as { count: number }
-                    : await database.prepare(countQuery).first() as { count: number };
+                    ? await countPrepare.bind(...binds).first() as { count: number }
+                    : await countPrepare.first() as { count: number };
             }
 
             return Responses.service.handler.success({

@@ -4,6 +4,7 @@ import Responses from '../../utils/response';
 import type { SuccessServiceResponse } from '../../utils/response/type';
 import type { SupplierType, SupplierCreateBodyType, SupplierUpdateBodyType, SupplierGetAllQueryType } from './type';
 import type { DataGridResponse } from '../../utils/devextreme/datagrid/type';
+import { buildDataGridSQLiteConditions } from '../../utils/devextreme/datagrid/service';
 
 export default {
     async create(input: SupplierCreateBodyType): Promise<SuccessServiceResponse<undefined>> {
@@ -43,8 +44,8 @@ export default {
             // history, so switch to a joined + grouped query returning distinct suppliers.
             // Column references are qualified with the `s.` alias because `created_at`
             // is ambiguous across the joined tables.
+            // suppliers is always aliased `s`, so column references stay `s.`-qualified in both branches.
             const byProduct = !!inputs.product_uid;
-            const alias = byProduct ? "s." : "";
             const from = byProduct
                 ? `FROM suppliers s
                    JOIN purchases p       ON p.supplier_uid = s.uid
@@ -52,37 +53,42 @@ export default {
                 : `FROM suppliers s`;
             const groupBy = byProduct ? "GROUP BY s.uid" : "";
 
-            const conditions: string[] = [];
-            const binds: unknown[] = [];
+            const { conditions, binds } = buildDataGridSQLiteConditions({
+                searchText: inputs.searchText,
+                filters: inputs.filters,
+                columns: {
+                    name: { searchText: 's.name', values: 's.name' },
+                    contact: { searchText: 's.contact', values: 's.contact' },
+                    address: { searchText: 's.address', values: 's.address' },
+                    created_at: { searchText: 's.created_at', values: 's.created_at' }
+                },
+                excludeColumnsFromSearchText: ['created_at']
+            });
 
             if (inputs.product_uid) {
-                conditions.push("pi.product_uid = ?");
+                conditions.push(conditions.length ? "AND" : "WHERE", "pi.product_uid = ?");
                 binds.push(inputs.product_uid);
             }
-            if (inputs.searchText) {
-                conditions.push(`${ alias }name LIKE ?`);
-                binds.push(`%${ inputs.searchText }%`);
-            }
-            const where = conditions.length ? "WHERE " + conditions.join(" AND ") : "";
 
-            let orderBy = `ORDER BY ${ alias }created_at DESC`;
+            let orderBy = `ORDER BY s.created_at DESC`;
             if (inputs.sort?.length) {
                 const { selector, desc } = inputs.sort[0]!;
                 if(!waitList.includes(selector)) throw Responses.service.handler.error("Invalid sort field: " + selector, 400);
-                orderBy = `ORDER BY ${ alias }${ selector } ${ desc ? "DESC" : "ASC" }`;
+                orderBy = `ORDER BY s.${ selector } ${ desc ? "DESC" : "ASC" }`;
             }
 
-            const query = [`SELECT s.*`, from, where, groupBy, orderBy, limit, offset].join(" ");
+            const query = [`SELECT s.*`, from, ...conditions, groupBy, orderBy, limit, offset].join(" ");
             const prepare = database.prepare(query);
             const result = binds.length ? await prepare.bind(...binds).run() : await prepare.run();
 
             let countResult = { count: -1 };
             if(inputs.requireTotalCount) {
                 const countSelect = byProduct ? "COUNT(DISTINCT s.uid)" : "COUNT(*)";
-                const countQuery = [`SELECT ${ countSelect } as count`, from, where].join(" ");
+                const countQuery = [`SELECT ${ countSelect } as count`, from, ...conditions].join(" ");                
+                const countPrepare = database.prepare(countQuery);
                 countResult = binds.length
-                    ? await database.prepare(countQuery).bind(...binds).first() as { count: number }
-                    : await database.prepare(countQuery).first() as { count: number };
+                    ? await countPrepare.bind(...binds).first() as { count: number }
+                    : await countPrepare.first() as { count: number };
             }
 
             return Responses.service.handler.success({
