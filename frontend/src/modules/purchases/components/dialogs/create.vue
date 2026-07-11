@@ -52,13 +52,14 @@ import SupplierApi from '@/modules/suppliers/api';
 import type { Supplier } from '@/modules/suppliers/type';
 import ItemsBatchDataGridApp from '../items-batch-data-grid.vue';
 import confirmDialog from '@/services/dialog/confirm';
+import formatter from '@/services/formatter.ts';
 
-const emit = defineEmits(['submitted']);
+const emit = defineEmits<{ submitted: [] }>();
 
 const { t } = useI18n();
 const router = useRouter();
 
-const loadingContainer = ref<('submit')[]>([]);
+const loadingContainer = ref<('submit' | 'loading')[]>([]);
 
 const mode = ref<'purchase' | 'items'>('purchase');
 const modeOptions = computed(() => [
@@ -154,11 +155,16 @@ const submit = () => mode.value === 'purchase' ? submitSingle() : submitMultiple
 
 const open = async () => {
   dialogModel.value = true;
+  formData.value.name = formatter.date(new Date().toISOString());
   try {
+    loadingContainer.value.push('loading');
     const res = await SupplierApi.getAll();
     suppliers.value = res.detail.data;
   } catch (error: any) {
     ElMessage.error(error?.detail?.message || t('loadingFailed'));
+    dialogModel.value = false;
+  } finally {
+    loadingContainer.value = loadingContainer.value.filter(item => item !== 'loading');
   }
 };
 

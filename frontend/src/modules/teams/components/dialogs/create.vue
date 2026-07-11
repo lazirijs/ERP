@@ -35,7 +35,7 @@ import EmployeeApi from '@/modules/employees/api';
 import type { Employee } from '@/modules/employees/type';
 import confirmDialog from '@/services/dialog/confirm';
 
-const emit = defineEmits(['submitted']);
+const emit = defineEmits<{ submitted: [] }>();
 
 const { t } = useI18n();
 

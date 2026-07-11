@@ -63,7 +63,7 @@ import type { Team } from '@/modules/teams/type';
 import confirmDialog from '@/services/dialog/confirm';
 import { previewImage } from '@/services/files';
 
-const emit = defineEmits(['submitted']);
+const emit = defineEmits<{ submitted: [] }>();
 
 const { t } = useI18n();
 

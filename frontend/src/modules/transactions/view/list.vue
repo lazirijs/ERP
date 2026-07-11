@@ -176,8 +176,7 @@ const dataGridConfig = () => ({
         },
         {
             dataField: 'amount', caption: t('amount'), dataType: "number", allowFiltering: true, allowHeaderFiltering: false,
-            customizeText: ({ value }: { value: number }) => formatter.currency(value),
-            filterOperations: ['=', 'between']
+            customizeText: ({ value }: { value: number }) => formatter.currency(value)
         },
         { dataField: 'note', caption: t('note'), allowHeaderFiltering: false },
         { dataField: 'created_at', caption: t('createdAt'), ...formatter.devextreme.datetime, sortOrder: 'desc', allowHeaderFiltering: false }

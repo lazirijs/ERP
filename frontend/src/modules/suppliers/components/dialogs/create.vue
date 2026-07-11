@@ -37,7 +37,7 @@ import { useI18n } from 'vue-i18n';
 import SupplierApi from '@/modules/suppliers/api';
 import confirmDialog from '@/services/dialog/confirm';
 
-const emit = defineEmits(['submitted']);
+const emit = defineEmits<{ submitted: [] }>();
 
 const { t } = useI18n();
 

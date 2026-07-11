@@ -38,7 +38,7 @@ import type { UserUpdateBody } from '@/modules/users/type';
 import { useI18n } from 'vue-i18n';
 import userApi from '@/modules/users/api';
 
-const emit = defineEmits(['submitted']);
+const emit = defineEmits<{ submitted: [] }>();
 
 const { t } = useI18n();
 

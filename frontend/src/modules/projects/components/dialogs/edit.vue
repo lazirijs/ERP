@@ -68,7 +68,7 @@ const props = defineProps<{
   uid: string;
 }>();
 
-const emit = defineEmits(['submitted']);
+const emit = defineEmits<{ submitted: [] }>();
 
 const { t } = useI18n();
 

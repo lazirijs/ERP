@@ -91,7 +91,7 @@ import CategoryApi from '@/modules/projects/categories/api';
 import confirmDialog from '@/services/dialog/confirm';
 import { currency } from '@/constants';
 
-const emit = defineEmits(['submitted']);
+const emit = defineEmits<{ submitted: [] }>();
 
 const { t } = useI18n();
 

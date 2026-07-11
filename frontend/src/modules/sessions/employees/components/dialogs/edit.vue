@@ -51,7 +51,7 @@ const props = defineProps<{
   allowPresent?: boolean;
 }>();
 
-const emit = defineEmits(['submitted']);
+const emit = defineEmits<{ submitted: [] }>();
 
 const { t } = useI18n();
 

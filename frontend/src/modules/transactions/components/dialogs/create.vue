@@ -92,7 +92,7 @@ import confirmDialog from '@/services/dialog/confirm';
 import transactionsCons from '../../constant';
 import type { Purchase } from '@/modules/purchases/type';
 
-const emit = defineEmits(['submitted']);
+const emit = defineEmits<{ submitted: [] }>();
 
 const props = defineProps<{
   config?: {

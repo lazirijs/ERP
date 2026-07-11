@@ -52,7 +52,7 @@ import ProductApi from '@/modules/products/api';
 import { currency } from "@/constants";
 import confirmDialog from '@/services/dialog/confirm';
 
-const emit = defineEmits(['submitted']);
+const emit = defineEmits<{ submitted: [] }>();
 
 const { t } = useI18n();
 
