@@ -29,13 +29,13 @@ export class createDevExtremeCustomStore {
                 queryValues.filters = dataGridRef()?.instance?.getVisibleColumns().map(column => ({
                     field: column.dataField!,
                     values: column.filterValues!,
-                    searchText: column.filterValue!,
+                    searchText: column.filterValue! || "",
                     type: column.filterType,
                     operation: column.selectedFilterOperation || (column as any).defaultFilterOperation
                 })).filter(filter => filter.values?.length || filter.searchText)!;
 
                 // console.log(queryValues.filters);
-                console.log('dataGrid', loadOptions, queryValues);
+                // console.log('dataGrid', loadOptions, queryValues);
 
                 const totalCount = dataGridRef()?.instance?.totalCount();
                 const isTotalCountValid = typeof totalCount === "number" && totalCount > -1 && (queryValues.searchText ? queryValues.skip : !(searchText.value || queryValues.searchText || queryValues.filters.length));
@@ -73,7 +73,7 @@ export class createDevExtremeCustomStore {
                     take: 20
                 };
 
-                console.log('lookup', loadOptions, queryValues);
+                // console.log('lookup', loadOptions, queryValues);
 
                 try {
                     const response = await dataSource.api(queryValues);
