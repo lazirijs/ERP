@@ -56,21 +56,27 @@ export default {
             // console.log(inputs);
 
             const waitList = Object.keys(Schema.data.value.properties);
-            
-            const query: string[] = [`
-                SELECT 
-                    t.*,
-                    json_object('uid', p.uid, 'name', p.name, 'created_at', p.created_at) as project,
-                    json_object('uid', a.uid, 'name', a.name, 'created_at', a.created_at) as account,
-                    json_object('uid', e.uid, 'name', e.name, 'created_at', e.created_at) as employee,
-                    json_object('uid', s.uid, 'name', s.name, 'created_at', s.created_at) as sale,
-                    json_object('uid', pur.uid, 'name', pur.name, 'created_at', pur.created_at) as purchase
+
+            // Shared so the data query and the COUNT query filter over the same joined columns
+            // (filter/search conditions may reference p.name, a.name, e.name, s.name, pur.name).
+            const from = `
                 FROM transactions t
                     LEFT JOIN projects p ON t.project_uid = p.uid
                     LEFT JOIN accounts a ON t.account_uid = a.uid
                     LEFT JOIN employees e ON t.employee_uid = e.uid
                     LEFT JOIN sales s ON t.sale_uid = s.uid
                     LEFT JOIN purchases pur ON t.purchase_uid = pur.uid
+            `;
+
+            const query: string[] = [`
+                SELECT
+                    t.*,
+                    json_object('uid', p.uid, 'name', p.name, 'created_at', p.created_at) as project,
+                    json_object('uid', a.uid, 'name', a.name, 'created_at', a.created_at) as account,
+                    json_object('uid', e.uid, 'name', e.name, 'created_at', e.created_at) as employee,
+                    json_object('uid', s.uid, 'name', s.name, 'created_at', s.created_at) as sale,
+                    json_object('uid', pur.uid, 'name', pur.name, 'created_at', pur.created_at) as purchase
+                ${ from }
             `];
 
             const { conditions, binds } = buildDataGridSQLiteConditions({
@@ -122,7 +128,7 @@ export default {
 
             let countResult = { count: -1 };
             if(inputs.requireTotalCount) {
-                const countQuery = [`SELECT COUNT(*) as count FROM transactions t`, ...conditions].join(" ");
+                const countQuery = ["SELECT COUNT(*) as count ", from, ...conditions].join(" ");
                 const prepare = database.prepare(countQuery);
                 if (!binds.length) countResult = await prepare.first() as { count: number };
                 else countResult = await prepare.bind(...binds).first() as { count: number };
