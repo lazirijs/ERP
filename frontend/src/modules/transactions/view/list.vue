@@ -14,7 +14,12 @@
                         <el-icon-refresh />
                     </el-icon>
                 </el-button>
-                <el-segmented v-model="view" :options="viewOptions" />
+                <el-button @click="toggleFilterRowVisibility()" :type="toggleFilterRowVisibility(false) ? 'primary' : 'default'" class="w-8 m-0!">
+                    <el-icon>
+                        <el-icon-filter />
+                    </el-icon>
+                </el-button>
+                <!-- <el-segmented v-model="view" :options="viewOptions" @change="onViewChange" /> -->
             </div>
             <el-button @click="dialogRef?.open()" type="success">
                 {{ $t('create') }}
@@ -24,7 +29,7 @@
             </el-button>
         </div>
         <div :key="viewOptions.findIndex(option => option.value === view)" class="flex-1 min-h-0 min-w-0">
-            <data-grid-app                
+            <data-grid-app
                 ref="dataGridRef"
                 :config="dataGridConfig()"
             />
@@ -64,6 +69,11 @@ const onSearchChange = (value: string) => {
         if (value === search.value) dataGridRef.value?.instance?.searchByText(value);
     }, 500);
 };
+
+const toggleFilterRowVisibility = (toggle: boolean = true): boolean => {
+    if (toggle) dataGridRef.value?.instance?.option('filterRow.visible', !dataGridRef.value?.instance?.option('filterRow.visible'));
+    return dataGridRef.value?.instance?.option('filterRow.visible') as boolean;
+}
 
 const dataGridConfig = () => ({
     dataSource: {
