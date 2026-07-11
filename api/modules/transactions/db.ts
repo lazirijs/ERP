@@ -2,8 +2,8 @@ import Schema from './schema'
 import database from '../../database'
 import Responses from '../../utils/response';
 import type { SuccessServiceResponse } from '../../utils/response/type';
-import type { TransactionType, TransactionCreateBodyType, TransactionGetAllQueryType } from './type';
-import type { DataGridResponse } from '../../utils/devextreme/datagrid/type';
+import type { TransactionType, TransactionCreateBodyType } from './type';
+import type { DataGridQuery, DataGridResponse } from '../../utils/devextreme/datagrid/type';
 import { buildDataGridSQLiteConditions } from '../../utils/devextreme/datagrid/service';
 
 export default {
@@ -46,7 +46,7 @@ export default {
         }
     },
     
-    async getAll(inputs: TransactionGetAllQueryType): Promise<SuccessServiceResponse<DataGridResponse<TransactionType>>> {
+    async getAll(inputs: DataGridQuery): Promise<SuccessServiceResponse<DataGridResponse<TransactionType>>> {
         try {
             const limit = "LIMIT " + inputs.take;
             const offset = "OFFSET " + inputs.skip;

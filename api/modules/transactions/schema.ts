@@ -48,15 +48,6 @@ const getParams = t.Object({
     uid: transaction.properties.uid
 });
 
-const getAllQuery = t.Object({
-    ...DataGridSchema.data.properties,
-    project_uid: t.Optional(t.String()),
-    account_uid: t.Optional(t.String()),
-    employee_uid: t.Optional(t.String()),
-    sale_uid: t.Optional(t.String()),
-    purchase_uid: t.Optional(t.String())
-});
-
 export default { 
     data: {
         value: transaction
@@ -76,7 +67,7 @@ export default {
     getAll: {
         validation: {
             auth: true,
-            query: getAllQuery
+            query: DataGridSchema.data
         }
     }
 };
