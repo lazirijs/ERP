@@ -83,17 +83,17 @@ export default {
                 searchText: inputs.searchText,
                 filters: inputs.filters,
                 columns: {
-                    'project.name': { searchTextColumn: 'p.name', valuesColumn: 't.project_uid' },
-                    'account.name': { searchTextColumn: 'a.name', valuesColumn: 't.account_uid' },
-                    'employee.name': { searchTextColumn: 'e.name', valuesColumn: 't.employee_uid' },
-                    'sale.name': { searchTextColumn: 's.name', valuesColumn: 't.sale_uid' },
-                    'purchase.name': { searchTextColumn: 'pur.name', valuesColumn: 't.purchase_uid' },
-                    'type': { searchTextColumn: 't.type', valuesColumn: 't.type' },
-                    'amount': { searchTextColumn: 't.amount', valuesColumn: 't.amount' },
-                    'note': { searchTextColumn: 't.note', valuesColumn: 't.note' },
-                    'created_at': { searchTextColumn: 't.created_at', valuesColumn: 't.created_at' }
+                    'project.name': { searchText: 'p.name', values: 't.project_uid' },
+                    'account.name': { searchText: 'a.name', values: 't.account_uid' },
+                    'employee.name': { searchText: 'e.name', values: 't.employee_uid' },
+                    'sale.name': { searchText: 's.name', values: 't.sale_uid' },
+                    'purchase.name': { searchText: 'pur.name', values: 't.purchase_uid' },
+                    'type': { searchText: 't.type', values: 't.type' },
+                    'amount': { searchText: 't.amount', values: 't.amount' },
+                    'note': { searchText: 't.note', values: 't.note' },
+                    'created_at': { searchText: 't.created_at', values: 't.created_at' }
                 },
-                excludeColumnsFromSearchText: ['t.type']
+                excludeColumnsFromSearchText: [...(inputs.excludeColumnsFromSearchText || []), 'type']
             });
 
             query.push(...conditions);
@@ -108,8 +108,8 @@ export default {
             query.push(limit);
             query.push(offset);
             
-            console.log(query.join(" "));
-            console.log(binds);
+            // console.log(query.join(" "));
+            // console.log(binds);
 
             const prepare = database.prepare(query.join(" "));
             result = binds.length ? await prepare.bind(...binds).run() : await prepare.run();

@@ -1,19 +1,22 @@
 import type { DxDataGrid } from "devextreme-vue";
 import type { ApiResponse } from "@/api/type";
 
+export type DevExtremeDataGridRemoteQueryFilter = {
+  field: string;
+  values?: any[] | null;
+  searchText?: string | number | [number, number | null] | [Date, Date];
+  type?: 'include' | 'exclude';
+  operation?: 'contains' | 'notcontains' | 'startswith' | 'endswith' | 'between' | '=' | '<>' | '<' | '>' | '<=' | '>=';
+}
+
 export type DevExtremeDataGridRemoteQuery<T = {}> = {
   searchText?: string;
   requireTotalCount?: boolean;
   sort?: { selector: string; desc: boolean }[];
   skip?: number;
   take?: number;
-  filters?: {
-    field: string;
-    values?: any[] | null;
-    searchText?: string | number | [number, number | null] | [Date, Date];
-    type?: 'include' | 'exclude';
-    operation?: 'contains' | 'notcontains' | 'startswith' | 'endswith' | 'between' | '=' | '<>' | '<' | '>' | '<=' | '>=';
-  }[];
+  filters?: DevExtremeDataGridRemoteQueryFilter[];
+  excludeColumnsFromSearchText?: string[];
 } & T;
 
 export interface DevExtremeDataGridRemoteDataFormat<T> {

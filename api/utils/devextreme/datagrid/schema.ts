@@ -9,6 +9,7 @@ const dataGridQuery = t.Object({
         desc: t.Boolean()
     }))),
     searchText: t.Optional(t.String({ default: "" })),
+    excludeColumnsFromSearchText: t.Optional(t.Array(t.String())),
     filters: t.Optional(t.Array(t.Object({
         field: t.String(),
         values: t.Optional(t.Nullable(t.Array(t.Any()))),

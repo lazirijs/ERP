@@ -39,8 +39,6 @@ const props = defineProps<{
   config: DataGridPropsConfig;
 }>();
 
-const emit = defineEmits([]);
-
 const dataGridRef = ref<DxDataGrid>();
 
 const dataSource = ref<CustomStore | any[]>([]);

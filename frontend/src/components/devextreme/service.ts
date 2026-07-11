@@ -20,8 +20,11 @@ export class createDevExtremeCustomStore {
                     sort: loadOptions.sort,
                     skip: loadOptions.skip,
                     take: loadOptions.take,
-                    filters: []
+                    filters: [],
+                    excludeColumnsFromSearchText: []
                 };
+                
+                queryValues.excludeColumnsFromSearchText = dataGridRef()?.instance?.option("columns")?.filter((col: any) => col.visible === false).map((col: any) => col.dataField) || [];
 
                 // console.log(loadOptions);
                 // console.log(dataGridRef()?.instance?.getVisibleColumns()[5].filterValues);

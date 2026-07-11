@@ -9,9 +9,10 @@ import type { DataGridQuery } from "./type";
  * uids), so lookup-style columns should map their display field to the
  * corresponding `*_uid` column (e.g. `'project.name' -> 't.project_uid'`).
  */
+
 export type FilterColumnMap = Record<string, {
-    searchTextColumn: string; 
-    valuesColumn: string; 
+    searchText: string; 
+    values: string; 
 }>;
 
 export interface DataGridSQLiteConditions {
@@ -39,32 +40,32 @@ export interface BuildConditionsParams {
  * come exclusively from `columnMap`; only bound values come from the client.
  */
 
-export function searchTextBuilder(searchText: DataGridQuery["searchText"], searchColumns: string[]): DataGridSQLiteConditions {
+export function searchTextBuilder(value: DataGridQuery["searchText"], columns: string[]): DataGridSQLiteConditions {
     const conditions: string[] = [];
     const binds: unknown[] = [];
     
-    if (searchText) {
-        searchText = `%${ searchText }%`;
-        conditions.push(`(${ searchColumns.map(column => `${ column } LIKE ?`).join(" OR ") })`);
-        binds.push(...searchColumns.map(() => searchText));
+    if (value) {
+        value = `%${ value }%`;
+        conditions.push(`(${ columns.map(column => `${ column } LIKE ?`).join(" OR ") })`);
+        binds.push(...columns.map(() => value));
     }
     
     return { conditions, binds };
 }
 
-export function filtersBuilder(filters: DataGridQuery["filters"], filterColumns: FilterColumnMap): DataGridSQLiteConditions {
+export function filtersBuilder(filters: DataGridQuery["filters"], columns: FilterColumnMap): DataGridSQLiteConditions {
     let conditions: string[] = [];
     const binds: unknown[] = [];
 
     if (!filters?.length) return { conditions, binds };
 
     filters.forEach(filter => {
-        const column = filterColumns[filter.field];
+        const column = columns[filter.field];
         if (column) {
             // Header filter (checkbox multi-select) -> IN / NOT IN
             if (filter.values?.length) {
                 const placeholders = filter.values.map(() => "?").join(", ");
-                conditions.push(`${ column.valuesColumn } ${ filter.type === "exclude" ? "NOT IN" : "IN" } (${ placeholders })`);
+                conditions.push(`${ column.values } ${ filter.type === "exclude" ? "NOT IN" : "IN" } (${ placeholders })`);
                 binds.push(...filter.values);
             }
     
@@ -74,35 +75,35 @@ export function filtersBuilder(filters: DataGridQuery["filters"], filterColumns:
     
                 switch (operation) {
                     case "contains":
-                        conditions.push(`${ column.searchTextColumn } LIKE ?`);
+                        conditions.push(`${ column.searchText } LIKE ?`);
                         binds.push(`%${ filter.searchText }%`);
                         break;
                     case "notcontains":
-                        conditions.push(`${ column.searchTextColumn } NOT LIKE ?`);
+                        conditions.push(`${ column.searchText } NOT LIKE ?`);
                         binds.push(`%${ filter.searchText }%`);
                         break;
                     case "startswith":
-                        conditions.push(`${ column.searchTextColumn } LIKE ?`);
+                        conditions.push(`${ column.searchText } LIKE ?`);
                         binds.push(`${ filter.searchText }%`);
                         break;
                     case "endswith":
-                        conditions.push(`${ column.searchTextColumn } LIKE ?`);
+                        conditions.push(`${ column.searchText } LIKE ?`);
                         binds.push(`%${ filter.searchText }`);
                         break;
                     case "between": {
                         const [from, to] = Array.isArray(filter.searchText) ? filter.searchText : [filter.searchText, null];
                         if (from !== undefined && from !== null) {
-                            conditions.push(`${ column.searchTextColumn } >= ?`);
+                            conditions.push(`${ column.searchText } >= ?`);
                             binds.push(from);
                         }
                         if (to !== undefined && to !== null) {
-                            conditions.push(`${ column.searchTextColumn } <= ?`);
+                            conditions.push(`${ column.searchText } <= ?`);
                             binds.push(to);
                         }
                         break;
                     }
                     default: // '=', '<>', '<', '>', '<=', '>=' (all valid SQLite operators)
-                        conditions.push(`${ column.searchTextColumn } ${ operation } ?`);
+                        conditions.push(`${ column.searchText } ${ operation } ?`);
                         binds.push(filter.searchText);
                         break;
                 }
@@ -119,10 +120,8 @@ export function filtersBuilder(filters: DataGridQuery["filters"], filterColumns:
 
 export function buildDataGridSQLiteConditions({ filters, columns, searchText, excludeColumnsFromSearchText }: BuildConditionsParams): DataGridSQLiteConditions {
     const filterConditions = filtersBuilder(filters, columns);
-
-    const flatColumnsSearchText = Object.values(columns).map(col => col.searchTextColumn);
-    const searchTextColumns = excludeColumnsFromSearchText?.length ? flatColumnsSearchText.filter(col => !excludeColumnsFromSearchText.includes(col)) : flatColumnsSearchText;
-    const searchTextConditions = searchTextBuilder(searchText, searchTextColumns);
+    excludeColumnsFromSearchText?.forEach(column => delete columns[column.replaceAll('"', '')]);
+    const searchTextConditions = searchTextBuilder(searchText, Object.values(columns).map(column => column.searchText));
     
     if (searchTextConditions.conditions.length) {
         searchTextConditions.conditions.unshift("WHERE");
