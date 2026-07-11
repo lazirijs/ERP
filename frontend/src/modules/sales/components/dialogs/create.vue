@@ -4,14 +4,14 @@
       <el-form-item :label="$t('name')" prop="name" class="mb-0!">
         <el-input v-model="formData.name" :placeholder="$t('name')" />
       </el-form-item>
-      <template v-if="!props.project_uid">        
+      <template v-if="!props.config?.project?.uid">
         <el-form-item :label="$t('project')" prop="project_uid" class="mb-0!">
-          <el-select v-model="formData.project_uid" clearable filterable :placeholder="$t('project')" class="w-full" @change="onProjectChange">
+          <el-select v-model="formData.project_uid" clearable filterable :disabled="!!props?.config?.project?.uid" :placeholder="$t('project')" class="w-full" @change="onProjectChange">
             <el-option v-for="project in projects" :key="project.uid" :label="project.name" :value="project.uid" />
           </el-select>
         </el-form-item>
-        <el-form-item :label="$t('client')" prop="client_uid" class="mb-0!">
-          <el-select v-model="formData.client_uid" clearable filterable :disabled="!!formData.project_uid"  :placeholder="$t('client')" class="w-full">
+        <el-form-item v-if="!props.config?.client?.uid" :label="$t('client')" prop="client_uid" class="mb-0!">
+          <el-select v-model="formData.client_uid" clearable filterable :disabled="!!(props?.config?.client?.uid || formData.project_uid)"  :placeholder="$t('client')" class="w-full">
             <el-option v-for="client in clients" :key="client.uid" :label="client.name" :value="client.uid" />
           </el-select>
         </el-form-item>
@@ -46,10 +46,13 @@ import type { Client } from '@/modules/clients/type';
 import formatter from '@/services/formatter';
 import confirmDialog from '@/services/dialog/confirm';
 
-const emit = defineEmits(['submitted']);
+const emit = defineEmits<{ submitted: [] }>();
 
 const props = defineProps<{
-  project_uid?: string;
+  config?: {
+    project?: Project;
+    client?: Client;
+  }
 }>();
 
 const { t } = useI18n();
@@ -72,7 +75,7 @@ const formRules = reactive<Record<keyof SaleCreateBody, FormItemRule | FormItemR
 
 const formData = ref<SaleCreateBody>({
   name: '',
-  project_uid: props.project_uid ?? null,
+  project_uid: null,
   client_uid: null,
   note: ''
 });
@@ -127,16 +130,32 @@ const submit = async (formEl: FormInstance | undefined = formRef.value) => {
 const open = async () => {
   dialogModel.value = true;
   formData.value.name = formatter.date(new Date().toISOString());
-  if (!props.project_uid) try {
-    loadingContainer.value.push('loading');
-    const [projectsRes, clientsRes] = await Promise.all([ProjectApi.getAll(), ClientApi.getAll()]);
-    projects.value = projectsRes.detail.data;
-    clients.value = clientsRes.detail.data;
-  } catch (error: any) {
-    ElMessage.error(error?.detail?.message || t('loadingFailed'));
-  } finally {
-    loadingContainer.value = loadingContainer.value.filter(item => item !== 'loading');
+  if (props.config?.project?.uid) {
+    formData.value.project_uid = props.config.project.uid;
+    clients.value = [ props.config.project.client as Client ]
   }
+  else
+    try {
+      loadingContainer.value.push('loading');
+      if (props.config?.client?.uid) {
+        formData.value.client_uid = props.config.client.uid;
+        const res = await ProjectApi.getAll({ filters: [{
+          field: 'client.name',
+          operation: '=',
+          values: [props.config.client.uid]
+        }] });
+        projects.value = res.detail.data;
+      } else {
+        const [projectsRes, clientsRes] = await Promise.all([ProjectApi.getAll(), ClientApi.getAll()]);
+        projects.value = projectsRes.detail.data;
+        clients.value = clientsRes.detail.data;
+      }
+    } catch (error: any) {
+      ElMessage.error(error?.detail?.message || t('loadingFailed'));
+      dialogModel.value = false;
+    } finally {
+      loadingContainer.value = loadingContainer.value.filter(item => item !== 'loading');
+    }
 };
 
 defineExpose({ open });

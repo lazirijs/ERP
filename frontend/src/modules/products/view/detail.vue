@@ -41,11 +41,7 @@
       <div class="col-span-1 md:col-span-3 flex-1 space-y-app">
         <el-tabs v-model="tab" type="border-card">
           <el-tab-pane :label="$t('sales')" name="sales">
-            <data-grid-app
-              v-if="tab === 'sales'"
-              :config="salesDataGridConfig"
-              @row-click="$router.push({ name: 'sales-detail', params: { uid: $event.data.sale.uid } })"
-            />
+            <sales-list-app v-if="tab === 'sales'" :view="{ type: 'product', data: formData }" @updated="load()" />
           </el-tab-pane>
           <el-tab-pane :label="$t('purchases')" name="purchases">
             <data-grid-app
@@ -77,7 +73,7 @@ import { useRoute } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import { get } from '../api';
 import type { Product } from '../type';
-import saleItemsApi from '@/modules/sales/items/api';
+import SalesListApp from '@/modules/sales/view/list.vue';
 import purchaseItemsApi from '@/modules/purchases/items/api';
 import suppliersApi from '@/modules/suppliers/api';
 import type { DataGridPropsConfig } from '@/components/devextreme/datagrid/type';
@@ -91,28 +87,11 @@ const route = useRoute();
 
 const loadingContainer = ref<('detail')[]>([]);
 
-const tab = ref('sales');
+const tab = ref<'sales' | 'purchases' | 'suppliers' | 'images'>('sales');
 
 const dialogRef = ref<InstanceType<typeof EditDialogApp>>();
 
 const formData = ref<Product>({} as Product);
-
-const salesDataGridConfig = ref<DataGridPropsConfig>({
-  dataSource: {
-    key: 'uid',
-    api: (query) => saleItemsApi.getAll({ ...query, product_uid: route.params.uid as string })
-  },
-  columns: [
-    { dataField: 'sale.name', caption: t('sale'), allowSorting: false },
-    { dataField: 'price', caption: t('unitPrice'), customizeText: ({ value }) => formatter.currency(value) },
-    { dataField: 'quantity', caption: t('quantity') },
-    { dataField: 'total_amount', caption: t('totalAmountItems'), customizeText: ({ value }) => formatter.currency(value) },
-    { dataField: 'total_amount_received', caption: t('totalAmountReceived'), customizeText: ({ value }) => formatter.currency(value) },
-    { dataField: 'total_amount_expensed', caption: t('totalAmountExpensed'), customizeText: ({ value }) => formatter.currency(value) },
-    { dataField: 'note', caption: t('note') },
-    { dataField: 'created_at', caption: t('createdAt'), ...formatter.devextreme.datetime, sortOrder: 'desc' }
-  ]
-});
 
 const purchasesDataGridConfig = ref<DataGridPropsConfig>({
   dataSource: {

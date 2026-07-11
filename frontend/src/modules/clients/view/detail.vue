@@ -39,10 +39,13 @@
               @row-click="$router.push({ name: 'projects-detail', params: { uid: $event.data.uid } })"
             />
           </el-tab-pane>
+          <el-tab-pane :label="$t('sales')" name="sales">
+            <sales-list-app v-if="tab === 'sales'" :view="{ type: 'client', data: formData }" @updated="load()" />
+          </el-tab-pane>
         </el-tabs>
       </div>
     </div>
-    <edit-dialog-app ref="dialogRef" :client_uid="formData.uid" @submitted="getData()" />
+    <edit-dialog-app ref="dialogRef" :client_uid="formData.uid" @submitted="load()" />
   </container-app>
 </template>
 
@@ -51,8 +54,7 @@ import { onMounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
 import { get } from '../api';
 import type { Client } from '../type';
-
-
+import SalesListApp from '@/modules/sales/view/list.vue';
 import type { DataGridPropsConfig } from '@/components/devextreme/datagrid/type';
 import projectsApi from '@/modules/projects/api';
 import { useI18n } from 'vue-i18n';
@@ -73,7 +75,7 @@ const dialogRef = ref<InstanceType<typeof EditDialogApp>>();
 
 const formData = ref<Client>({} as Client);
 
-const getData = async () => {
+const load = async () => {
   try {
     loadingContainer.value.push('detail');
     const response = await get(route.params.uid as string);
@@ -85,7 +87,7 @@ const getData = async () => {
   }
 };
 
-onMounted(getData);
+onMounted(load);
 
 const projectsDataGridConfig = ref<DataGridPropsConfig>({
   dataSource: {
