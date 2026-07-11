@@ -32,19 +32,12 @@
       <div class="col-span-1 md:col-span-3 flex-1 space-y-app">
         <el-tabs v-model="tab" type="border-card">
           <el-tab-pane :label="$t('transactions')" name="transactions">
-            <div v-if="tab === 'transactions'" class="flex flex-col items-end gap-4">
-              <el-button @click="transactionCreateDialogRef?.open()" type="success">
-                {{ $t('add') }}
-                <el-icon class="ml-2"><el-icon-plus /></el-icon>
-              </el-button>
-              <data-grid-app :config="transactionsDataGridConfig" />
-            </div>
+            <transaction-list-app v-if="tab === 'transactions'" :view="{ type: 'account', data: formData }" @updated="load()" />
           </el-tab-pane>
         </el-tabs>
       </div>
     </div>
     <edit-dialog-app ref="dialogRef" :account_uid="formData.uid" @submitted="load()" />
-    <transaction-create-dialog ref="transactionCreateDialogRef" :account="formData" @submitted="load()" />
   </container-app>
 </template>
 
@@ -54,14 +47,8 @@ import { useRoute } from 'vue-router';
 import { get } from '../api';
 import type { Account } from '../type';
 
-import type { DataGridPropsConfig } from '@/components/devextreme/datagrid/type';
-import transactionsApi from '@/modules/transactions/api';
-import { useI18n } from 'vue-i18n';
-import formatter from '@/services/formatter';
 import EditDialogApp from '../components/dialogs/edit.vue';
-import TransactionCreateDialog from '@/modules/transactions/components/dialogs/create.vue';
-
-const { t } = useI18n();
+import TransactionListApp from '@/modules/transactions/view/list.vue';
 
 const route = useRoute();
 
@@ -70,7 +57,6 @@ const loadingContainer = ref<('detail')[]>([]);
 const tab = ref('transactions');
 
 const dialogRef = ref<InstanceType<typeof EditDialogApp>>();
-const transactionCreateDialogRef = ref<InstanceType<typeof TransactionCreateDialog>>();
 
 const formData = ref<Account>({} as Account);
 
@@ -87,19 +73,4 @@ const load = async () => {
 };
 
 onMounted(load);
-
-const transactionsDataGridConfig = ref<DataGridPropsConfig>({
-  dataSource: {
-    key: 'uid',
-    api: (query) => transactionsApi.getAll({ ...query, account_uid: route.params.uid as string })
-  },
-  columns: [
-    { dataField: 'project.name', caption: t('project'), allowSorting: false },
-    { dataField: 'purchase.name', caption: t('purchase'), allowSorting: false },
-    { dataField: 'employee.name', caption: t('employee'), allowSorting: false },
-    { dataField: 'amount', caption: t('amount'), customizeText: ({ value }) => formatter.currency(value) },
-    { dataField: 'note', caption: t('note') },
-    { dataField: 'created_at', caption: t('createdAt'), ...formatter.devextreme.datetime, sortOrder: 'desc' }
-  ]
-});
 </script>

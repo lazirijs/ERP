@@ -67,13 +67,7 @@
             </div>
           </el-tab-pane>
           <el-tab-pane :label="$t('transactions')" name="transactions">
-            <div v-if="tab === 'transactions'" class="flex flex-col items-end gap-4">
-              <el-button v-if="formData.status === 0" @click="transactionCreateDialogRef?.open()" type="success">
-                {{ $t('add') }}
-                <el-icon class="ml-2"><el-icon-plus /></el-icon>
-              </el-button>
-              <data-grid-app :config="transactionsDataGridConfig" />
-            </div>
+            <transaction-list-app v-if="tab === 'transactions'" :view="{ type: 'sale', data: formData }" :hide-create="formData.status === 1" @updated="load()" />
           </el-tab-pane>
         </el-tabs>
       </div>
@@ -82,7 +76,6 @@
     <edit-dialog-app ref="dialogRef" :sale_uid="formData.uid" @submitted="load()" />
     <batch-add-dialog-app ref="batchAddDialogRef" :sale_uid="formData.uid" @submitted="onItemsChanged" />
     <item-edit-dialog-app ref="itemEditDialogRef" @submitted="onItemsChanged" />
-    <transaction-create-dialog-app ref="transactionCreateDialogRef" :sale="formData" @submitted="load()" />
   </container-app>
 </template>
 
@@ -102,11 +95,7 @@ import EditDialogApp from '../components/dialogs/edit.vue';
 import BatchAddDialogApp from '../items/components/dialogs/batch-add.vue';
 import ItemEditDialogApp from '../items/components/dialogs/edit.vue';
 
-import transactionsApi from '@/modules/transactions/api';
-
-import TransactionCreateDialogApp from '@/modules/transactions/components/dialogs/create.vue';
-import type { Transaction } from '@/modules/transactions/type.ts';
-import ConstTransaction from '@/modules/transactions/constant';
+import TransactionListApp from '@/modules/transactions/view/list.vue';
 
 const { t } = useI18n();
 const route = useRoute();
@@ -118,8 +107,6 @@ const dialogRef = ref<InstanceType<typeof EditDialogApp>>();
 const batchAddDialogRef = ref<InstanceType<typeof BatchAddDialogApp>>();
 const itemEditDialogRef = ref<InstanceType<typeof ItemEditDialogApp>>();
 const itemsDataGridRef = ref<DataGridAppRef>();
-
-const transactionCreateDialogRef = ref<InstanceType<typeof TransactionCreateDialogApp>>();
 
 const formData = ref<Sale>({} as Sale);
 
@@ -163,27 +150,6 @@ const itemsDataGridConfig = ref<DataGridPropsConfig>({
     { dataField: 'price', caption: t('unitPrice'), customizeText: ({ value }) => formatter.currency(value) },
     { dataField: 'quantity', caption: t('quantity') },
     { dataField: 'total', caption: t('total'), customizeText: ({ value }) => formatter.currency(value) },
-    { dataField: 'note', caption: t('note') },
-    { dataField: 'created_at', caption: t('createdAt'), ...formatter.devextreme.datetime, sortOrder: 'desc' }
-  ]
-});
-
-const transactionsDataGridConfig = ref<DataGridPropsConfig>({
-  dataSource: {
-    key: 'uid',
-    api: (query) => transactionsApi.getAll({ ...query, sale_uid: route.params.uid as string })
-  },
-  columns: [
-    { dataField: 'account.name', caption: t('account'), allowSorting: false },
-    { dataField: 'employee.name', caption: t('employee'), allowSorting: false },
-    {
-      dataField: 'type', caption: t('type'), alignment: 'center', 
-      cellTemplate: (container: HTMLElement, options: { value: Transaction["type"] }) => {
-        let { label, color } = ConstTransaction.type[options.value];
-        container.innerHTML = `<span class="badge-app-${ color }">${ t(label) }</span>`;
-      } 
-    },
-    { dataField: 'amount', caption: t('amount'), customizeText: ({ value }) => formatter.currency(value) },
     { dataField: 'note', caption: t('note') },
     { dataField: 'created_at', caption: t('createdAt'), ...formatter.devextreme.datetime, sortOrder: 'desc' }
   ]

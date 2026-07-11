@@ -2,7 +2,7 @@
   <el-dialog v-model="dialogModel" :title="$t('createTransaction')" align-center class="min-w-11/12 md:min-w-1/4! md:max-w-1/4!" @closed="reset()" :before-close="(done: any) => !loadingContainer.includes('submit') && done()">
     <el-form ref="formRef" v-loading="loadingContainer.length" :model="formData" :rules="formRules" @submit.prevent="submit()" label-position="top" class="w-full grid gap-4">      
       <el-form-item :label="$t('type')" prop="type" class="mb-0!">
-        <el-select v-model="formData.type" :disabled="!!props.account || !!props.purchase || !!props.employee" @change="handleTypeChange" :placeholder="$t('type')" class="w-full el-select-on-focus-no-outline">
+        <el-select v-model="formData.type" :disabled="!!props.config?.account || !!props.config?.purchase || !!props.config?.employee" @change="handleTypeChange" :placeholder="$t('type')" class="w-full el-select-on-focus-no-outline">
           <template #label="{ label, value }">
             <span :class="`badge-app-${transactionsCons.type[value as '-' | '+'].color} p-1!`">
               {{ $t(label) }}
@@ -25,32 +25,32 @@
       </el-form-item>
 
       <el-form-item v-if="!formData.purchase_uid" :label="$t('project')" prop="project_uid" class="mb-0!">
-        <el-select v-model="formData.project_uid" @change="onProjectChange" :disabled="!!props.project || !!formData.sale_uid" clearable filterable :placeholder="$t('project')">
+        <el-select v-model="formData.project_uid" @change="onProjectChange" :disabled="!!props.config?.project || !!formData.sale_uid" clearable filterable :placeholder="$t('project')">
           <el-option v-for="project in projects" :key="project.uid" :label="project.name" :value="project.uid" />
         </el-select>
       </el-form-item>
 
-      <el-form-item v-if="!formData.purchase_uid && !props.project" :label="$t('sale')" class="mb-0!">
-        <el-select v-model="formData.sale_uid" @change="onSaleChange" :disabled="!!props.sale" clearable filterable :placeholder="$t('sale')">
+      <el-form-item v-if="!formData.purchase_uid && !props.config?.project" :label="$t('sale')" class="mb-0!">
+        <el-select v-model="formData.sale_uid" @change="onSaleChange" :disabled="!!props.config?.sale" clearable filterable :placeholder="$t('sale')">
           <el-option v-for="sale in sales" :key="sale.uid" :label="sale.name" :value="sale.uid" />
         </el-select>
       </el-form-item>
   
       <template v-if="formData.type === '-'">
         <el-form-item v-if="!formData.project_uid && !formData.sale_uid" :label="$t('purchase')" prop="purchase_uid" class="mb-0!">
-          <el-select v-model="formData.purchase_uid" @change="onPurchaseChange" :disabled="!!props.purchase" clearable filterable :placeholder="$t('purchase')">
+          <el-select v-model="formData.purchase_uid" @change="onPurchaseChange" :disabled="!!props.config?.purchase" clearable filterable :placeholder="$t('purchase')">
             <el-option v-for="purchase in purchases" :key="purchase.uid" :label="purchase.name" :value="purchase.uid" />
           </el-select>
         </el-form-item>
 
         <el-form-item :label="$t('account')" prop="account_uid" class="mb-0!">
-          <el-select v-model="formData.account_uid" :disabled="!!props.account" clearable filterable :placeholder="$t('account')">
+          <el-select v-model="formData.account_uid" :disabled="!!props.config?.account" clearable filterable :placeholder="$t('account')">
             <el-option v-for="account in accounts" :key="account.uid" :label="account.name" :value="account.uid" />
           </el-select>
         </el-form-item>
   
         <el-form-item :label="$t('employee')" prop="employee_uid" class="mb-0!">
-          <el-select v-model="formData.employee_uid" :disabled="!!props.employee" clearable filterable :placeholder="$t('employee')">
+          <el-select v-model="formData.employee_uid" :disabled="!!props.config?.employee" clearable filterable :placeholder="$t('employee')">
             <el-option v-for="employee in employees" :key="employee.uid" :label="employee.name" :value="employee.uid" />
           </el-select>
         </el-form-item>
@@ -95,12 +95,13 @@ import type { Purchase } from '@/modules/purchases/type';
 const emit = defineEmits(['submitted']);
 
 const props = defineProps<{
-  defaultType?: TransactionCreateBody["type"];
-  sale?: Sale;
-  project?: Project;
-  employee?: Employee;
-  account?: Account;
-  purchase?: Purchase;
+  config?: {
+    sale?: Sale;
+    project?: Project;
+    employee?: Employee;
+    account?: Account;
+    purchase?: Purchase;
+  }
 }>();
 
 const { t } = useI18n();
@@ -214,38 +215,37 @@ const open = async () => {
   dialogModel.value = true;
   try {
     loadingContainer.value.push('loading');
-    if (props.defaultType) formData.value.type = props.defaultType;
-    if (props.sale) {
-      formData.value.sale_uid = props.sale.uid;
-      formData.value.project_uid = props.sale.project_uid!;
-      if (props.sale.total_amount - props.sale.total_amount_received > 0) formData.value.amount = props.sale.total_amount - props.sale.total_amount_received;
-      projects.value = [props.sale.project as Project];
-      sales.value = [props.sale as Sale];
+    if (props.config?.sale) {
+      formData.value.sale_uid = props.config?.sale.uid;
+      formData.value.project_uid = props.config?.sale.project_uid!;
+      if (props.config?.sale.total_amount - props.config?.sale.total_amount_received > 0) formData.value.amount = props.config?.sale.total_amount - props.config?.sale.total_amount_received;
+      projects.value = [props.config?.sale.project as Project];
+      sales.value = [props.config?.sale as Sale];
     } 
     else {
-      if (props.project) {
-        formData.value.project_uid = props.project.uid;
-        projects.value = [props.project];
+      if (props.config?.project) {
+        formData.value.project_uid = props.config?.project.uid;
+        projects.value = [props.config?.project];
       }
-      else if (props.purchase) {
+      else if (props.config?.purchase) {
         formData.value.type = "-";
-        formData.value.purchase_uid = props.purchase.uid;
-        formData.value.amount = props.purchase.total_amount;
-        if (props.purchase.total_amount - props.purchase.total_amount_expensed > 0) formData.value.amount = props.purchase.total_amount - props.purchase.total_amount_expensed;
-        purchases.value = [props.purchase as Purchase];
+        formData.value.purchase_uid = props.config?.purchase.uid;
+        formData.value.amount = props.config?.purchase.total_amount;
+        if (props.config?.purchase.total_amount - props.config?.purchase.total_amount_expensed > 0) formData.value.amount = props.config?.purchase.total_amount - props.config?.purchase.total_amount_expensed;
+        purchases.value = [props.config?.purchase as Purchase];
       }
-      else if (props.employee) {
+      else if (props.config?.employee) {
         formData.value.type = "-";
-        formData.value.employee_uid = props.employee.uid;
-        employees.value = [props.employee];
+        formData.value.employee_uid = props.config?.employee.uid;
+        employees.value = [props.config?.employee];
       }
-      if (props.account) {
+      if (props.config?.account) {
         formData.value.type = "-";
-        formData.value.account_uid = props.account.uid;
-        accounts.value = [props.account];
+        formData.value.account_uid = props.config?.account.uid;
+        accounts.value = [props.config?.account];
       }
       const reqs: (() => Promise<any>)[] = [];
-      if (!sales.value.length && !props.project && !props.employee && !props.account) reqs[0] = SaleApi.getAll;
+      if (!sales.value.length && !props.config?.project) reqs[0] = SaleApi.getAll;
       if (!projects.value.length) reqs[1] = ProjectApi.getAll;
       if (!employees.value.length) reqs[2] = EmployeeApi.getAll;
       if (!accounts.value.length) reqs[3] = AccountApi.getAll;

@@ -64,13 +64,7 @@
       <div class="col-span-1 md:col-span-3 flex-1 space-y-app">
         <el-tabs v-model="tab" type="border-card">
           <el-tab-pane :label="$t('transactions')" name="transactions">
-            <div v-if="tab === 'transactions'" class="flex flex-col items-end gap-4">
-              <el-button @click="transactionCreateDialogRef?.open()" type="success">
-                {{ $t('add') }}
-                <el-icon class="ml-2"><el-icon-plus /></el-icon>
-              </el-button>
-              <data-grid-app :config="transactionsDataGridConfig" />
-            </div>
+            <transaction-list-app v-if="tab === 'transactions'" :view="{ type: 'project', data: formData }" @updated="load()" />
           </el-tab-pane>
           <el-tab-pane :label="$t('sales')" name="sales">
             <div v-if="tab === 'sales'" class="space-y-app">
@@ -118,23 +112,19 @@
         </el-tabs>
       </div>
     </div>
-    <edit-dialog-app ref="editDialogRef" :uid="formData.uid" @submitted="load()" />
-    <transaction-create-dialog-app ref="transactionCreateDialogRef" :project="formData" @submitted="load()" />
+    <edit-dialog-app ref="editDialogRef" :uid="formData.uid" @submitted="load()" />    
   </container-app>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue';
 import { useRoute } from 'vue-router';
-import indexApi from '../api';
+import ProjectApi from '../api';
 import type { Project } from '../type';
 import { useI18n } from 'vue-i18n';
 import formatter from '@/services/formatter';
 import { previewImage } from '@/services/files';
 
-import transactionsApi from '@/modules/transactions/api';
-import type { Transaction } from '@/modules/transactions/type';
-import ConstTransaction from '@/modules/transactions/constant';
 import type { DataGridAppRef, DataGridPropsConfig } from '@/components/devextreme/datagrid/type';
 import { status } from '../constant';
 
@@ -146,7 +136,7 @@ import salesItemsApi from '@/modules/sales/items/api';
 import CreateSalesDialog from '@/modules/sales/components/dialogs/create.vue';
 import DocumentsTab from '../components/documents-tab.vue';
 import EditDialogApp from '../components/dialogs/edit.vue';
-import TransactionCreateDialogApp from '@/modules/transactions/components/dialogs/create.vue';
+import TransactionListApp from '@/modules/transactions/view/list.vue';
 
 const { t } = useI18n();
 
@@ -158,7 +148,6 @@ const tab = ref('transactions');
 
 const editDialogRef = ref<InstanceType<typeof EditDialogApp>>();
 const createSalesDialogRef = ref<InstanceType<typeof CreateSalesDialog>>();
-const transactionCreateDialogRef = ref<InstanceType<typeof TransactionCreateDialogApp>>();
 const salesDataGridRef = ref<DataGridAppRef>();
   
 const salesView = ref<'sale' | 'product'>('sale');
@@ -180,7 +169,7 @@ const formData = ref<Project>({} as Project);
 const load = async () => {
   try {
     loadingContainer.value.push('detail');
-    const response = await indexApi.get(route.params.uid as string);
+    const response = await ProjectApi.get(route.params.uid as string);
     formData.value = response.detail;
   } catch (error) {
     console.error(error);
@@ -190,27 +179,6 @@ const load = async () => {
 };
 
 onMounted(load);
-
-const transactionsDataGridConfig = ref<DataGridPropsConfig>({
-  dataSource: {
-    key: 'uid',
-    api: (query) => transactionsApi.getAll({ ...query, project_uid: route.params.uid as string })
-  },
-  columns: [
-    { dataField: 'account.name', caption: t('account'), allowSorting: false },
-    { dataField: 'employee.name', caption: t('employee'), allowSorting: false },
-    {
-      dataField: 'type', caption: t('type'), alignment: 'center', 
-      cellTemplate: (container: HTMLElement, options: { value: Transaction["type"] }) => {
-        let { label, color } = ConstTransaction.type[options.value];
-        container.innerHTML = `<span class="badge-app-${ color }">${ t(label) }</span>`;
-      } 
-    },
-    { dataField: 'amount', caption: t('amount'), customizeText: ({ value }) => formatter.currency(value) },
-    { dataField: 'note', caption: t('note') },
-    { dataField: 'created_at', caption: t('createdAt'), ...formatter.devextreme.datetime, sortOrder: 'desc' }
-  ]
-});
 
 const salesDataGridConfig = ref<DataGridPropsConfig>({
   dataSource: {

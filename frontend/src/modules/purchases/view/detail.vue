@@ -58,13 +58,7 @@
             </div>
           </el-tab-pane>
           <el-tab-pane :label="$t('expenses')" name="transactions">
-            <div v-if="tab === 'transactions'" class="flex flex-col items-end gap-4">
-              <el-button @click="transactionCreateDialogRef?.open()" type="success">
-                {{ $t('add') }}
-                <el-icon class="ml-2"><el-icon-plus /></el-icon>
-              </el-button>
-              <data-grid-app :config="transactionsDataGridConfig" />
-            </div>
+            <transaction-list-app v-if="tab === 'transactions'" :view="{ type: 'purchase', data: formData }" @updated="load()" />
           </el-tab-pane>
           <el-tab-pane :label="$t('documents')" name="documents">
             <documents-tab v-if="tab === 'documents'" :uid="formData.uid" />
@@ -76,7 +70,6 @@
     <edit-dialog-app ref="dialogRef" :purchase_uid="formData.uid" @submitted="load()" />
     <batch-add-dialog-app ref="batchAddDialogRef" :purchase_uid="formData.uid" @submitted="onItemsChanged" />
     <item-edit-dialog-app ref="itemEditDialogRef" @submitted="onItemsChanged" />
-    <transaction-create-dialog-app ref="transactionCreateDialogRef" :purchase="formData" @submitted="load()" />
   </container-app>
 </template>
 
@@ -90,13 +83,12 @@ import type { Purchase } from '../type';
 import type { DataGridAppRef, DataGridPropsConfig } from '@/components/devextreme/datagrid/type';
 import formatter from '@/services/formatter';
 import { previewImage } from '@/services/files';
-import transactionsApi from '@/modules/transactions/api';
 
 import EditDialogApp from '../components/dialogs/edit.vue';
 import DocumentsTab from '../components/documents-tab.vue';
 import BatchAddDialogApp from '../items/components/dialogs/batch-add.vue';
 import ItemEditDialogApp from '../items/components/dialogs/edit.vue';
-import TransactionCreateDialogApp from '@/modules/transactions/components/dialogs/create.vue';
+import TransactionListApp from '@/modules/transactions/view/list.vue';
 
 const { t } = useI18n();
 const route = useRoute();
@@ -107,7 +99,6 @@ const tab = ref('items');
 const dialogRef = ref<InstanceType<typeof EditDialogApp>>();
 const batchAddDialogRef = ref<InstanceType<typeof BatchAddDialogApp>>();
 const itemEditDialogRef = ref<InstanceType<typeof ItemEditDialogApp>>();
-const transactionCreateDialogRef = ref<InstanceType<typeof TransactionCreateDialogApp>>();
 const itemsDataGridRef = ref<DataGridAppRef>();
 const selectedItemUid = ref<string>('');
 
@@ -153,20 +144,6 @@ const itemsDataGridConfig = ref<DataGridPropsConfig>({
     { dataField: 'price', caption: t('unitPrice'), customizeText: ({ value }) => formatter.currency(value) },
     { dataField: 'quantity', caption: t('quantity') },
     { dataField: 'total', caption: t('total'), customizeText: ({ value }) => formatter.currency(value) },
-    { dataField: 'note', caption: t('note') },
-    { dataField: 'created_at', caption: t('createdAt'), ...formatter.devextreme.datetime, sortOrder: 'desc' }
-  ]
-});
-
-const transactionsDataGridConfig = ref<DataGridPropsConfig>({
-  dataSource: {
-    key: 'uid',
-    api: (query) => transactionsApi.getAll({ ...query, purchase_uid: route.params.uid as string })
-  },
-  columns: [
-    { dataField: 'account.name', caption: t('account'), allowSorting: false },
-    { dataField: 'employee.name', caption: t('employee'), allowSorting: false },
-    { dataField: 'amount', caption: t('amount'), customizeText: ({ value }) => formatter.currency(value) },
     { dataField: 'note', caption: t('note') },
     { dataField: 'created_at', caption: t('createdAt'), ...formatter.devextreme.datetime, sortOrder: 'desc' }
   ]

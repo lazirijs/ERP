@@ -44,13 +44,7 @@
             <attendances-tab v-if="tab === 'attendances' && formData.uid" :employee_uid="formData.uid" />
           </el-tab-pane>
           <el-tab-pane :label="$t('transactions')" name="transactions">
-            <div v-if="tab === 'transactions'" class="flex flex-col items-end gap-4">
-              <el-button v-if="formData.status === 0" @click="transactionCreateDialogRef?.open()" type="success">
-                {{ $t('add') }}
-                <el-icon class="ml-2"><el-icon-plus /></el-icon>
-              </el-button>
-              <data-grid-app :config="transactionsDataGridConfig" />
-            </div>
+            <transaction-list-app v-if="tab === 'transactions'" :view="{ type: 'employee', data: formData }" :hide-create="formData.status === 1" @updated="load()" />
           </el-tab-pane>
           <el-tab-pane :label="$t('documents')" name="documents">
             <documents-tab v-if="tab === 'documents' && formData.uid" :uid="formData.uid" @changed="load()" />
@@ -59,7 +53,6 @@
       </div>
     </div>
     <edit-dialog-app ref="editDialogRef" :uid="formData.uid" @submitted="load()" />
-    <transaction-create-dialog-app ref="transactionCreateDialogRef" :employee="formData" @submitted="load()" />
   </container-app>
 </template>
 
@@ -73,13 +66,8 @@ import DocumentsTab from '../components/documents-tab.vue';
 import AttendancesTab from '../components/attendances-tab.vue';
 import type { Employee } from '../type';
 import employeesApi from '../api';
-import type { DataGridPropsConfig } from '@/components/devextreme/datagrid/type';
-import TransactionCreateDialogApp from '@/modules/transactions/components/dialogs/create.vue';
-import transactionsApi from '@/modules/transactions/api';
-import formatter from '@/services/formatter';
-import { useI18n } from 'vue-i18n';
+import TransactionListApp from '@/modules/transactions/view/list.vue';
 
-const { t } = useI18n();
 const route = useRoute();
 
 const loadingContainer = ref<('detail')[]>(['detail']);
@@ -87,7 +75,6 @@ const loadingContainer = ref<('detail')[]>(['detail']);
 const tab = ref('attendances');
 
 const editDialogRef = ref<InstanceType<typeof EditDialogApp>>();
-const transactionCreateDialogRef = ref<InstanceType<typeof TransactionCreateDialogApp>>();
 
 const formData = ref<Employee>({} as Employee);
 
@@ -104,19 +91,4 @@ const load = async () => {
 };
 
 onMounted(load);
-
-const transactionsDataGridConfig = ref<DataGridPropsConfig>({
-  dataSource: {
-    key: 'uid',
-    api: (query) => transactionsApi.getAll({ ...query, employee_uid: route.params.uid as string })
-  },
-  columns: [
-    { dataField: 'project.name', caption: t('project'), allowSorting: false },
-    { dataField: 'account.name', caption: t('account'), allowSorting: false },
-    { dataField: 'purchase.name', caption: t('purchase'), allowSorting: false },
-    { dataField: 'amount', caption: t('amount'), customizeText: ({ value }) => formatter.currency(value) },
-    { dataField: 'note', caption: t('note') },
-    { dataField: 'created_at', caption: t('createdAt'), ...formatter.devextreme.datetime, sortOrder: 'desc' }
-  ]
-});
 </script>
