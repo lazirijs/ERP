@@ -7,6 +7,13 @@ export type DevExtremeDataGridRemoteQuery<T = {}> = {
   sort?: { selector: string; desc: boolean }[];
   skip?: number;
   take?: number;
+  filters?: {
+    field: string;
+    values?: any[] | null;
+    searchText?: string | number | [number, number | null] | [Date, Date];
+    type?: 'include' | 'exclude';
+    operation?: 'contains' | 'notcontains' | 'startswith' | 'endswith' | 'between' | '=' | '<>' | '<' | '>' | '<=' | '>=';
+  }[];
 } & T;
 
 export interface DevExtremeDataGridRemoteDataFormat<T> {
@@ -20,6 +27,7 @@ export interface DevExtremeDataGridApiDataSource {
   key: string;
   api: (query: DevExtremeDataGridRemoteQuery) => Promise<ApiResponse<DevExtremeDataGridRemoteDataFormat<any>>>;
   getByKey?: (key: string) => Promise<ApiResponse<any>>;
+  map?: (data: any, index?: number) => any;
 }
 
 export type DataGridPropsConfig = Omit<DxDataGrid, 'dataSource'> & {

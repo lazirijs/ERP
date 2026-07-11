@@ -9,7 +9,33 @@ const dataGridQuery = t.Object({
         desc: t.Boolean()
     }))),
     searchText: t.Optional(t.String({ default: "" })),
-    dataField: t.Optional(t.String())
+    filters: t.Optional(t.Array(t.Object({
+        field: t.String(),
+        values: t.Optional(t.Nullable(t.Array(t.Any()))),
+        searchText: t.Optional(t.Union([
+            t.String(),
+            t.Number(),
+            t.Tuple([t.Number(), t.Nullable(t.Number())]),
+            t.Tuple([t.Date(), t.Date()])
+        ])),
+        type: t.Optional(t.Union([
+            t.Literal("include"),
+            t.Literal("exclude")
+        ])),
+        operation: t.Optional(t.Union([
+            t.Literal("contains"),
+            t.Literal("notcontains"),
+            t.Literal("startswith"),
+            t.Literal("endswith"),
+            t.Literal("between"),
+            t.Literal("="),
+            t.Literal("<>"),
+            t.Literal("<"),
+            t.Literal(">"),
+            t.Literal("<="),
+            t.Literal(">="),
+        ]))
+    })))
 });
 
 const dataGridResponse = t.Object({
