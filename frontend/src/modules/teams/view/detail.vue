@@ -54,17 +54,17 @@ import { onMounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 
-import teamsApi from '../api';
-import type { Team } from '../type';
+import teamsApi from '@/modules/teams/api';
+import type { Team } from '@/modules/teams/type';
 
 import type { DataGridPropsConfig } from '@/components/devextreme/datagrid/type';
 import formatter from '@/services/formatter';
 
-import employeesApi from '../../employees/api';
-import ConstEmployee from '../../employees/constant';
+import employeesApi from '@/modules/employees/api';
+import ConstEmployee from '@/modules/employees/constant';
 
-import EditDialogApp from '../components/dialogs/edit.vue';
-import AddEmployeeDialogApp from '../components/dialogs/add-employee.vue';
+import EditDialogApp from '@/modules/teams/components/dialogs/edit.vue';
+import AddEmployeeDialogApp from '@/modules/teams/components/dialogs/add-employee.vue';
 import type { Employee } from '@/modules/employees/type';
 import { previewImage } from '@/services/files.ts';
 

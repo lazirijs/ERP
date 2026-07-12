@@ -42,7 +42,6 @@ export default {
     
     async getAll(inputs: EmployeeGetAllQueryType): Promise<SuccessServiceResponse<DataGridResponse<EmployeeType>>> {
         try {
-            const tableName = "employees";
             let limit = "LIMIT " + inputs.take;
             let offset = "OFFSET " + inputs.skip;
 
@@ -51,7 +50,7 @@ export default {
             const waitList = Object.keys(Schema.data.value.properties);
             
             const from = `
-                FROM ${ tableName }
+                FROM employees
                 LEFT JOIN teams ON employees.team_uid = teams.uid
             `;
 

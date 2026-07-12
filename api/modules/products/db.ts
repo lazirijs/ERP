@@ -55,6 +55,7 @@ export default {
                     name: { searchText: 'name', values: 'name' },
                     description: { searchText: 'description', values: 'description' },
                     price: { searchText: 'price', values: 'price' },
+                    quantity: { searchText: 'quantity', values: 'quantity' },
                     created_at: { searchText: 'created_at', values: 'created_at' }
                 }
             });

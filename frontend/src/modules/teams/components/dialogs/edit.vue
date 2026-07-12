@@ -114,17 +114,15 @@ const open = async () => {
   try {
     loadingContainer.value.push('loading');
     const [ teamResponse, employeesResponse ] = await Promise.all([
-        teamsApi.get(props.uid),
-        employeesApi.getAll()
+      teamsApi.get(props.uid),
+      employeesApi.getAll({ filters: [{ field: "team.name", values: [props.uid], operation: "=" }]})
     ]) 
     if(teamResponse.success) {
-        formData.value.name = teamResponse.detail.name;
-        formData.value.uid = teamResponse.detail.uid;
-        formData.value.supervisor_uid = teamResponse.detail.supervisor.uid;
+      formData.value.name = teamResponse.detail.name;
+      formData.value.uid = teamResponse.detail.uid;
+      formData.value.supervisor_uid = teamResponse.detail.supervisor.uid;
     }
-    if(employeesResponse.success) {
-        employees.value = employeesResponse.detail.data;
-    }
+    if(employeesResponse.success) employees.value = employeesResponse.detail.data;
   } catch (error: any) {
     const errorMessage = error?.detail?.message || t('loadingFailed');
     ElMessage.error(errorMessage);

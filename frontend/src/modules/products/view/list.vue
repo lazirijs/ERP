@@ -14,6 +14,11 @@
                         <el-icon-refresh />
                     </el-icon>
                 </el-button>
+                <el-button @click="toggleFilterRowVisibility()" class="w-8 m-0!">
+                    <el-icon>
+                        <el-icon-filter />
+                    </el-icon>
+                </el-button>
             </div>
             <el-button @click="createDialogRef?.open()" type="success">
                 {{ $t('create') }}
@@ -56,6 +61,10 @@ const onSearchChange = (value: string) => {
     setTimeout(() => value === search.value && dataGridRef.value?.instance?.searchByText(value), 500);
 };
 
+const toggleFilterRowVisibility = () => {
+    dataGridRef.value?.instance?.option('filterRow.visible', !dataGridRef.value?.instance?.option('filterRow.visible'));
+};
+
 const dataGridConfig = ref<DataGridPropsConfig>({
     dataSource: {
         key: 'uid',
@@ -63,7 +72,8 @@ const dataGridConfig = ref<DataGridPropsConfig>({
     },
     columns: [
         {
-            dataField: 'image', caption: t('image'), allowSorting: false, alignment: 'center', width: 120,
+            dataField: 'image', caption: t('image'), alignment: 'center', width: 120,
+            allowSorting: false, allowFiltering: false,
             cellTemplate: (container: HTMLElement, options: { value: string }) => {
                 container.innerHTML = previewImage({ type: 'image', src: options.value, format: 'html' });
             }
