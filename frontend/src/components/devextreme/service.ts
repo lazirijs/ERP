@@ -36,8 +36,9 @@ export class createDevExtremeCustomStore {
                     type: column.filterType,
                     operation: column.selectedFilterOperation || (column as any).defaultFilterOperation
                 })).filter(filter => {
-                    const valuesAreValid = filter.values?.length && filter.values?.every(value => !value);
-                    const searchTextIsValid = (Array.isArray(filter.searchText) ? !filter.searchText.every(value => !value) : true) && filter.searchText != "" && filter.searchText != null && filter.searchText != undefined;
+                    const inValidValues = [ "", null, undefined ];
+                    const valuesAreValid = filter.values?.length && filter.values?.every(value => !inValidValues.includes(value));
+                    const searchTextIsValid = (Array.isArray(filter.searchText) ? !filter.searchText.every(value => inValidValues.includes(value)) : true) && !inValidValues.includes(filter.searchText);
                     return valuesAreValid || searchTextIsValid;
                 })!;
 

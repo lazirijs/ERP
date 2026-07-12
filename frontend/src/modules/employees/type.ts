@@ -3,9 +3,9 @@ import { status } from "@/modules/employees/constant";
 export interface Employee extends EmployeeCreateBody {
   uid: string;
   image?: string | null;
-  team?: {
-    uid: string;
-    name: string;
+  team: {
+    uid: string | null;
+    name: string | null;
   };
   created_at: string;
 }

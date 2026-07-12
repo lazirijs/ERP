@@ -14,6 +14,11 @@
                         <el-icon-refresh />
                     </el-icon>
                 </el-button>
+                <el-button @click="toggleFilterRowVisibility()" class="w-8 m-0!">
+                    <el-icon>
+                        <el-icon-filter />
+                    </el-icon>
+                </el-button>
             </div>
             <el-button @click="createDialogRef?.open()" type="success">
                 {{ $t('create') }}
@@ -44,6 +49,9 @@ import formatter from '@/services/formatter';
 import { status } from '../constant';
 import type { Employee } from '../type';
 import { previewImage } from '@/services/files.ts';
+import { createDevExtremeCustomStore } from '@/components/devextreme/service.ts';
+import type { Team } from '@/modules/teams/type.ts';
+import TeamApi from '@/modules/teams/api.ts';
 
 const { t } = useI18n();
 
@@ -58,28 +66,45 @@ const onSearchChange = (value: string) => {
     setTimeout(() => value === search.value && dataGridRef.value?.instance?.searchByText(value), 500);
 };
 
+const toggleFilterRowVisibility = () => {
+    dataGridRef.value?.instance?.option('filterRow.visible', !dataGridRef.value?.instance?.option('filterRow.visible'));
+};
+
+const devExtremeCustomStore = new createDevExtremeCustomStore();
+
 const dataGridConfig = ref<DataGridPropsConfig>({
     dataSource: {
         key: 'uid',
         api: EmployeeApi.getAll
     },
+    headerFilter: { visible: true },
     columns: [
         {
-            dataField: 'image', caption: t('image'), allowSorting: false, alignment: 'center', width: 120,
+            dataField: 'image', caption: t('image'), alignment: 'center', width: 120,
+            allowSorting: false, allowFiltering: false, allowHeaderFiltering: false,
             cellTemplate: (container: HTMLElement, options: { value: string }) => {
                 container.innerHTML = previewImage({ type: 'avatar', src: options.value, format: 'html' });
             }
         },
-        { dataField: 'name', caption: t('name') },
+        { dataField: 'name', caption: t('name'), allowHeaderFiltering: false },
         {
-            dataField: 'status', caption: t('status'), alignment: 'center', 
+            dataField: 'status', caption: t('status'), alignment: 'center', allowHeaderFiltering: true, allowFiltering: false,
             cellTemplate: (container: HTMLElement, options: { value: Employee["status"] }) => {
                 let { label, color } = status[options.value];
                 container.innerHTML = `<span class="badge-app-${ color }">${ t(label) }</span>`;
-            } 
+            },
+            headerFilter: { dataSource: Object.values(status).map(i => ({ value: i.id, text: t(i.label) })) },
         },
-        { dataField: 'team.name', caption: t('team') },
-        { dataField: 'created_at', caption: t('createdAt'), ...formatter.devextreme.datetime, sortOrder: 'desc' }
+        { dataField: 'team.name', caption: t('team'),
+            headerFilter: {
+                dataSource: devExtremeCustomStore.lookup({
+                    key: 'value',
+                    api: TeamApi.getAll,
+                    map: (i: Team) => ({ value: i.uid, text: i.name })
+                })
+            }
+        },
+        { dataField: 'created_at', caption: t('createdAt'), ...formatter.devextreme.datetime, sortOrder: 'desc', allowHeaderFiltering: false }
     ]
 });
 </script>
