@@ -8,7 +8,7 @@
               <el-icon><el-icon-arrow-left /></el-icon>
             </el-button>
             <span class="hidden lg:block">{{ $t('generalInfo') }}</span>
-            <el-button @click="dialogRef?.open()" text class="m-0!">
+            <el-button @click="editDialogRef?.open()" text class="m-0!">
               <el-icon><el-icon-edit /></el-icon>
             </el-button>
           </div>
@@ -51,11 +51,7 @@
             <purchase-items-list v-if="tab === 'purchases'" :view="{ type: 'product', data: formData }" @row-click="$router.push({ name: 'purchases-detail', params: { uid: $event.data.purchase.uid } })" />
           </el-tab-pane>
           <el-tab-pane :label="$t('suppliers')" name="suppliers">
-            <data-grid-app
-              v-if="tab === 'suppliers'"
-              :config="suppliersDataGridConfig"
-              @row-click="$router.push({ name: 'suppliers-detail', params: { uid: $event.data.uid } })"
-            />
+            <suppliers-list-app v-if="tab === 'suppliers'" :view="{ type: 'product', data: formData }" />
           </el-tab-pane>
           <el-tab-pane :label="$t('images')" name="images">
             <images-gallery-tab v-if="tab === 'images'" :uid="formData.uid" :image="formData.image" @changed="load()" />
@@ -63,58 +59,36 @@
         </el-tabs>
       </div>
     </div>
-    <edit-dialog-app ref="dialogRef" :product_uid="formData.uid" @submitted="load()" />
+    <edit-dialog-app ref="editDialogRef" :product_uid="formData.uid" @submitted="load()" />
   </container-app>
 </template>
 
 <script setup lang="ts">
 import { onMounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
-import { useI18n } from 'vue-i18n';
-import { get } from '../api';
-import type { Product } from '../type';
+import ProductsApi from '@/modules/products/api';
+import type { Product } from '@/modules/products/type';
 import SalesListApp from '@/modules/sales/view/list.vue';
-import suppliersApi from '@/modules/suppliers/api';
-import type { DataGridPropsConfig } from '@/components/devextreme/datagrid/type';
-import formatter from '@/services/formatter';
+import SuppliersListApp from '@/modules/suppliers/view/list.vue';
 
-import EditDialogApp from '../components/dialogs/edit.vue';
-import ImagesGalleryTab from '../components/images-gallery.vue';
+import EditDialogApp from '@/modules/products/components/dialogs/edit.vue';
+import ImagesGalleryTab from '@/modules/products/components/images-gallery.vue';
 import PurchaseItemsList from '@/modules/purchases/items/view/list.vue';
 
-const { t } = useI18n();
 const route = useRoute();
 
 const loadingContainer = ref<('detail')[]>([]);
 
 const tab = ref<'sales' | 'purchases' | 'suppliers' | 'images'>('sales');
 
-const dialogRef = ref<InstanceType<typeof EditDialogApp>>();
+const editDialogRef = ref<InstanceType<typeof EditDialogApp>>();
 
 const formData = ref<Product>({} as Product);
-
-const suppliersDataGridConfig = ref<DataGridPropsConfig>({
-  dataSource: {
-    key: 'uid',
-    api: (query) => suppliersApi.getAll({ ...query, filters: [{
-      field: 'product_uid',
-      operation: '=',
-      values: [route.params.uid as string]
-    }] })
-  },
-  columns: [
-    { dataField: 'name', caption: t('supplier'), allowSorting: false },
-    { dataField: 'contact', caption: t('contact') },
-    { dataField: 'address', caption: t('address') },
-    { dataField: 'description', caption: t('description') },
-    { dataField: 'created_at', caption: t('createdAt'), ...formatter.devextreme.datetime, sortOrder: 'desc' }
-  ]
-});
 
 const load = async () => {
   try {
     loadingContainer.value.push('detail');
-    const response = await get(route.params.uid as string);
+    const response = await ProductsApi.get(route.params.uid as string);
     formData.value = response.detail;
   } catch (error) {
     console.error(error);

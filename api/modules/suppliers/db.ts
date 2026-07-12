@@ -45,7 +45,7 @@ export default {
             // Column references are qualified with the `s.` alias because `created_at`
             // is ambiguous across the joined tables.
             // suppliers is always aliased `s`, so column references stay `s.`-qualified in both branches.
-            const byProduct = !!inputs.product_uid;
+            const byProduct = !!inputs.filters?.some(f => f.field === 'product.name');
             const from = byProduct
                 ? `FROM suppliers s
                    JOIN purchases p       ON p.supplier_uid = s.uid
@@ -60,9 +60,10 @@ export default {
                     name: { searchText: 's.name', values: 's.name' },
                     contact: { searchText: 's.contact', values: 's.contact' },
                     address: { searchText: 's.address', values: 's.address' },
-                    created_at: { searchText: 's.created_at', values: 's.created_at' }
+                    created_at: { searchText: 's.created_at', values: 's.created_at' },
+                    "product.name": { values: 'pi.product_uid' }
                 },
-                excludeColumnsFromSearchText: ['created_at']
+                excludeColumnsFromSearchText: ['product.name']
             });
 
             if (inputs.product_uid) {
@@ -77,7 +78,7 @@ export default {
                 orderBy = `ORDER BY s.${ selector } ${ desc ? "DESC" : "ASC" }`;
             }
 
-            const query = [`SELECT s.*`, from, ...conditions, groupBy, orderBy, limit, offset].join(" ");
+            const query = [`SELECT s.*`, from, ...conditions, groupBy, orderBy, limit, offset].join(" ");            
             const prepare = database.prepare(query);
             const result = binds.length ? await prepare.bind(...binds).run() : await prepare.run();
 

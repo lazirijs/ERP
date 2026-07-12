@@ -1,5 +1,5 @@
 <template>
-    <container-app type="fixed">
+    <component :is="props.view?.type ? 'div' : 'container-app'" type="fixed" v-bind="$attrs" :class="{ 'grid gap-app': props.view?.type }">
         <div class="flex justify-between items-center gap-app">
             <div class="flex items-center gap-2">
                 <el-input v-model="search" @input="onSearchChange" dir="auto" :placeholder="$t('search')" class="md:w-75!">
@@ -14,8 +14,13 @@
                         <el-icon-refresh />
                     </el-icon>
                 </el-button>
+                <el-button @click="toggleFilterRowVisibility()" class="w-8 m-0!">
+                    <el-icon>
+                        <el-icon-filter />
+                    </el-icon>
+                </el-button>
             </div>
-            <el-button @click="dialogRef?.open()" type="success">
+            <el-button v-if="!props.hideCreate" @click="dialogRef?.open()" type="success">
                 {{ $t('create') }}
                 <el-icon class="ml-2">
                     <el-icon-plus />
@@ -30,7 +35,7 @@
             />
         </div>
         <create-dialog-app ref="dialogRef" @submitted="dataGridRef?.instance?.refresh()" />
-    </container-app>
+    </component>
 </template>
 
 <script setup lang="ts">
@@ -39,8 +44,15 @@ import SupplierApi from '../api';
 import { useI18n } from 'vue-i18n';
 import CreateDialogApp from '../components/dialogs/create.vue';
 
-import type { DataGridAppRef, DataGridPropsConfig } from '@/components/devextreme/datagrid/type';
+import type { DataGridAppRef, DataGridPropsConfig, DevExtremeDataGridRemoteQueryFilter } from '@/components/devextreme/datagrid/type';
 import formatter from '@/services/formatter';
+import type { Product } from '@/modules/products/type.ts';
+
+const props = defineProps<{
+    view?: 
+        { type: "product", data: Product }
+    hideCreate?: boolean
+}>();
 
 const { t } = useI18n();
 
@@ -55,16 +67,31 @@ const onSearchChange = (value: string) => {
     setTimeout(() => value === search.value && dataGridRef.value?.instance?.searchByText(value), 500);
 };
 
+const toggleFilterRowVisibility = () => {
+    dataGridRef.value?.instance?.option('filterRow.visible', !dataGridRef.value?.instance?.option('filterRow.visible'));
+}
+
 const dataGridConfig = ref<DataGridPropsConfig>({
     dataSource: {
         key: 'uid',
-        api: SupplierApi.getAll
+        api: async (query) => {
+            if (props.view) {
+                const filter: DevExtremeDataGridRemoteQueryFilter = {
+                    field: props.view.type + ".name",
+                    values: [props.view.data.uid],
+                    operation: '='
+                }
+                query.filters = [...(query.filters || []), filter];
+            }
+            return await SupplierApi.getAll(query);
+        }
     },
+    headerFilter: { visible: true },
     columns: [
-        { dataField: 'name', caption: t('name') },
-        { dataField: 'contact', caption: t('contact') },
-        { dataField: 'address', caption: t('address') },
-        { dataField: 'created_at', caption: t('createdAt'), ...formatter.devextreme.datetime, sortOrder: 'desc' }
+        { dataField: 'name', caption: t('name'), allowHeaderFiltering: false },
+        { dataField: 'contact', caption: t('contact'), allowHeaderFiltering: false },
+        { dataField: 'address', caption: t('address'), allowHeaderFiltering: false },
+        { dataField: 'created_at', caption: t('createdAt'), ...formatter.devextreme.datetime, sortOrder: 'desc', allowHeaderFiltering: false }
     ]
 });
 </script>
