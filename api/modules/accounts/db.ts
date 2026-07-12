@@ -43,7 +43,7 @@ export default {
             
             const from = `FROM ${ tableName }`;
 
-            const query: string[] = [`SELECT * ${ from }`];
+            const query: string[] = ["SELECT *", from];
             let orderBy: string;
             let result;
 

@@ -37,7 +37,7 @@
         </el-tabs>
       </div>
     </div>
-    <edit-dialog-app ref="editDialogRef" :account_uid="formData.uid" @submitted="load()" />
+    <edit-dialog-app ref="editDialogRef" :uid="formData.uid" @submitted="load()" />
   </container-app>
 </template>
 

@@ -31,7 +31,6 @@
             <data-grid-app
                 ref="dataGridRef"
                 :config="dataGridConfig"
-                :header-filter="{ visible: true }"
                 @row-click="$router.push({ name: 'clients-detail', params: { uid: $event.data.uid } })"
             />
         </div>
@@ -70,9 +69,9 @@ const dataGridConfig = ref<DataGridPropsConfig>({
         api: ClientApi.getAll
     },
     columns: [
-        { dataField: 'name', caption: t('name'), allowHeaderFiltering: false },
-        { dataField: 'total_projects', caption: t('totalProjects'), allowHeaderFiltering: false, allowFiltering: false },
-        { dataField: 'created_at', caption: t('createdAt'), ...formatter.devextreme.datetime, sortOrder: 'desc', allowHeaderFiltering: false }
+        { dataField: 'name', caption: t('name') },
+        { dataField: 'total_projects', caption: t('totalProjects'), allowFiltering: false },
+        { dataField: 'created_at', caption: t('createdAt'), ...formatter.devextreme.datetime, sortOrder: 'desc' }
     ]
 });
 </script>

@@ -14,6 +14,11 @@
                         <el-icon-refresh />
                     </el-icon>
                 </el-button>
+                <el-button @click="toggleFilterRowVisibility()" class="w-8 m-0!">
+                    <el-icon>
+                        <el-icon-filter />
+                    </el-icon>
+                </el-button>
             </div>
             <el-button @click="createDialogRef?.open()" type="success">
                 {{ $t('create') }}
@@ -39,7 +44,6 @@ import AccountApi from '../api';
 import { useI18n } from 'vue-i18n';
 import CreateDialogApp from '../components/dialogs/create.vue';
 
-
 import type { DataGridAppRef, DataGridPropsConfig } from '@/components/devextreme/datagrid/type';
 import formatter from '@/services/formatter';
 
@@ -54,6 +58,10 @@ const search = ref('');
 const onSearchChange = (value: string) => {
     value = value.trim();
     setTimeout(() => value === search.value && dataGridRef.value?.instance?.searchByText(value), 500);
+};
+
+const toggleFilterRowVisibility = () => {
+    dataGridRef.value?.instance?.option('filterRow.visible', !dataGridRef.value?.instance?.option('filterRow.visible'));
 };
 
 const dataGridConfig = ref<DataGridPropsConfig>({

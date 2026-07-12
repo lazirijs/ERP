@@ -31,7 +31,7 @@ import AccountApi from '../../api';
 import confirmDialog from '@/services/dialog/confirm';
 
 const props = defineProps<{
-  account_uid: string;
+  uid: string;
 }>();
 
 const emit = defineEmits<{ submitted: [] }>();
@@ -57,7 +57,7 @@ const formRules = reactive<Record<keyof AccountUpdateBody, FormItemRule | FormIt
 });
 
 const formData = ref<AccountUpdateBody>({
-  uid: props.account_uid,
+  uid: props.uid,
   name: '',
   description: ''
 });
@@ -107,7 +107,7 @@ const open = async () => {
   dialogModel.value = true;
   try {
     loadingContainer.value.push('loading');
-    const response = await AccountApi.get(props.account_uid);
+    const response = await AccountApi.get(props.uid);
     formData.value.uid = response.detail.uid;
     formData.value.name = response.detail.name;
     formData.value.description = response.detail.description;
