@@ -35,7 +35,11 @@ export class createDevExtremeCustomStore {
                     searchText: column.filterValue! ?? "",
                     type: column.filterType,
                     operation: column.selectedFilterOperation || (column as any).defaultFilterOperation
-                })).filter(filter => filter.values?.length || filter.searchText != "" || filter.searchText != null || filter.searchText != undefined)!;
+                })).filter(filter => {
+                    const valuesAreValid = filter.values?.length && filter.values?.every(value => !value);
+                    const searchTextIsValid = (Array.isArray(filter.searchText) ? !filter.searchText.every(value => !value) : true) && filter.searchText != "" && filter.searchText != null && filter.searchText != undefined;
+                    return valuesAreValid || searchTextIsValid;
+                })!;
 
                 // console.log(queryValues.filters);
                 // console.log('dataGrid', loadOptions, queryValues);
