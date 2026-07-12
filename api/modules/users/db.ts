@@ -41,7 +41,7 @@ export default {
             
             const from = "FROM users";
 
-            const query: string[] = [`SELECT uid, name, email, created_at ${ from }`];
+            const query: string[] = ["SELECT uid, name, email, created_at", from];
             let orderBy: string;
             let result;
 
