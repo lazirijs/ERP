@@ -8,7 +8,7 @@
               <el-icon><el-icon-arrow-left /></el-icon>
             </el-button>
             <span class="hidden lg:block">{{ $t('generalInfo') }}</span>
-            <el-button @click="dialogRef?.open()" text class="m-0!">
+            <el-button @click="editDialogRef?.open()" text class="m-0!">
               <el-icon><el-icon-edit /></el-icon>
             </el-button>
           </div>
@@ -61,7 +61,7 @@
       </div>
     </div>
 
-    <edit-dialog-app ref="dialogRef" :purchase_uid="formData.uid" @submitted="load()" />
+    <edit-dialog-app ref="editDialogRef" :purchase_uid="formData.uid" @submitted="load()" />
   </container-app>
 </template>
 
@@ -81,7 +81,7 @@ const route = useRoute();
 const loadingContainer = ref<('detail')[]>([]);
 const tab = ref('items');
 
-const dialogRef = ref<InstanceType<typeof EditDialogApp>>();
+const editDialogRef = ref<InstanceType<typeof EditDialogApp>>();
 
 const formData = ref<Purchase>({} as Purchase);
 

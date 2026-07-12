@@ -15,7 +15,7 @@
                     </el-icon>
                 </el-button>
             </div>
-            <el-button @click="dialogRef?.open()" type="success">
+            <el-button @click="createDialogRef?.open()" type="success">
                 {{ $t('create') }}
                 <el-icon class="ml-2">
                     <el-icon-plus />
@@ -29,7 +29,7 @@
                 @row-click="$router.push({ name: 'accounts-detail', params: { uid: $event.data.uid } })"
             />
         </div>
-        <create-dialog-app ref="dialogRef" @submitted="dataGridRef?.instance?.refresh()" />
+        <create-dialog-app ref="createDialogRef" @submitted="dataGridRef?.instance?.refresh()" />
     </container-app>
 </template>
 
@@ -45,7 +45,7 @@ import formatter from '@/services/formatter';
 
 const { t } = useI18n();
 
-const dialogRef = ref<InstanceType<typeof CreateDialogApp>>();
+const createDialogRef = ref<InstanceType<typeof CreateDialogApp>>();
 
 const dataGridRef = ref<DataGridAppRef>();
 

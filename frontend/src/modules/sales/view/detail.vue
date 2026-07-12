@@ -8,7 +8,7 @@
               <el-icon><el-icon-arrow-left /></el-icon>
             </el-button>
             <span class="hidden lg:block">{{ $t('generalInfo') }}</span>
-            <el-button @click="dialogRef?.open()" text class="m-0!">
+            <el-button @click="editDialogRef?.open()" text class="m-0!">
               <el-icon><el-icon-edit /></el-icon>
             </el-button>
           </div>
@@ -73,7 +73,7 @@
       </div>
     </div>
 
-    <edit-dialog-app ref="dialogRef" :sale_uid="formData.uid" @submitted="load()" />
+    <edit-dialog-app ref="editDialogRef" :sale_uid="formData.uid" @submitted="load()" />
     <batch-add-dialog-app ref="batchAddDialogRef" :sale_uid="formData.uid" @submitted="onItemsChanged" />
     <item-edit-dialog-app ref="itemEditDialogRef" @submitted="onItemsChanged" />
   </container-app>
@@ -103,7 +103,7 @@ const route = useRoute();
 const loadingContainer = ref<('detail')[]>([]);
 const tab = ref('items');
 
-const dialogRef = ref<InstanceType<typeof EditDialogApp>>();
+const editDialogRef = ref<InstanceType<typeof EditDialogApp>>();
 const batchAddDialogRef = ref<InstanceType<typeof BatchAddDialogApp>>();
 const itemEditDialogRef = ref<InstanceType<typeof ItemEditDialogApp>>();
 const itemsDataGridRef = ref<DataGridAppRef>();

@@ -20,7 +20,7 @@
                     </el-icon>
                 </el-button>
             </div>
-            <el-button v-if="!props.hideCreate" @click="dialogRef?.open()" type="success">
+            <el-button v-if="!props.hideCreate" @click="createDialogRef?.open()" type="success">
                 {{ $t('create') }}
                 <el-icon class="ml-2">
                     <el-icon-plus />
@@ -33,7 +33,7 @@
                 :config="dataGridConfig()"
             />
         </div>
-        <create-dialog-app ref="dialogRef" :config="{ [ props.view?.type || '' ]: props.view?.data }" @submitted="transactionsUpdated" />
+        <create-dialog-app ref="createDialogRef" :config="{ [ props.view?.type || '' ]: props.view?.data }" @submitted="transactionsUpdated" />
     </component>
 </template>
 
@@ -75,7 +75,7 @@ const emit = defineEmits<{
 
 const { t } = useI18n();
 
-const dialogRef = ref<InstanceType<typeof CreateDialogApp>>();
+const createDialogRef = ref<InstanceType<typeof CreateDialogApp>>();
 
 const dataGridRef = ref<DataGridAppRef>();
 

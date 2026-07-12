@@ -20,7 +20,7 @@
                     </el-icon>
                 </el-button>
             </div>
-            <el-button v-if="!props.hideCreate" @click="dialogRef?.open()" type="success">
+            <el-button v-if="!props.hideCreate" @click="createDialogRef?.open()" type="success">
                 {{ $t('create') }}
                 <el-icon class="ml-2">
                     <el-icon-plus />
@@ -34,19 +34,19 @@
                 @row-click="$router.push({ name: 'suppliers-detail', params: { uid: $event.data.uid } })"
             />
         </div>
-        <create-dialog-app ref="dialogRef" @submitted="dataGridRef?.instance?.refresh()" />
+        <create-dialog-app ref="createDialogRef" @submitted="dataGridRef?.instance?.refresh()" />
     </component>
 </template>
 
 <script setup lang="ts">
 import { ref } from 'vue';
-import SupplierApi from '../api';
 import { useI18n } from 'vue-i18n';
-import CreateDialogApp from '../components/dialogs/create.vue';
+import SupplierApi from '@/modules/suppliers/api';
+import CreateDialogApp from '@/modules/suppliers/components/dialogs/create.vue';
 
-import type { DataGridAppRef, DataGridPropsConfig, DevExtremeDataGridRemoteQueryFilter } from '@/components/devextreme/datagrid/type';
 import formatter from '@/services/formatter';
 import type { Product } from '@/modules/products/type.ts';
+import type { DataGridAppRef, DataGridPropsConfig, DevExtremeDataGridRemoteQueryFilter } from '@/components/devextreme/datagrid/type';
 
 const props = defineProps<{
     view?: 
@@ -56,7 +56,7 @@ const props = defineProps<{
 
 const { t } = useI18n();
 
-const dialogRef = ref<InstanceType<typeof CreateDialogApp>>();
+const createDialogRef = ref<InstanceType<typeof CreateDialogApp>>();
 
 const dataGridRef = ref<DataGridAppRef>();
 

@@ -21,7 +21,7 @@
                 </el-button>
                 <el-segmented v-if="props.view?.type !== 'product'" v-model="section" :options="sectionOptions" />
             </div>
-            <el-button v-if="!props.hideCreate && props.view?.type != 'product'" @click="dialogRef?.open()" type="success">
+            <el-button v-if="!props.hideCreate && props.view?.type != 'product'" @click="createDialogRef?.open()" type="success">
                 {{ $t('create') }}
                 <el-icon class="ml-2">
                     <el-icon-plus />
@@ -42,7 +42,7 @@
                 @row-click="$router.push({ name: 'sales-detail', params: { uid: $event.data.sale.uid } })"
             />
         </div>
-        <create-dialog-app ref="dialogRef" :config="{ [props.view?.type || '']: props.view?.data }" @submitted="salesUpdated" />
+        <create-dialog-app ref="createDialogRef" :config="{ [props.view?.type || '']: props.view?.data }" @submitted="salesUpdated" />
     </component>
 </template>
 
@@ -81,7 +81,7 @@ const emit = defineEmits<{
 
 const { t } = useI18n();
 
-const dialogRef = ref<InstanceType<typeof CreateDialogApp>>();
+const createDialogRef = ref<InstanceType<typeof CreateDialogApp>>();
 const dataGridRef = ref<DataGridAppRef>();
 
 const section = ref<'sale' | 'product'>(props.defaultSection || 'sale');

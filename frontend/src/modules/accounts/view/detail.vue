@@ -8,7 +8,7 @@
               <el-icon><el-icon-arrow-left /></el-icon>
             </el-button>
             <span>{{ $t('generalInfo') }}</span>
-            <el-button @click="dialogRef?.open()" text class="m-0!">
+            <el-button @click="editDialogRef?.open()" text class="m-0!">
               <el-icon><el-icon-edit /></el-icon>
             </el-button>
           </div>
@@ -37,7 +37,7 @@
         </el-tabs>
       </div>
     </div>
-    <edit-dialog-app ref="dialogRef" :account_uid="formData.uid" @submitted="load()" />
+    <edit-dialog-app ref="editDialogRef" :account_uid="formData.uid" @submitted="load()" />
   </container-app>
 </template>
 
@@ -56,7 +56,7 @@ const loadingContainer = ref<('detail')[]>([]);
 
 const tab = ref('transactions');
 
-const dialogRef = ref<InstanceType<typeof EditDialogApp>>();
+const editDialogRef = ref<InstanceType<typeof EditDialogApp>>();
 
 const formData = ref<Account>({} as Account);
 
