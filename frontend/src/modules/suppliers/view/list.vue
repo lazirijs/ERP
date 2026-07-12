@@ -69,7 +69,7 @@ const onSearchChange = (value: string) => {
 
 const toggleFilterRowVisibility = () => {
     dataGridRef.value?.instance?.option('filterRow.visible', !dataGridRef.value?.instance?.option('filterRow.visible'));
-}
+};
 
 const dataGridConfig = ref<DataGridPropsConfig>({
     dataSource: {

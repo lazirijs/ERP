@@ -14,6 +14,11 @@
                         <el-icon-refresh />
                     </el-icon>
                 </el-button>
+                <el-button @click="toggleFilterRowVisibility()" class="w-8 m-0!">
+                    <el-icon>
+                        <el-icon-filter />
+                    </el-icon>
+                </el-button>
             </div>
             <el-button @click="createDialogRef?.open()" type="success">
                 {{ $t('create') }}
@@ -36,13 +41,11 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
-import ClientApi from '../api';
 import { useI18n } from 'vue-i18n';
-import CreateDialogApp from '../components/dialogs/create.vue';
-
-
-import type { DataGridAppRef, DataGridPropsConfig } from '@/components/devextreme/datagrid/type';
 import formatter from '@/services/formatter';
+import ClientApi from '@/modules/clients/api';
+import CreateDialogApp from '@/modules/clients/components/dialogs/create.vue';
+import type { DataGridAppRef, DataGridPropsConfig } from '@/components/devextreme/datagrid/type';
 
 const { t } = useI18n();
 
@@ -57,18 +60,19 @@ const onSearchChange = (value: string) => {
     setTimeout(() => value === search.value && dataGridRef.value?.instance?.searchByText(value), 500);
 };
 
+const toggleFilterRowVisibility = () => {
+    dataGridRef.value?.instance?.option('filterRow.visible', !dataGridRef.value?.instance?.option('filterRow.visible'));
+};
+
 const dataGridConfig = ref<DataGridPropsConfig>({
     dataSource: {
         key: 'uid',
         api: ClientApi.getAll
     },
     columns: [
-        { dataField: 'name', caption: t('name') },
-        {
-            dataField: 'total_projects', caption: t('totalProjects'),
-            headerFilter: { dataSource: [{ text: '-1', value: -1 }, { text: '0', value: 0 }, { text: '+1', value: 1 }] }
-        },
-        { dataField: 'created_at', caption: t('createdAt'), ...formatter.devextreme.datetime, sortOrder: 'desc' }
+        { dataField: 'name', caption: t('name'), allowHeaderFiltering: false },
+        { dataField: 'total_projects', caption: t('totalProjects'), allowHeaderFiltering: false, allowFiltering: false },
+        { dataField: 'created_at', caption: t('createdAt'), ...formatter.devextreme.datetime, sortOrder: 'desc', allowHeaderFiltering: false }
     ]
 });
 </script>

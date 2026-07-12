@@ -42,13 +42,12 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
+import { useI18n } from 'vue-i18n';
+import UserApi from '@/modules/users/api';
+import formatter from '@/services/formatter';
 import CreateDialogApp from '@/modules/users/components/dialogs/create.vue';
 import EditDialogApp from '@/modules/users/components/dialogs/edit.vue';
-
-import UserApi from '@/modules/users/api';
 import type { DataGridAppRef, DataGridPropsConfig } from '@/components/devextreme/datagrid/type';
-import { useI18n } from 'vue-i18n';
-import formatter from '@/services/formatter';
 
 const { t } = useI18n();
 
@@ -66,20 +65,18 @@ const onSearchChange = (value: string) => {
 
 const toggleFilterRowVisibility = () => {
     dataGridRef.value?.instance?.option('filterRow.visible', !dataGridRef.value?.instance?.option('filterRow.visible'));
-}
+};
 
 const dataGridConfig = ref<DataGridPropsConfig>({
     dataSource: {
         key: 'uid',
         api: UserApi.getAll
     },
-    searchPanel: {
-        visible: false
-    },
+    headerFilter: { visible: true },
     columns: [
-        { dataField: 'name', caption: t('name') },
-        { dataField: 'email', caption: t('email') },
-        { dataField: 'created_at', caption: t('createdAt'), ...formatter.devextreme.datetime, sortOrder: 'desc' }
+        { dataField: 'name', caption: t('name'), allowHeaderFiltering: false },
+        { dataField: 'email', caption: t('email'), allowHeaderFiltering: false },
+        { dataField: 'created_at', caption: t('createdAt'), ...formatter.devextreme.datetime, sortOrder: 'desc', allowHeaderFiltering: false }
     ]
 });
 </script>
