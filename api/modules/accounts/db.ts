@@ -54,8 +54,7 @@ export default {
                     name: { searchText: 'name', values: 'name' },
                     description: { searchText: 'description', values: 'description' },
                     created_at: { searchText: 'created_at', values: 'created_at' }
-                },
-                excludeColumnsFromSearchText: ['created_at']
+                }
             });
 
             query.push(...conditions);

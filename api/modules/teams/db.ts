@@ -67,8 +67,7 @@ export default {
                     name: { searchText: 't.name', values: 't.name' },
                     'supervisor.name': { searchText: 'e.name', values: 't.supervisor_uid' },
                     created_at: { searchText: 't.created_at', values: 't.created_at' }
-                },
-                excludeColumnsFromSearchText: ['created_at']
+                }
             });
 
             query.push(...conditions);

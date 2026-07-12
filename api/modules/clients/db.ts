@@ -61,8 +61,7 @@ export default {
                 columns: {
                     name: { searchText: 'c.name', values: 'c.name' },
                     created_at: { searchText: 'c.created_at', values: 'c.created_at' }
-                },
-                excludeColumnsFromSearchText: ['created_at']
+                }
             });
 
             query.push(...conditions);

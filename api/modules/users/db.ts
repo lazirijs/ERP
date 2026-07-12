@@ -52,8 +52,7 @@ export default {
                     name: { searchText: 'name', values: 'name' },
                     email: { searchText: 'email', values: 'email' },
                     created_at: { searchText: 'created_at', values: 'created_at' }
-                },
-                excludeColumnsFromSearchText: ['created_at']
+                }
             });
 
             query.push(...conditions);
