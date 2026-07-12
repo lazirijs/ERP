@@ -14,7 +14,11 @@
           </div>
         </template>
         <div class="space-y-app">
-          <img :src="$previewImage({ type: 'image', src: formData.image })" class="w-full aspect-square object-cover rounded-lg" />
+          <div>
+            <a :href="$getFileUrl(formData.image)" target="_blank" rel="noopener">
+              <img :src="$previewImage({ type: 'image', src: formData.image })" class="w-full aspect-square object-cover rounded-lg" />
+            </a>
+          </div>
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">{{ $t('name') }}</label>
             <span class="block text-sm text-gray-900">{{ formData.name }}</span>
@@ -41,14 +45,10 @@
       <div class="col-span-1 md:col-span-3 flex-1 space-y-app">
         <el-tabs v-model="tab" type="border-card">
           <el-tab-pane :label="$t('sales')" name="sales">
-            <sales-list-app v-if="tab === 'sales'" :view="{ type: 'product', data: formData }" @updated="load()" />
+            <sales-list-app v-if="tab === 'sales'" :view="{ type: 'product', data: formData }" />
           </el-tab-pane>
           <el-tab-pane :label="$t('purchases')" name="purchases">
-            <data-grid-app
-              v-if="tab === 'purchases'"
-              :config="purchasesDataGridConfig"
-              @row-click="$router.push({ name: 'purchases-detail', params: { uid: $event.data.purchase.uid } })"
-            />
+            <purchase-items-list v-if="tab === 'purchases'" :view="{ type: 'product', data: formData }" @row-click="$router.push({ name: 'purchases-detail', params: { uid: $event.data.purchase.uid } })" />
           </el-tab-pane>
           <el-tab-pane :label="$t('suppliers')" name="suppliers">
             <data-grid-app
@@ -58,7 +58,7 @@
             />
           </el-tab-pane>
           <el-tab-pane :label="$t('images')" name="images">
-            <images-gallery-app v-if="tab === 'images'" :uid="formData.uid" :image="formData.image" @changed="load()" />
+            <images-gallery-tab v-if="tab === 'images'" :uid="formData.uid" :image="formData.image" @changed="load()" />
           </el-tab-pane>
         </el-tabs>
       </div>
@@ -74,13 +74,13 @@ import { useI18n } from 'vue-i18n';
 import { get } from '../api';
 import type { Product } from '../type';
 import SalesListApp from '@/modules/sales/view/list.vue';
-import purchaseItemsApi from '@/modules/purchases/items/api';
 import suppliersApi from '@/modules/suppliers/api';
 import type { DataGridPropsConfig } from '@/components/devextreme/datagrid/type';
 import formatter from '@/services/formatter';
 
 import EditDialogApp from '../components/dialogs/edit.vue';
-import ImagesGalleryApp from '../components/images-gallery.vue';
+import ImagesGalleryTab from '../components/images-gallery.vue';
+import PurchaseItemsList from '@/modules/purchases/items/view/list.vue';
 
 const { t } = useI18n();
 const route = useRoute();
@@ -93,27 +93,14 @@ const dialogRef = ref<InstanceType<typeof EditDialogApp>>();
 
 const formData = ref<Product>({} as Product);
 
-const purchasesDataGridConfig = ref<DataGridPropsConfig>({
-  dataSource: {
-    key: 'uid',
-    api: (query) => purchaseItemsApi.getAll({ ...query, product_uid: route.params.uid as string })
-  },
-  columns: [
-    { dataField: 'purchase.name', caption: t('purchase'), allowSorting: false },
-    { dataField: 'supplier.name', caption: t('supplier'), allowSorting: false },
-    { dataField: 'price', caption: t('unitPrice'), customizeText: ({ value }) => formatter.currency(value) },
-    { dataField: 'quantity', caption: t('quantity') },
-    { dataField: 'total_amount', caption: t('totalAmountItems'), customizeText: ({ value }) => formatter.currency(value) },
-    { dataField: 'total_amount_expensed', caption: t('totalAmountExpensed'), customizeText: ({ value }) => formatter.currency(value) },
-    { dataField: 'note', caption: t('note') },
-    { dataField: 'created_at', caption: t('createdAt'), ...formatter.devextreme.datetime, sortOrder: 'desc' }
-  ]
-});
-
 const suppliersDataGridConfig = ref<DataGridPropsConfig>({
   dataSource: {
     key: 'uid',
-    api: (query) => suppliersApi.getAll({ ...query, product_uid: route.params.uid as string })
+    api: (query) => suppliersApi.getAll({ ...query, filters: [{
+      field: 'product_uid',
+      operation: '=',
+      values: [route.params.uid as string]
+    }] })
   },
   columns: [
     { dataField: 'name', caption: t('supplier'), allowSorting: false },
