@@ -70,7 +70,7 @@ export default {
                     p.*,
                     p.total_amount,
                     p.items_count,
-                    CASE WHEN s.uid IS NOT NULL THEN json_object('uid', s.uid, 'name', s.name) ELSE NULL END AS supplier
+                    json_object('uid', s.uid, 'name', s.name) AS supplier
                 FROM purchases p
                 LEFT JOIN suppliers s ON p.supplier_uid = s.uid
                 WHERE p.uid = ?
@@ -101,10 +101,12 @@ export default {
                 columns: {
                     name: { searchText: 'p.name', values: 'p.name' },
                     'supplier.name': { searchText: 's.name', values: 'p.supplier_uid' },
+                    items_count: { searchText: 'p.items_count', values: 'p.items_count' },
+                    total_amount: { searchText: 'p.total_amount', values: 'p.total_amount' },
+                    total_amount_expensed: { searchText: 'p.total_amount_expensed', values: 'p.total_amount_expensed' },
                     note: { searchText: 'p.note', values: 'p.note' },
                     created_at: { searchText: 'p.created_at', values: 'p.created_at' }
-                },
-                excludeColumnsFromSearchText: ['created_at']
+                }
             });
 
             if (inputs.supplier_uid) {
@@ -125,7 +127,7 @@ export default {
                     p.*,
                     p.total_amount,
                     p.items_count,
-                    CASE WHEN s.uid IS NOT NULL THEN json_object('uid', s.uid, 'name', s.name) ELSE NULL END AS supplier
+                    json_object('uid', s.uid, 'name', s.name) AS supplier
                 ${ from }
             `, ...conditions, orderBy, limit, offset].join(" ");
 
@@ -135,7 +137,7 @@ export default {
 
             let countResult = { count: -1 };
             if(inputs.requireTotalCount) {
-                const countQuery = [`SELECT COUNT(*) as count ${ from }`, ...conditions].join(" ");                
+                const countQuery = ["SELECT COUNT(*) as count", from, ...conditions].join(" ");                
                 const countPrepare = database.prepare(countQuery);
                 countResult = binds.length
                     ? await countPrepare.bind(...binds).first() as { count: number }

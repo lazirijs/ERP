@@ -108,7 +108,7 @@ export default {
                     note: { searchText: 'si.note', values: 'si.note' },
                     price: { searchText: 'si.price', values: 'si.price' },
                     quantity: { searchText: 'si.quantity', values: 'si.quantity' },
-                    // total: { searchText: 'si.total', values: 'si.total' }, // no such column si.total
+                    // total: { searchText: 'si.total', values: 'si.total' }, // no such column si.total stored in database
                     created_at: { searchText: 'si.created_at', values: 'si.created_at' }
                 }
             });

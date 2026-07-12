@@ -12,7 +12,7 @@ const purchase = t.Object({
     name: t.String(),
     supplier_uid: t.Nullable(t.String()),
     note: t.String(),
-    supplier: t.Nullable(t.Object({ uid: t.String(), name: t.String() })),
+    supplier: t.Object({ uid: t.Nullable(t.String()), name: t.Nullable(t.String()) }),
     total_amount: t.Number(),
     items_count: t.Number(),
     total_amount_expensed: t.Number(),

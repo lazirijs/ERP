@@ -1,6 +1,6 @@
 <template>
-  <el-dialog v-model="dialogModel" :title="$t('create')" align-center :class="mode === 'items' ? 'min-w-11/12 md:min-w-4/5!' : 'min-w-11/12 md:min-w-1/4! md:max-w-1/4!'" @closed="reset()" :before-close="(done: any) => !loadingContainer.includes('submit') && done()">    
-    <div class="flex justify-between items-center mb-6">
+  <el-dialog v-model="dialogModel" :title="$t('create')" align-center :class="mode === 'items' ? 'min-w-11/12 md:min-w-4/5!' : 'min-w-11/12 md:min-w-1/4! md:max-w-1/4!'" @closed="reset()" :before-close="(done: any) => !loadingContainer.includes('submit') && done()">
+    <div v-if="!props.supplier" class="flex justify-between items-center mb-6">
       <el-segmented v-model="mode" :options="modeOptions" :class="{ 'w-full': mode === 'purchase' }" />
       <el-button v-if="mode === 'items'" type="primary" @click="batchGridRef?.addRow()" class="ml-auto">
         <el-icon class="mr-2">
@@ -16,7 +16,7 @@
         <el-input v-model="formData.name" :placeholder="$t('name')" />
       </el-form-item>
       <el-form-item :label="$t('supplier')" prop="supplier_uid" class="mb-0!">
-        <el-select v-model="formData.supplier_uid" clearable filterable :placeholder="$t('supplier')" class="w-full">
+        <el-select v-model="formData.supplier_uid" :disabled="!!props.supplier" clearable filterable :placeholder="$t('supplier')" class="w-full">
           <el-option v-for="supplier in suppliers" :key="supplier.uid" :label="supplier.name" :value="supplier.uid" />
         </el-select>
       </el-form-item>
@@ -56,12 +56,17 @@ import formatter from '@/services/formatter.ts';
 
 const emit = defineEmits<{ submitted: [] }>();
 
+const props = defineProps<{
+  supplier?: Supplier;
+  defaultMode?: 'purchase' | 'items';
+}>();
+
 const { t } = useI18n();
 const router = useRouter();
 
 const loadingContainer = ref<('submit' | 'loading')[]>([]);
 
-const mode = ref<'purchase' | 'items'>('purchase');
+const mode = ref<'purchase' | 'items'>(props.defaultMode || 'purchase');
 const modeOptions = computed(() => [
   { label: t('purchase'), value: 'purchase' },
   { label: t('items'), value: 'items' }
@@ -155,11 +160,17 @@ const submit = () => mode.value === 'purchase' ? submitSingle() : submitMultiple
 
 const open = async () => {
   dialogModel.value = true;
+  if (props.defaultMode) mode.value = props.defaultMode;
   formData.value.name = formatter.date(new Date().toISOString());
   try {
-    loadingContainer.value.push('loading');
-    const res = await SupplierApi.getAll();
-    suppliers.value = res.detail.data;
+    if (props.supplier) {
+      formData.value.supplier_uid = props.supplier.uid;
+      suppliers.value = [props.supplier];
+      } else {
+      loadingContainer.value.push('loading');
+      const res = await SupplierApi.getAll();
+      suppliers.value = res.detail.data;
+    }
   } catch (error: any) {
     ElMessage.error(error?.detail?.message || t('loadingFailed'));
     dialogModel.value = false;

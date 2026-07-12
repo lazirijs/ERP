@@ -25,7 +25,7 @@ const selectItem = `
         (pi.price * pi.quantity) AS total,
         json_object('uid', pr.uid, 'name', pr.name, 'image', pr.image) AS product,
         json_object('uid', pu.uid, 'name', pu.name) AS purchase,
-        CASE WHEN s.uid IS NOT NULL THEN json_object('uid', s.uid, 'name', s.name) ELSE NULL END AS supplier
+        json_object('uid', s.uid, 'name', s.name) AS supplier
     ${ itemsFrom }
 `;
 
@@ -84,9 +84,14 @@ export default {
                 searchText: inputs.searchText,
                 filters: inputs.filters,
                 columns: {
+                    'purchase.name': { searchText: 'pu.name', values: 'pi.purchase_uid' },
                     'product.name': { searchText: 'pr.name', values: 'pi.product_uid' },
                     'supplier.name': { searchText: 's.name', values: 'pu.supplier_uid' },
-                    note: { searchText: 'pi.note', values: 'pi.note' }
+                    price: { searchText: 'pi.price', values: 'pi.price' },
+                    quantity: { searchText: 'pi.quantity', values: 'pi.quantity' },
+                    // total: { searchText: 'pi.total', values: 'pi.total' }, // No such column stored in database
+                    note: { searchText: 'pi.note', values: 'pi.note' },
+                    created_at: { searchText: 'pi.created_at', values: 'pi.created_at' }
                 }
             });
 

@@ -1,5 +1,5 @@
 <template>
-    <container-app type="fixed">
+    <component :is="props.view?.type ? 'div' : 'container-app'" type="fixed" v-bind="$attrs" :class="{ 'grid gap-app': props.view?.type }">
         <div class="flex justify-between items-center gap-app">
             <div class="flex items-center gap-2">
                 <el-input v-model="search" @input="onSearchChange" dir="auto" :placeholder="$t('search')" class="md:w-75!">
@@ -14,9 +14,14 @@
                         <el-icon-refresh />
                     </el-icon>
                 </el-button>
-                <el-segmented v-model="view" :options="viewOptions" />
+                <el-button @click="toggleFilterRowVisibility()" class="w-8 m-0!">
+                    <el-icon>
+                        <el-icon-filter />
+                    </el-icon>
+                </el-button>
+                <el-segmented v-if="props.view?.type !== 'product'" v-model="section" :options="sectionOptions" />
             </div>
-            <el-button @click="dialogRef?.open()" type="success">
+            <el-button v-if="!props.hideCreate && props.view?.type != 'product'" @click="createDialogRef?.open()" type="success">
                 {{ $t('create') }}
                 <el-icon class="ml-2">
                     <el-icon-plus />
@@ -25,86 +30,111 @@
         </div>
         <div class="flex-1 min-h-0 min-w-0">
             <data-grid-app
-                v-if="view === 'purchase'"
+                v-if="section === 'purchase' && props.view?.type !== 'product'"
                 ref="dataGridRef"
                 :config="purchasesDataGridConfig"
                 @row-click="$router.push({ name: 'purchases-detail', params: { uid: $event.data.uid } })"
             />
-            <data-grid-app
-                v-else
-                ref="dataGridRef"
-                :config="itemsDataGridConfig"
-                @row-click="$router.push({ name: 'purchases-detail', params: { uid: $event.data.purchase.uid } })"
-            />
+            <purchase-items-data-grid-app v-else ref="dataGridRef" @row-click="$router.push({ name: 'purchases-detail', params: { uid: $event.data.purchase_uid } })" />
         </div>
-        <create-dialog-app ref="dialogRef" @submitted="dataGridRef?.instance?.refresh()" />
-    </container-app>
+        <create-dialog-app ref="createDialogRef" :supplier="props.view?.type === 'supplier' ? props.view.data : undefined" :default-mode="section === 'product' ? 'items' : 'purchase'" @submitted="purchasesUpdated" />
+    </component>
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue';
-import PurchaseApi from '../api';
-import itemsApi from '../items/api';
+import { ref, computed, onMounted } from 'vue';
+import PurchaseApi from '@/modules/purchases/api';
 import { useI18n } from 'vue-i18n';
-import CreateDialogApp from '../components/dialogs/create.vue';
+import CreateDialogApp from '@/modules/purchases/components/dialogs/create.vue';
+import PurchaseItemsDataGridApp from '@/modules/purchases/items/components/datagrid.vue';
+import { createDevExtremeCustomStore } from '@/components/devextreme/service.ts';
 
-import type { DataGridAppRef, DataGridPropsConfig } from '@/components/devextreme/datagrid/type';
+import type { DataGridAppRef, DataGridPropsConfig, DevExtremeDataGridRemoteQueryFilter } from '@/components/devextreme/datagrid/type';
 import formatter from '@/services/formatter';
-import { previewImage } from '@/services/files';
+import type { Product } from '@/modules/products/type.ts';
+import SupplierApi from '@/modules/suppliers/api';
+import type { Supplier } from '@/modules/suppliers/type.ts';
+import type { Purchase } from '@/modules/purchases/type.ts';
+
+const props = defineProps<{
+    view?: 
+        { type: "product", data: Product } |
+        { type: "supplier", data: Supplier } |
+        { type: "purchase", data: Purchase }
+    hideCreate?: boolean
+    defaultSection?: 'purchase' | 'product'
+}>();
+
+const emit = defineEmits<{
+    updated: []
+}>();
 
 const { t } = useI18n();
 
-const dialogRef = ref<InstanceType<typeof CreateDialogApp>>();
 const dataGridRef = ref<DataGridAppRef>();
+const createDialogRef = ref<InstanceType<typeof CreateDialogApp>>();
 
-const view = ref<'purchase' | 'product'>('purchase');
-const viewOptions = computed(() => [
+const section = ref<'purchase' | 'product'>(props.defaultSection || 'purchase');
+const sectionOptions = computed(() => [
     { label: t('byPurchase'), value: 'purchase' },
     { label: t('byProduct'), value: 'product' }
 ]);
 
+onMounted(() => {
+    if (props.view?.type == "product") section.value = "product";
+});
+
 const search = ref('');
+
 const onSearchChange = (value: string) => {
     value = value.trim();
     setTimeout(() => value === search.value && dataGridRef.value?.instance?.searchByText(value), 500);
 };
 
+const toggleFilterRowVisibility = () => {
+    dataGridRef.value?.instance?.option('filterRow.visible', !dataGridRef.value?.instance?.option('filterRow.visible'));
+}
+
+const devExtremeCustomStore = new createDevExtremeCustomStore();
+
 const purchasesDataGridConfig = ref<DataGridPropsConfig>({
     dataSource: {
         key: 'uid',
-        api: PurchaseApi.getAll
+        api: async (query) => {
+            if (props.view) {
+                const filter: DevExtremeDataGridRemoteQueryFilter = {
+                    field: props.view.type + ".name",
+                    values: [props.view.data.uid],
+                    operation: '='
+                }
+                query.filters = [...(query.filters || []), filter];
+            }
+            return await PurchaseApi.getAll(query);
+        }
     },
+    headerFilter: { visible: true },
     columns: [
-        { dataField: 'name', caption: t('name') },
-        { dataField: 'supplier.name', caption: t('supplier'), allowSorting: false },
-        { dataField: 'items_count', caption: t('itemsCount') },
-        { dataField: 'total_amount', caption: t('totalAmountItems'), customizeText: ({ value }) => formatter.currency(value) },
-        { dataField: 'total_amount_expensed', caption: t('totalAmountExpensed'), customizeText: ({ value }) => formatter.currency(value) },
-        { dataField: 'note', caption: t('note') },
-        { dataField: 'created_at', caption: t('createdAt'), ...formatter.devextreme.datetime, sortOrder: 'desc' }
+        { dataField: 'name', caption: t('name'), allowHeaderFiltering: false },
+        { dataField: 'supplier.name', caption: t('supplier'), allowSorting: false,
+            headerFilter: {
+                dataSource: devExtremeCustomStore.lookup({
+                    key: 'value',
+                    api: SupplierApi.getAll,
+                    map: (i: Supplier) => ({ value: i.uid, text: i.name })
+                })
+            },
+            visible: props.view?.type != 'supplier'
+        },
+        { dataField: 'items_count', caption: t('itemsCount'), allowHeaderFiltering: false },
+        { dataField: 'total_amount', caption: t('totalAmountItems'), customizeText: ({ value }) => formatter.currency(value), allowHeaderFiltering: false },
+        { dataField: 'total_amount_expensed', caption: t('totalAmountExpensed'), customizeText: ({ value }) => formatter.currency(value), allowHeaderFiltering: false },
+        { dataField: 'note', caption: t('note'), allowHeaderFiltering: false },
+        { dataField: 'created_at', caption: t('createdAt'), ...formatter.devextreme.datetime, sortOrder: 'desc', allowHeaderFiltering: false }
     ]
 });
 
-const itemsDataGridConfig = ref<DataGridPropsConfig>({
-    dataSource: {
-        key: 'uid',
-        api: itemsApi.getAll
-    },
-    columns: [
-        {
-          dataField: 'product.image', caption: t('image'), allowSorting: false, alignment: 'center', width: 120, allowEditing: false,
-          cellTemplate: (container: HTMLElement, options: { value: string }) => {
-            container.innerHTML = previewImage({ type: 'image', src: options.value, format: 'html' });
-          }
-        },
-        { dataField: 'product.name', caption: t('product'), allowSorting: false },
-        { dataField: 'supplier.name', caption: t('supplier'), allowSorting: false },
-        { dataField: 'price', caption: t('unitPrice'), customizeText: ({ value }) => formatter.currency(value) },
-        { dataField: 'quantity', caption: t('quantity') },
-        { dataField: 'total', caption: t('total'), customizeText: ({ value }) => formatter.currency(value) },
-        { dataField: 'purchase.name', caption: t('purchase'), allowSorting: false },
-        { dataField: 'note', caption: t('note') },
-        { dataField: 'created_at', caption: t('createdAt'), ...formatter.devextreme.datetime, sortOrder: 'desc' }
-    ]
-});
+const purchasesUpdated = () => {
+    dataGridRef.value?.instance?.refresh();
+    emit('updated');
+};
 </script>
