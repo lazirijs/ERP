@@ -78,7 +78,7 @@ export default {
 
             let countResult = { count: -1 };
             if (inputs.requireTotalCount) {
-                const countQuery = [`SELECT COUNT(*) as count ${ from }`, ...conditions].join(" ");                
+                const countQuery = ["SELECT COUNT(*) as count", from, ...conditions].join(" ");                
                 const countPrepare = database.prepare(countQuery);
                 countResult = binds.length
                     ? await countPrepare.bind(...binds).first() as { count: number }
