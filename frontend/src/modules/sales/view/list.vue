@@ -90,9 +90,7 @@ const sectionOptions = computed(() => [
     { label: t('byProduct'), value: 'product' }
 ]);
 
-onMounted(() => {
-    if (props.view?.type == "product") section.value = "product";
-});
+onMounted(() => props.view?.type == "product" && (section.value = "product"));
 
 const search = ref('');
 

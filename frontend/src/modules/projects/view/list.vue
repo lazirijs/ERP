@@ -14,6 +14,11 @@
                         <el-icon-refresh />
                     </el-icon>
                 </el-button>
+                <el-button @click="toggleFilterRowVisibility()" class="w-8 m-0!">
+                    <el-icon>
+                        <el-icon-filter />
+                    </el-icon>
+                </el-button>
             </div>
             <el-button @click="createDialogRef?.open()" type="success">
                 {{ $t('create') }}
@@ -35,15 +40,17 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
-import ProjectApi from '../api';
 import { useI18n } from 'vue-i18n';
+import ProjectApi from '@/modules/projects/api';
 import CreateDialogApp from '../components/dialogs/create.vue';
-
+import { createDevExtremeCustomStore } from '@/components/devextreme/service.ts';
 
 import type { DataGridAppRef, DataGridPropsConfig } from '@/components/devextreme/datagrid/type';
-import { status } from '../constant';
-import type { Project } from '../type';
+import { status } from '@/modules/projects/constant';
+import type { Project } from '@/modules/projects/type';
 import formatter from '@/services/formatter';
+import ClientApi from '@/modules/clients/api';
+import type { Client } from '@/modules/clients/type.ts';
 
 const { t } = useI18n();
 
@@ -58,27 +65,44 @@ const onSearchChange = (value: string) => {
     setTimeout(() => value === search.value && dataGridRef.value?.instance?.searchByText(value), 500);
 };
 
+const toggleFilterRowVisibility = () => {
+    dataGridRef.value?.instance?.option('filterRow.visible', !dataGridRef.value?.instance?.option('filterRow.visible'));
+};
+
+const devExtremeCustomStore = new createDevExtremeCustomStore();
+
 const dataGridConfig = ref<DataGridPropsConfig>({
     dataSource: {
         key: 'uid',
         api: ProjectApi.getAll
     },
+    headerFilter: { visible: true },
     columns: [
-        { dataField: 'client.name', caption: t('client'), allowSorting: false },
-        { dataField: 'name', caption: t('name') },
+        { dataField: 'client.name', caption: t('client'), allowSorting: false,
+            headerFilter: {
+                dataSource: devExtremeCustomStore.lookup({
+                    key: 'value',
+                    api: ClientApi.getAll,
+                    map: (i: Client) => ({ value: i.uid, text: i.name })
+                })
+            }
+        },
+        { dataField: 'name', caption: t('name'), allowHeaderFiltering: false },
         // { dataField: 'region.name', caption: t('region'), allowSorting: false },
         // { dataField: 'category.name', caption: t('category'), allowSorting: false },
         {
-            dataField: 'status', caption: t('status'), alignment: 'center', 
+            dataField: 'status', caption: t('status'), alignment: 'center', allowHeaderFiltering: true, allowFiltering: false,
             cellTemplate: (container: HTMLElement, options: { value: Project["status"] }) => {
                 let { label, color } = status[options.value];
                 container.innerHTML = `<span class="badge-app-${ color }">${ t(label) }</span>`;
-            } 
+            },
+            headerFilter: { dataSource: Object.values(status).map(i => ({ value: i.id, text: t(i.label) })) },
         },
-        { dataField: 'offer', caption: t('offer'), customizeText: ({ value }) => formatter.currency(value) },
-        { dataField: 'total_amount_received', caption: t('totalAmountReceived'), customizeText: ({ value }) => formatter.currency(value) },
-        { dataField: 'total_amount_expensed', caption: t('totalAmountExpensed'), customizeText: ({ value }) => formatter.currency(value) },
-        { dataField: 'created_at', caption: t('createdAt'), ...formatter.devextreme.datetime, sortOrder: 'desc' }
+        { dataField: 'offer', caption: t('offer'), customizeText: ({ value }) => formatter.currency(value), allowHeaderFiltering: false },
+        { dataField: 'total_amount_received', caption: t('totalAmountReceived'), customizeText: ({ value }) => formatter.currency(value), allowHeaderFiltering: false },
+        { dataField: 'total_amount_expensed', caption: t('totalAmountExpensed'), customizeText: ({ value }) => formatter.currency(value), allowHeaderFiltering: false },
+        { dataField: 'total_amount_sold', caption: t('totalAmountSold'), customizeText: ({ value }) => formatter.currency(value), allowHeaderFiltering: false },
+        { dataField: 'created_at', caption: t('createdAt'), ...formatter.devextreme.datetime, sortOrder: 'desc', allowHeaderFiltering: false }
     ]
 });
 </script>
