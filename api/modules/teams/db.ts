@@ -38,16 +38,13 @@ export default {
     
     async getAll(inputs: DataGridQuery): Promise<SuccessServiceResponse<DataGridResponse<TeamType>>> {
         try {
-            const tableName = "teams";
             let limit = "LIMIT " + inputs.take;
             let offset = "OFFSET " + inputs.skip;
-
-            // console.log(inputs);
 
             const waitList = Object.keys(Schema.data.value.properties);
             
             const from = `
-                FROM ${ tableName } t
+                FROM teams t
                 LEFT JOIN employees e ON t.supervisor_uid = e.uid
             `;
 

@@ -14,6 +14,11 @@
                         <el-icon-refresh />
                     </el-icon>
                 </el-button>
+                <el-button @click="toggleFilterRowVisibility()" class="w-8 m-0!">
+                    <el-icon>
+                        <el-icon-filter />
+                    </el-icon>
+                </el-button>
             </div>
             <el-button @click="createDialogRef?.open()" type="success">
                 {{ $t('create') }}
@@ -35,13 +40,15 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
-import TeamApi from '../api';  
 import { useI18n } from 'vue-i18n';
-import CreateDialogApp from '../components/dialogs/create.vue';
-
-
-import type { DataGridAppRef, DataGridPropsConfig } from '@/components/devextreme/datagrid/type';
+import TeamApi from '@/modules/teams/api';  
 import formatter from '@/services/formatter';
+import CreateDialogApp from '@/modules/teams/components/dialogs/create.vue';
+
+import EmployeeApi from '@/modules/employees/api.ts';
+import type { Employee } from '@/modules/employees/type.ts';
+import { createDevExtremeCustomStore } from '@/components/devextreme/service.ts';
+import type { DataGridAppRef, DataGridPropsConfig } from '@/components/devextreme/datagrid/type';
 
 const { t } = useI18n();
 
@@ -56,15 +63,31 @@ const onSearchChange = (value: string) => {
     setTimeout(() => value === search.value && dataGridRef.value?.instance?.searchByText(value), 500);
 };
 
+const toggleFilterRowVisibility = () => {
+    dataGridRef.value?.instance?.option('filterRow.visible', !dataGridRef.value?.instance?.option('filterRow.visible'));
+};
+
+const devExtremeCustomStore = new createDevExtremeCustomStore();
+
 const dataGridConfig = ref<DataGridPropsConfig>({
     dataSource: {
         key: 'uid',
         api: TeamApi.getAll
     },
+    headerFilter: { visible: true },
     columns: [
-        { dataField: 'name', caption: t('name') },
-        { dataField: 'supervisor.name', caption: t('supervisor'), allowSorting: false },
-        { dataField: 'created_at', caption: t('createdAt'), ...formatter.devextreme.datetime, sortOrder: 'desc' }
+        { dataField: 'name', caption: t('name'), allowHeaderFiltering: false },
+        { 
+            dataField: 'supervisor.name', caption: t('supervisor'), allowSorting: false,
+            headerFilter: {
+                dataSource: devExtremeCustomStore.lookup({
+                    key: 'value',
+                    api: EmployeeApi.getAll,
+                    map: (i: Employee) => ({ value: i.uid, text: i.name })
+                })
+            }
+        },
+        { dataField: 'created_at', caption: t('createdAt'), ...formatter.devextreme.datetime, sortOrder: 'desc', allowHeaderFiltering: false }
     ]
 });
 </script>
