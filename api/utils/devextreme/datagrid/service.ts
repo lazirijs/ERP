@@ -11,8 +11,8 @@ import type { DataGridQuery } from "./type";
  */
 
 export type FilterColumnMap = Record<string, {
-    searchText: string; 
-    values: string; 
+    searchText?: string; 
+    values?: string; 
 }>;
 
 export interface DataGridSQLiteConditions {
@@ -121,7 +121,7 @@ export function filtersBuilder(filters: DataGridQuery["filters"], columns: Filte
 export function buildDataGridSQLiteConditions({ filters, columns, searchText, excludeColumnsFromSearchText }: BuildConditionsParams): DataGridSQLiteConditions {
     const filterConditions = filtersBuilder(filters, columns);
     excludeColumnsFromSearchText?.forEach(column => delete columns[column.replaceAll('"', '')]);
-    const searchTextConditions = searchTextBuilder(searchText, Object.values(columns).map(column => column.searchText));
+    const searchTextConditions = searchTextBuilder(searchText, Object.values(columns).map(column => column.searchText).filter(Boolean) as string[]);
     
     if (searchTextConditions.conditions.length) {
         searchTextConditions.conditions.unshift("WHERE");
