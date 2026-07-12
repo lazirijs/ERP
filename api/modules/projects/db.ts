@@ -79,9 +79,13 @@ export default {
                 columns: {
                     name: { searchText: 'p.name', values: 'p.name' },
                     'client.name': { searchText: 'c.name', values: 'p.client_uid' },
-                    'region.name': { searchText: 'r.name', values: 'p.region_uid' },
-                    'category.name': { searchText: 'cat.name', values: 'p.category_uid' },
+                    // 'region.name': { searchText: 'r.name', values: 'p.region_uid' },
+                    // 'category.name': { searchText: 'cat.name', values: 'p.category_uid' },
                     status: { searchText: 'p.status', values: 'p.status' },
+                    offer: { searchText: 'p.offer', values: 'p.offer' },
+                    total_amount_expensed: { searchText: 'p.total_amount_expensed', values: 'p.total_amount_expensed' },
+                    total_amount_received: { searchText: 'p.total_amount_received', values: 'p.total_amount_received' },
+                    total_amount_sold: { searchText: 'p.total_amount_sold', values: 'p.total_amount_sold' },
                     created_at: { searchText: 'p.created_at', values: 'p.created_at' }
                 },
                 excludeColumnsFromSearchText: ['status', 'created_at']
