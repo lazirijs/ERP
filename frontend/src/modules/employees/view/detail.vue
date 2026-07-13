@@ -25,7 +25,7 @@
           </div>
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">{{ $t('team') }}</label>
-            <span v-if="formData.team.uid" class="block text-sm text-gray-900">{{ formData.team.name }}</span>
+            <span v-if="formData.team" class="block text-sm text-gray-900">{{ formData.team.name }}</span>
             <span v-else class="block text-sm text-gray-400">{{ $t('noTeam') }}</span>
           </div>          
           <!-- <div>

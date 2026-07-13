@@ -6,7 +6,7 @@ const createBody = t.Object({
     product_uid: t.String(),
     price: t.Number({ minimum: 0 }),
     quantity: t.Number({ minimum: 1 }),
-    note: t.Optional(t.String())
+    note: t.String({ maxLength: 255 })
 });
 
 const item = t.Object({
@@ -41,7 +41,7 @@ const batchBody = t.Object({
         product_uid: t.String(),
         price: t.Number({ minimum: 0 }),
         quantity: t.Number({ minimum: 1 }),
-        note: t.Optional(t.String())
+        note: t.String({ maxLength: 255 })
     }))
 });
 

@@ -26,7 +26,7 @@ export default {
             const result = await database.prepare(`
                 SELECT 
                     employees.*,
-                    json_object('uid', teams.uid, 'name', teams.name) as team
+                    CASE WHEN employees.team_uid IS NOT NULL THEN json_object('uid', teams.uid, 'name', teams.name) END AS team
                 FROM employees
                 LEFT JOIN teams ON employees.team_uid = teams.uid
                 WHERE employees.uid = ?
@@ -54,12 +54,13 @@ export default {
                 LEFT JOIN teams ON employees.team_uid = teams.uid
             `;
 
-            const query: string[] = [`
-                SELECT
+            const query: string[] = [
+                `SELECT
                     employees.*,
-                    json_object('uid', teams.uid, 'name', teams.name) as team
-                ${ from }
-            `];
+                    CASE WHEN employees.team_uid IS NOT NULL THEN json_object('uid', teams.uid, 'name', teams.name) END AS team
+                `,
+                from
+            ];
             let orderBy: string = "";
             let result;
 

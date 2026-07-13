@@ -2,21 +2,27 @@ import { t } from "elysia";
 import DataGridSchema from "../../utils/devextreme/datagrid/schema";
 
 const createBody = t.Object({
-    name: t.Optional(t.String({ maxLength: 50 })),
-    project_uid: t.Optional(t.Nullable(t.String())),
-    client_uid: t.Optional(t.Nullable(t.String())),
-    note: t.Optional(t.String({ maxLength: 255 }))
+    name: t.String({ maxLength: 50 }),
+    project_uid: t.String(),
+    client_uid: t.String(),
+    note: t.String({ maxLength: 255 })
 });
 
 const sale = t.Object({
     uid: t.String(),
     name: t.String(),
-    project_uid: t.Nullable(t.String()),
-    client_uid: t.Nullable(t.String()),
+    project_uid: t.String(),
+    client_uid: t.String(),
     status: t.Union([t.Literal(0), t.Literal(1)]),
     note: t.String(),
-    project: t.Nullable(t.Object({ uid: t.String(), name: t.String() })),
-    client: t.Nullable(t.Object({ uid: t.String(), name: t.String() })),
+    project: t.Nullable(t.Object({
+        uid: t.String(),
+        name: t.String()
+    })),
+    client: t.Nullable(t.Object({
+        uid: t.String(),
+        name: t.String()
+    })),
     total_amount: t.Number(),
     items_count: t.Number(),
     total_amount_received: t.Number(),

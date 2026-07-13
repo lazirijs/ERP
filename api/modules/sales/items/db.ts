@@ -3,6 +3,7 @@ import Responses from '../../../utils/response';
 import type { SuccessServiceResponse } from '../../../utils/response/type';
 import type { DataGridResponse } from '../../../utils/devextreme/datagrid/type';
 import type { ItemType, ItemCreateBodyType, ItemUpdateBodyType, ItemBatchBodyType, ItemGetAllQueryType } from './type';
+import type { ProductType } from '../../products/type';
 import { buildDataGridSQLiteConditions } from '../../../utils/devextreme/datagrid/service';
 
 const parseRow = (row: any) => ({
@@ -37,13 +38,11 @@ const sortable: Record<string, string> = {
 // Ensure the product has enough stock. `addBack` re-adds the quantity a sale item
 // already reserves (when editing that same item's product) before comparing.
 const checkStock = async (product_uid: string, requested: number, addBack: number = 0) => {
-    const product = await database
-        .prepare("SELECT quantity, name FROM products WHERE uid = ?")
-        .bind(product_uid)
-        .first<{ quantity: number; name: string }>();
+    const product = await database.prepare("SELECT quantity, name FROM products WHERE uid = ?").bind(product_uid).first<ProductType | undefined>();
+    if (!product) throw Responses.service.handler.error({ message: "Product not found" }, 404);
     const remaining = product?.quantity ?? 0;
     if (requested > remaining + addBack) {
-        throw Responses.service.handler.error({ message: `Not enough stock for "${ product?.name ?? '' }". Remaining: ${ remaining }`, remaining }, 400);
+        throw Responses.service.handler.error({ message: `Not enough stock for "${ product.name }". Remaining: ${ remaining }`, remaining }, 400);
     }
 };
 
@@ -53,7 +52,7 @@ export default {
             await checkStock(input.product_uid, input.quantity);
             await database
                 .prepare("INSERT INTO sale_items (sale_uid, product_uid, price, quantity, note) VALUES (?, ?, ?, ?, ?)")
-                .bind(input.sale_uid, input.product_uid, input.price, input.quantity, input.note ?? '')
+                .bind(input.sale_uid, input.product_uid, input.price, input.quantity, input.note || null)
                 .run();
             return Responses.service.handler.success();
         } catch (error) {

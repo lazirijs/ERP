@@ -2,14 +2,14 @@ import { t } from "elysia";
 import DataGridSchema from "../../utils/devextreme/datagrid/schema";
 
 const createBody = t.Object({
-    project_uid: t.Optional(t.Nullable(t.String())),
-    account_uid: t.Optional(t.Nullable(t.String())),
-    employee_uid: t.Optional(t.Nullable(t.String())),
-    sale_uid: t.Optional(t.Nullable(t.String())),
-    purchase_uid: t.Optional(t.Nullable(t.String())),
+    project_uid: t.String(),
+    account_uid: t.String(),
+    employee_uid: t.String(),
+    sale_uid: t.String(),
+    purchase_uid: t.String(),
     type: t.Union([t.Literal("+"), t.Literal("-")]),
     amount: t.Number({ minimum: 0 }),
-    note: t.Optional(t.String({ default: "" }))
+    note: t.String()
 });
 
 const transaction = t.Object({

@@ -2,17 +2,17 @@ import { status } from "@/modules/employees/constant";
 
 export interface Employee extends EmployeeCreateBody {
   uid: string;
-  image?: string | null;
+  image: string | null;
   team: {
-    uid: string | null;
-    name: string | null;
-  };
+    uid: string;
+    name: string;
+  } | null;
   created_at: string;
 }
 
 export interface EmployeeCreateBody {
   name: string;
-  team_uid?: string;
+  team_uid: string;
   status: keyof typeof status;
 }
 

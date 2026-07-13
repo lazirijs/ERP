@@ -3,7 +3,7 @@ export interface Purchase {
   name: string;
   supplier_uid: string | null;
   note: string;
-  supplier: { uid: string | null; name: string | null }
+  supplier: { uid: string; name: string } | null;
   total_amount: number;
   items_count: number;
   total_amount_expensed: number;

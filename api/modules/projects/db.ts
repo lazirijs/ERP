@@ -25,9 +25,9 @@ export default {
             const result = await database.prepare(`
                 SELECT 
                     p.*,
-                    json_object('uid', c.uid, 'name', c.name, 'created_at', c.created_at) as client,
-                    json_object('uid', r.uid, 'name', r.name, 'created_at', r.created_at) as region,
-                    json_object('uid', cat.uid, 'parent_uid', cat.parent_uid, 'name', cat.name, 'created_at', cat.created_at) as category
+                    json_object('uid', c.uid, 'name', c.name, 'created_at', c.created_at) AS client,
+                    CASE WHEN p.region_uid IS NOT NULL THEN json_object('uid', r.uid, 'name', r.name, 'created_at', r.created_at) END AS region,
+                    CASE WHEN p.category_uid IS NOT NULL THEN json_object('uid', cat.uid, 'parent_uid', cat.parent_uid, 'name', cat.name, 'created_at', cat.created_at) END AS category
                 FROM projects p
                 LEFT JOIN clients c ON p.client_uid = c.uid
                 LEFT JOIN regions r ON p.region_uid = r.uid
@@ -65,9 +65,9 @@ export default {
             const query: string[] = [`
                 SELECT
                     p.*,
-                    json_object('uid', c.uid, 'name', c.name, 'created_at', c.created_at) as client,
-                    json_object('uid', r.uid, 'name', r.name, 'created_at', r.created_at) as region,
-                    json_object('uid', cat.uid, 'parent_uid', cat.parent_uid, 'name', cat.name, 'created_at', cat.created_at) as category
+                    json_object('uid', c.uid, 'name', c.name, 'created_at', c.created_at) AS client,
+                    CASE WHEN p.region_uid IS NOT NULL THEN json_object('uid', r.uid, 'name', r.name, 'created_at', r.created_at) END AS region,
+                    CASE WHEN p.category_uid IS NOT NULL THEN json_object('uid', cat.uid, 'parent_uid', cat.parent_uid, 'name', cat.name, 'created_at', cat.created_at) END AS category
                 ${ from }
             `];
             let orderBy: string = "";

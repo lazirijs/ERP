@@ -14,7 +14,7 @@ export default {
         try {
             const result = await database
                 .prepare("INSERT INTO purchases (name, supplier_uid, note) VALUES (?, ?, ?) RETURNING uid")
-                .bind(input.name, input.supplier_uid ?? null, input.note ?? '')
+                .bind(input.name, input.supplier_uid || null, input.note || null)
                 .first<{ uid: string }>();
             return Responses.service.handler.success(result!);
         } catch (error) {
@@ -70,7 +70,7 @@ export default {
                     p.*,
                     p.total_amount,
                     p.items_count,
-                    json_object('uid', s.uid, 'name', s.name) AS supplier
+                    CASE WHEN p.supplier_uid IS NOT NULL THEN json_object('uid', s.uid, 'name', s.name) END AS supplier
                 FROM purchases p
                 LEFT JOIN suppliers s ON p.supplier_uid = s.uid
                 WHERE p.uid = ?
@@ -127,7 +127,7 @@ export default {
                     p.*,
                     p.total_amount,
                     p.items_count,
-                    json_object('uid', s.uid, 'name', s.name) AS supplier
+                    CASE WHEN p.supplier_uid IS NOT NULL THEN json_object('uid', s.uid, 'name', s.name) END AS supplier
                 ${ from }
             `, ...conditions, orderBy, limit, offset].join(" ");
 

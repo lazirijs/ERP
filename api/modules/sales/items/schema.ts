@@ -6,7 +6,7 @@ const createBody = t.Object({
     product_uid: t.String(),
     price: t.Number({ minimum: 0 }),
     quantity: t.Number({ minimum: 1 }),
-    note: t.Optional(t.String())
+    note: t.String()
 });
 
 const item = t.Object({
@@ -17,8 +17,16 @@ const item = t.Object({
     quantity: t.Number(),
     note: t.String(),
     total: t.Number(),
-    product: t.Object({ uid: t.String(), name: t.String(), image: t.Nullable(t.String()) }),
-    sale: t.Object({ uid: t.String(), name: t.String(), status: t.Union([t.Literal(0), t.Literal(1)]) }),
+    product: t.Object({
+        uid: t.String(),
+        name: t.String(),
+        image: t.Nullable(t.String())
+    }),
+    sale: t.Object({
+        uid: t.String(),
+        name: t.String(),
+        status: t.Union([t.Literal(0), t.Literal(1)])
+    }),
     created_at: t.String({ format: "date-time" })
 });
 
@@ -40,7 +48,7 @@ const batchBody = t.Object({
         product_uid: t.String(),
         price: t.Number({ minimum: 0 }),
         quantity: t.Number({ minimum: 1 }),
-        note: t.Optional(t.String())
+        note: t.String({ maxLength: 255 })
     }))
 });
 

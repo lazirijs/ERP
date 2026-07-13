@@ -16,7 +16,7 @@ export default {
             if (input.date < today()) throw Responses.service.handler.error("cannotCreateSessionForPastDate", 400);
             const result = await database
                 .prepare("INSERT INTO sessions (date, note) VALUES (?, ?) RETURNING uid")
-                .bind(input.date, input.note ?? '')
+                .bind(input.date, input.note || null)
                 .first<{ uid: string }>();
             return Responses.service.handler.success(result!);
         } catch (error) {
@@ -103,7 +103,7 @@ export default {
             if (!current) throw Responses.service.handler.error("Session not found", 404);
             if (current.date < today()) throw Responses.service.handler.error("cannotEditPastSession", 400);
             if (input.date < today()) throw Responses.service.handler.error("cannotCreateSessionForPastDate", 400);
-            await database.prepare("UPDATE sessions SET date = ?, note = ? WHERE uid = ?").bind(input.date, input.note ?? '', input.uid).run();
+            await database.prepare("UPDATE sessions SET date = ?, note = ? WHERE uid = ?").bind(input.date, input.note || null, input.uid).run();
             return Responses.service.handler.success();
         } catch (error) {
             if (Responses.schema.data.check(error)) throw error;

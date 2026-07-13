@@ -9,7 +9,7 @@ import { buildDataGridSQLiteConditions } from '../../utils/devextreme/datagrid/s
 export default {
     async create(input: TransactionCreateBodyType): Promise<SuccessServiceResponse<undefined>> {
         try {
-            await database.prepare("INSERT INTO transactions (project_uid, account_uid, employee_uid, sale_uid, purchase_uid, type, amount, note) VALUES (?, ?, ?, ?, ?, ?, ?, ?)").bind(input.project_uid || null, input.account_uid || null, input.employee_uid || null, input.sale_uid || null, input.purchase_uid || null, input.type, input.amount, input.note).run();
+            await database.prepare("INSERT INTO transactions (project_uid, account_uid, employee_uid, sale_uid, purchase_uid, type, amount, note) VALUES (?, ?, ?, ?, ?, ?, ?, ?)").bind(input.project_uid || null, input.account_uid || null, input.employee_uid || null, input.sale_uid || null, input.purchase_uid || null, input.type, input.amount, input.note || null).run();
             return Responses.service.handler.success();
         } catch (error) {
             throw Responses.service.handler.error(error);
@@ -22,11 +22,11 @@ export default {
             const result = await database.prepare(`
                 SELECT 
                     t.*,
-                    json_object('uid', p.uid, 'name', p.name, 'created_at', p.created_at) as project,
-                    json_object('uid', a.uid, 'name', a.name, 'created_at', a.created_at) as account,
-                    json_object('uid', e.uid, 'name', e.name, 'created_at', e.created_at) as employee,
-                    json_object('uid', s.uid, 'name', s.name, 'created_at', s.created_at) as sale,
-                    json_object('uid', pr.uid, 'name', pr.name, 'created_at', pr.created_at) as purchase
+                    CASE WHEN t.project_uid IS NOT NULL THEN json_object('uid', p.uid, 'name', p.name, 'created_at', p.created_at) END AS project,
+                    CASE WHEN t.account_uid IS NOT NULL THEN json_object('uid', a.uid, 'name', a.name, 'created_at', a.created_at) END AS account,
+                    CASE WHEN t.employee_uid IS NOT NULL THEN json_object('uid', e.uid, 'name', e.name, 'created_at', e.created_at) END AS employee,
+                    CASE WHEN t.sale_uid IS NOT NULL THEN json_object('uid', s.uid, 'name', s.name, 'created_at', s.created_at) END AS sale,
+                    CASE WHEN t.purchase_uid IS NOT NULL THEN json_object('uid', pr.uid, 'name', pr.name, 'created_at', pr.created_at) END AS purchase
                 FROM transactions t
                 LEFT JOIN projects p ON t.project_uid = p.uid
                 LEFT JOIN accounts a ON t.account_uid = a.uid
@@ -71,11 +71,11 @@ export default {
             const query: string[] = [`
                 SELECT
                     t.*,
-                    json_object('uid', p.uid, 'name', p.name, 'created_at', p.created_at) as project,
-                    json_object('uid', a.uid, 'name', a.name, 'created_at', a.created_at) as account,
-                    json_object('uid', e.uid, 'name', e.name, 'created_at', e.created_at) as employee,
-                    json_object('uid', s.uid, 'name', s.name, 'created_at', s.created_at) as sale,
-                    json_object('uid', pur.uid, 'name', pur.name, 'created_at', pur.created_at) as purchase
+                    CASE WHEN t.project_uid IS NOT NULL THEN json_object('uid', p.uid, 'name', p.name, 'created_at', p.created_at) END AS project,
+                    CASE WHEN t.account_uid IS NOT NULL THEN json_object('uid', a.uid, 'name', a.name, 'created_at', a.created_at) END AS account,
+                    CASE WHEN t.employee_uid IS NOT NULL THEN json_object('uid', e.uid, 'name', e.name, 'created_at', e.created_at) END AS employee,
+                    CASE WHEN t.sale_uid IS NOT NULL THEN json_object('uid', s.uid, 'name', s.name, 'created_at', s.created_at) END AS sale,
+                    CASE WHEN t.purchase_uid IS NOT NULL THEN json_object('uid', pur.uid, 'name', pur.name, 'created_at', pur.created_at) END AS purchase
                 ${ from }
             `];
 

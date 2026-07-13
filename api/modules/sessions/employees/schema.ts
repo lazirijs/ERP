@@ -8,7 +8,7 @@ const createBody = t.Object({
     employee_uid: t.String(),
     team_uid: t.Optional(t.Union([t.String(), t.Null()])),
     status,
-    note: t.Optional(t.String({ maxLength: 255 }))
+    note: t.String({ maxLength: 255 })
 });
 
 const sessionEmployee = t.Object({
@@ -42,14 +42,14 @@ const batchBody = t.Object({
         employee_uid: t.String(),
         team_uid: t.Optional(t.Union([t.String(), t.Null()])),
         status,
-        note: t.Optional(t.String({ maxLength: 255 }))
+        note: t.String({ maxLength: 255 })
     }))
 });
 
 const updateBody = t.Object({
     uid: sessionEmployee.properties.uid,
     status,
-    note: t.Optional(t.String({ maxLength: 255 }))
+    note: t.String({ maxLength: 255 })
 });
 
 export default {

@@ -4,17 +4,17 @@ import DataGridSchema from "../../utils/devextreme/datagrid/schema";
 const createBody = t.Object({
     name: t.String(),
     status: t.Union([ t.Literal(0), t.Literal(1), t.Literal(2), t.Literal(3) ]),
-    team_uid: t.Optional(t.Union([ t.String(), t.Null() ]))
+    team_uid: t.Nullable(t.String())
 });
 
 const employee = t.Object({
     uid: t.String(),
     ...createBody.properties,
     image: t.Optional(t.Nullable(t.String())),
-    team: t.Object({
-        uid: t.Nullable(t.String()),
-        name: t.Nullable(t.String())
-    }),
+    team: t.Nullable(t.Object({
+        uid: t.String(),
+        name: t.String()
+    })),
     created_at: t.String({ format: "date-time" })
 });
 
@@ -24,7 +24,7 @@ const getParams = t.Object({
 
 const getAllQuery = t.Object({
     ...DataGridSchema.data.properties,
-    team_uid: t.Optional(t.Union([t.String(), t.Null()]))
+    team_uid: t.Optional(t.String())
 });
 
 const updateBody = t.Object({

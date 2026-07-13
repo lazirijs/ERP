@@ -32,7 +32,7 @@ const selectItem = `
         se.*,
         s.date AS date,
         json_object('uid', e.uid, 'name', e.name, 'image', e.image) AS employee,
-        CASE WHEN t.uid IS NOT NULL THEN json_object('uid', t.uid, 'name', t.name) ELSE NULL END AS team
+        CASE WHEN t.uid IS NOT NULL THEN json_object('uid', t.uid, 'name', t.name) END AS team
     ${ itemsFrom }
 `;
 
@@ -69,7 +69,7 @@ export default {
             const team_uid = await resolveTeamUid(input.employee_uid, input.team_uid);
             await database
                 .prepare("INSERT OR IGNORE INTO session_employees (session_uid, employee_uid, team_uid, status, note) VALUES (?, ?, ?, ?, ?)")
-                .bind(input.session_uid, input.employee_uid, team_uid, input.status, input.note ?? '')
+                .bind(input.session_uid, input.employee_uid, team_uid, input.status, input.note || null)
                 .run();
             return Responses.service.handler.success();
         } catch (error) {
@@ -187,7 +187,7 @@ export default {
             if (row.date < today()) throw Responses.service.handler.error("cannotEditPastSession", 400);
             assertStatusAllowed(row.date, input.status);
             await database.prepare("UPDATE session_employees SET status = ?, note = ? WHERE uid = ?")
-                .bind(input.status, input.note ?? '', input.uid).run();
+                .bind(input.status, input.note || null, input.uid).run();
             return Responses.service.handler.success();
         } catch (error) {
             if (Responses.schema.data.check(error)) throw error;

@@ -21,10 +21,8 @@ const salesFrom = `
 const selectSale = `
     SELECT
         s.*,
-        s.total_amount,
-        s.items_count,
-        CASE WHEN pr.uid IS NOT NULL THEN json_object('uid', pr.uid, 'name', pr.name) ELSE NULL END AS project,
-        CASE WHEN c.uid IS NOT NULL THEN json_object('uid', c.uid, 'name', c.name) ELSE NULL END AS client
+        CASE WHEN s.project_uid IS NOT NULL THEN json_object('uid', pr.uid, 'name', pr.name) END AS project,
+        CASE WHEN s.client_uid IS NOT NULL THEN json_object('uid', c.uid, 'name', c.name, 'created_at', c.created_at) END AS client
     ${ salesFrom }
 `;
 
@@ -33,7 +31,7 @@ export default {
         try {
             const result = await database
                 .prepare("INSERT INTO sales (name, project_uid, client_uid, note) VALUES (?, ?, ?, ?) RETURNING uid")
-                .bind(input.name ?? '', input.project_uid ?? null, input.client_uid ?? null, input.note ?? '')
+                .bind(input.name ?? '', input.project_uid ?? null, input.client_uid ?? null, input.note || null)
                 .first<{ uid: string }>();
             return Responses.service.handler.success(result!);
         } catch (error) {

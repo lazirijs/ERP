@@ -23,9 +23,9 @@ const selectItem = `
     SELECT
         pi.*,
         (pi.price * pi.quantity) AS total,
-        json_object('uid', pr.uid, 'name', pr.name, 'image', pr.image) AS product,
         json_object('uid', pu.uid, 'name', pu.name) AS purchase,
-        json_object('uid', s.uid, 'name', s.name) AS supplier
+        json_object('uid', pr.uid, 'name', pr.name, 'image', pr.image) AS product,
+        CASE WHEN pu.supplier_uid IS NOT NULL THEN json_object('uid', s.uid, 'name', s.name) END AS supplier
     ${ itemsFrom }
 `;
 
@@ -42,7 +42,7 @@ export default {
         try {
             await database
                 .prepare("INSERT INTO purchase_items (purchase_uid, product_uid, price, quantity, note) VALUES (?, ?, ?, ?, ?)")
-                .bind(input.purchase_uid, input.product_uid, input.price, input.quantity, input.note ?? '')
+                .bind(input.purchase_uid, input.product_uid, input.price, input.quantity, input.note || null)
                 .run();
             return Responses.service.handler.success();
         } catch (error) {
@@ -55,7 +55,7 @@ export default {
             for (const row of rows) {
                 await database
                     .prepare("INSERT INTO purchase_items (purchase_uid, product_uid, price, quantity, note) VALUES (?, ?, ?, ?, ?)")
-                    .bind(purchase_uid, row.product_uid, row.price, row.quantity, row.note ?? '')
+                    .bind(purchase_uid, row.product_uid, row.price, row.quantity, row.note || null)
                     .run();
             }
             return Responses.service.handler.success();
