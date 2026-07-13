@@ -111,13 +111,12 @@ const dataGridConfig = ref<DataGridPropsConfig>({
     key: 'uid',
     api: (query) => {
         const filters = query.filters || [];
-        const sort = [{"selector":"created_at","desc":true}];
         filters.push({
           field: 'session.name',
           operation: '=',
           values: [props.session.uid as string]
         });
-        return sessionEmployeesApi.getAll({ ...query, filters, sort });
+        return sessionEmployeesApi.getAll({ ...query, filters });
     },
   },
   headerFilter: { visible: true },
