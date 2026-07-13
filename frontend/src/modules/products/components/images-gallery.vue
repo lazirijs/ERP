@@ -28,8 +28,8 @@ import { ref, onMounted } from 'vue';
 import { ElMessage } from 'element-plus';
 import type { UploadFile } from 'element-plus';
 import { useI18n } from 'vue-i18n';
-import ProductApi from '../api';
-import type { ProductImage } from '../type';
+import ProductApi from '@/modules/products/api';
+import type { ProductImage } from '@/modules/products/type';
 import confirmDialog from '@/services/dialog/confirm';
 
 const props = defineProps<{

@@ -61,11 +61,11 @@ import { onMounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
 
 import { status } from '@/modules/employees/constant';
-import EditDialogApp from '../components/dialogs/edit.vue';
-import DocumentsTab from '../components/documents-tab.vue';
-import AttendancesTab from '../components/attendances-tab.vue';
-import type { Employee } from '../type';
-import employeesApi from '../api';
+import EditDialogApp from '@/modules/employees/components/dialogs/edit.vue';
+import DocumentsTab from '@/modules/employees/components/documents-tab.vue';
+import AttendancesTab from '@/modules/employees/components/attendances-tab.vue';
+import type { Employee } from '@/modules/employees/type';
+import employeesApi from '@/modules/employees/api';
 import TransactionListApp from '@/modules/transactions/view/list.vue';
 
 const route = useRoute();

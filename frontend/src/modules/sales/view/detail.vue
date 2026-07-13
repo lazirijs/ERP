@@ -91,9 +91,9 @@ import type { DataGridAppRef, DataGridPropsConfig } from '@/components/devextrem
 import formatter from '@/services/formatter';
 import { previewImage } from '@/services/files';
 
-import EditDialogApp from '../components/dialogs/edit.vue';
-import BatchAddDialogApp from '../items/components/dialogs/batch-add.vue';
-import ItemEditDialogApp from '../items/components/dialogs/edit.vue';
+import EditDialogApp from '@/modules/sales/components/dialogs/edit.vue';
+import BatchAddDialogApp from '@/modules/sales/items/components/dialogs/batch-add.vue';
+import ItemEditDialogApp from '@/modules/sales/items/components/dialogs/edit.vue';
 
 import TransactionListApp from '@/modules/transactions/view/list.vue';
 

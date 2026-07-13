@@ -25,11 +25,11 @@
 
 <script setup lang="ts">
 import { ref, reactive } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { ElMessage } from 'element-plus';
 import type { FormInstance, FormItemRule } from 'element-plus'
-import type { TeamUpdateBody } from '../../type';
-import { useI18n } from 'vue-i18n';
-import teamsApi from '../../api';
+import type { TeamUpdateBody } from '@/modules/teams/type';
+import teamsApi from '@/modules/teams/api';
 import employeesApi from '@/modules/employees/api';
 import type { Employee } from '@/modules/employees/type';
 import confirmDialog from '@/services/dialog/confirm';

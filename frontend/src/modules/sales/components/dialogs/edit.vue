@@ -52,12 +52,12 @@ import { ElMessage } from 'element-plus';
 import type { FormInstance, FormItemRule } from 'element-plus'
 import type { SaleUpdateBody } from '@/modules/sales/type';
 import { useI18n } from 'vue-i18n';
-import SaleApi from '../../api';
+import SaleApi from '@/modules/sales/api';
 import ProjectApi from '@/modules/projects/api';
 import ClientApi from '@/modules/clients/api';
 import type { Project } from '@/modules/projects/type';
 import type { Client } from '@/modules/clients/type';
-import { status } from '../../constant';
+import { status } from '@/modules/sales/constant';
 import confirmDialog from '@/services/dialog/confirm';
 
 const props = defineProps<{

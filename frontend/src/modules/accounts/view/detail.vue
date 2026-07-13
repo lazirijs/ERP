@@ -44,10 +44,10 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
-import { get } from '../api';
-import type { Account } from '../type';
+import AccountApi from '@/modules/accounts/api';
+import type { Account } from '@/modules/accounts/type';
 
-import EditDialogApp from '../components/dialogs/edit.vue';
+import EditDialogApp from '@/modules/accounts/components/dialogs/edit.vue';
 import TransactionListApp from '@/modules/transactions/view/list.vue';
 
 const route = useRoute();
@@ -63,7 +63,7 @@ const formData = ref<Account>({} as Account);
 const load = async () => {
   try {
     loadingContainer.value.push('detail');
-    const response = await get(route.params.uid as string);
+    const response = await AccountApi.get(route.params.uid as string);
     formData.value = response.detail;
   } catch (error) {
     console.error(error);

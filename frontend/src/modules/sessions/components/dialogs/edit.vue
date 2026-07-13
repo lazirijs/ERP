@@ -27,8 +27,8 @@ import { ref, reactive } from 'vue';
 import { ElMessage } from 'element-plus';
 import type { FormInstance, FormItemRule } from 'element-plus'
 import { useI18n } from 'vue-i18n';
-import type { SessionUpdateBody } from '../../type';
-import sessionsApi from '../../api';
+import type { SessionUpdateBody } from '@/modules/sessions/type';
+import sessionsApi from '@/modules/sessions/api';
 import confirmDialog from '@/services/dialog/confirm';
 
 const props = defineProps<{

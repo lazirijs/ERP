@@ -37,7 +37,7 @@
 import { ref, reactive } from 'vue';
 import { ElMessage } from 'element-plus';
 import type { FormInstance, FormItemRule } from 'element-plus'
-import type { PurchaseItemUpdateBody } from '../../type';
+import type { PurchaseItemUpdateBody } from '@/modules/purchases/items/type';
 import { useI18n } from 'vue-i18n';
 import PurchaseApi from '../../api';
 import ProductApi from '@/modules/products/api';

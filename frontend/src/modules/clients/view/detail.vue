@@ -46,8 +46,8 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
-import { get } from '../api';
-import type { Client } from '../type';
+import ClientApi from '@/modules/clients/api';
+import type { Client } from '@/modules/clients/type';
 import SalesListApp from '@/modules/sales/view/list.vue';
 import EditDialogApp from '@/modules/clients/components/dialogs/edit.vue';
 import ProjectsListApp from '@/modules/projects/view/list.vue';
@@ -65,7 +65,7 @@ const formData = ref<Client>({} as Client);
 const load = async () => {
   try {
     loadingContainer.value.push('detail');
-    const response = await get(route.params.uid as string);
+    const response = await ClientApi.get(route.params.uid as string);
     formData.value = response.detail;
   } catch (error) {
     console.error(error);

@@ -37,9 +37,9 @@
 import { ref, reactive } from 'vue';
 import { ElMessage } from 'element-plus';
 import type { FormInstance, FormItemRule } from 'element-plus'
-import type { SaleItemUpdateBody } from '../../type';
+import type { SaleItem, SaleItemUpdateBody } from '@/modules/sales/items/type';
 import { useI18n } from 'vue-i18n';
-import SaleItemsApi from '../../api';
+import SaleItemsApi from '@/modules/sales/items/api';
 import ProductApi from '@/modules/products/api';
 import type { Product } from '@/modules/products/type';
 import { currency } from '@/constants';

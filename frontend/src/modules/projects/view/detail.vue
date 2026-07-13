@@ -82,12 +82,12 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
-import ProjectApi from '../api';
-import type { Project } from '../type';
-import { status } from '../constant';
+import ProjectApi from '@/modules/projects/api';
+import type { Project } from '@/modules/projects/type';
+import { status } from '@/modules/projects/constant';
 import SalesListApp from '@/modules/sales/view/list.vue';
-import DocumentsTab from '../components/documents-tab.vue';
-import EditDialogApp from '../components/dialogs/edit.vue';
+import DocumentsTab from '@/modules/projects/components/documents-tab.vue';
+import EditDialogApp from '@/modules/projects/components/dialogs/edit.vue';
 import TransactionListApp from '@/modules/transactions/view/list.vue';
 
 const route = useRoute();

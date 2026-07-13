@@ -26,8 +26,8 @@ import { ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { ElMessage } from 'element-plus';
 import { DxScheduler } from 'devextreme-vue/scheduler';
-import sessionEmployeesApi from '../../sessions/employees/api';
-import { status } from '../../sessions/constant';
+import sessionEmployeesApi from '@/modules/sessions/employees/api';
+import { status } from '@/modules/sessions/constant';
 
 const props = defineProps<{
   employee_uid: string;

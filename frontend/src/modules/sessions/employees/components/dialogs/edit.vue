@@ -41,13 +41,12 @@ import { ref } from 'vue';
 import { ElMessage } from 'element-plus';
 import type { FormInstance } from 'element-plus'
 import { useI18n } from 'vue-i18n';
-import sessionEmployeesApi from '../../api';
-import { status } from '../../../constant';
-import type { SessionEmployeeUpdateBody } from '../../type';
+import sessionEmployeesApi from '@/modules/sessions/employees/api';
+import { status } from '@/modules/sessions/constant';
+import type { SessionEmployeeUpdateBody } from '@/modules/sessions/employees/type';
 import confirmDialog from '@/services/dialog/confirm';
 
 const props = defineProps<{
-  uid: string;
   allowPresent?: boolean;
 }>();
 
@@ -62,7 +61,7 @@ const dialogModel = ref<boolean>(false);
 const employeeName = ref('');
 
 const formData = ref<SessionEmployeeUpdateBody>({
-  uid: props.uid,
+  uid: '',
   status: 1,
   note: ''
 });
@@ -84,7 +83,7 @@ const submit = async () => {
   });
   try {
     loadingContainer.value.push('submit');
-    await sessionEmployeesApi.update({ ...formData.value, note: formData.value.note || undefined });
+    await sessionEmployeesApi.update(formData.value);
     ElMessage.success(t('updatedSuccessfully'));
     close(formRef.value, true);
   } catch (error: any) {
@@ -104,7 +103,7 @@ const open = async (uid: string) => {
     employeeName.value = response.detail.employee?.name ?? '';
     formData.value.uid = response.detail.uid;
     formData.value.status = response.detail.status;
-    formData.value.note = response.detail.note ?? '';
+    formData.value.note = response.detail.note;
   } catch (error: any) {
     ElMessage.error(error?.detail?.message || t('loadingFailed'));
     dialogModel.value = false;

@@ -39,12 +39,12 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
-import TransactionApi from '../api';
+import TransactionApi from '@/modules/transactions/api';
 import { useI18n } from 'vue-i18n';
-import CreateDialogApp from '../components/dialogs/create.vue';
+import CreateDialogApp from '@/modules/transactions/components/dialogs/create.vue';
 import type { DataGridAppRef, DataGridPropsConfig, DevExtremeDataGridRemoteQueryFilter } from '@/components/devextreme/datagrid/type';
-import { type } from '../constant';
-import type { Transaction } from '../type';
+import { type } from '@/modules/transactions/constant';
+import type { Transaction } from '@/modules/transactions/type';
 import formatter from '@/services/formatter';
 import { createDevExtremeCustomStore } from '@/components/devextreme/service';
 

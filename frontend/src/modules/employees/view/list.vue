@@ -42,12 +42,12 @@
 import { ref } from 'vue';
 import EmployeeApi from '../api';
 import { useI18n } from 'vue-i18n';
-import CreateDialogApp from '../components/dialogs/create.vue';
+import CreateDialogApp from '@/modules/employees/components/dialogs/create.vue';
 
 import type { DataGridAppRef, DataGridPropsConfig } from '@/components/devextreme/datagrid/type';
 import formatter from '@/services/formatter';
-import { status } from '../constant';
-import type { Employee } from '../type';
+import { status } from '@/modules/employees/constant';
+import type { Employee } from '@/modules/employees/type';
 import { previewImage } from '@/services/files.ts';
 import { createDevExtremeCustomStore } from '@/components/devextreme/service.ts';
 import type { Team } from '@/modules/teams/type.ts';
