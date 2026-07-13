@@ -73,8 +73,8 @@ import type { Purchase } from '@/modules/purchases/type';
 
 import EditDialogApp from '@/modules/purchases/components/dialogs/edit.vue';
 import DocumentsTab from '@/modules/purchases/components/documents-tab.vue';
-import TransactionListApp from '@/modules/transactions/view/list.vue';
 import PurchaseItemsListApp from '@/modules/purchases/items/view/list.vue';
+import TransactionListApp from '@/modules/transactions/view/list.vue';
 
 const route = useRoute();
 

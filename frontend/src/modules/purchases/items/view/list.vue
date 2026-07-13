@@ -28,10 +28,10 @@
             </el-button>
         </div>
         <div class="flex-1 min-h-0 min-w-0">
-            <purchase-items-datagrid-app ref="dataGridRef" :view="props.view" @row-click="itemEditDialogRef?.open($event.data)" />
+            <purchase-items-datagrid-app ref="dataGridRef" :view="props.view" @row-click="onRowClick" />
         </div>
-        <batch-add-dialog-app ref="batchAddDialogRef" :purchase_uid="props.view?.type == 'purchase' ? props.view.data.uid : ''" @submitted="purchaseItemsUpdated" />
-        <item-edit-dialog-app ref="itemEditDialogRef" @submitted="purchaseItemsUpdated" />
+        <batch-add-dialog-app ref="batchAddDialogRef" :purchase_uid="props.view?.type == 'purchase' ? props.view.data.uid : ''" @submitted="itemsUpdated" />
+        <item-edit-dialog-app ref="itemEditDialogRef" @submitted="itemsUpdated" />
     </component>
 </template>
 
@@ -44,6 +44,8 @@ import type { Purchase } from '@/modules/purchases/type.ts';
 import type { Product } from '@/modules/products/type.ts';
 import type { Supplier } from '@/modules/suppliers/type.ts';
 import type { DataGridAppRef } from '@/components/devextreme/datagrid/type';
+import type { PurchaseItem } from '@/modules/purchases/items/type.ts';
+import router from '@/router';
 
 const props = defineProps<{
     view?: 
@@ -73,7 +75,12 @@ const toggleFilterRowVisibility = () => {
     dataGridRef.value?.instance?.option('filterRow.visible', !dataGridRef.value?.instance?.option('filterRow.visible'));
 };
 
-const purchaseItemsUpdated = () => {
+const onRowClick = (event: { data: PurchaseItem }) => {
+    if (props.view?.type == 'purchase') itemEditDialogRef?.value?.open(event.data);
+    else router.push({ name: 'purchases-detail', params: { uid: event.data.purchase.uid } })
+};
+
+const itemsUpdated = () => {
     dataGridRef.value?.instance?.refresh();
     emit('updated');
 };

@@ -26,8 +26,6 @@ const props = defineProps<{
         { type: "purchase", data: Purchase } |
         { type: "product", data: Product } |
         { type: "supplier", data: Supplier }
-    hideCreate?: boolean;
-    hideHeader?: boolean;
 }>();
 
 const { t } = useI18n();

@@ -48,7 +48,7 @@
             <sales-list-app v-if="tab === 'sales'" :view="{ type: 'product', data: formData }" />
           </el-tab-pane>
           <el-tab-pane :label="$t('purchases')" name="purchases">
-            <purchase-items-list v-if="tab === 'purchases'" :view="{ type: 'product', data: formData }" @row-click="$router.push({ name: 'purchases-detail', params: { uid: $event.data.purchase.uid } })" />
+            <purchase-items-list-app v-if="tab === 'purchases'" :view="{ type: 'product', data: formData }" @row-click="$router.push({ name: 'purchases-detail', params: { uid: $event.data.purchase.uid } })" />
           </el-tab-pane>
           <el-tab-pane :label="$t('suppliers')" name="suppliers">
             <suppliers-list-app v-if="tab === 'suppliers'" :view="{ type: 'product', data: formData }" />
@@ -73,7 +73,6 @@ import SuppliersListApp from '@/modules/suppliers/view/list.vue';
 
 import EditDialogApp from '@/modules/products/components/dialogs/edit.vue';
 import ImagesGalleryTab from '@/modules/products/components/images-gallery.vue';
-import PurchaseItemsList from '@/modules/purchases/items/view/list.vue';
 
 const route = useRoute();
 
