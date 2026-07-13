@@ -4,7 +4,7 @@ export interface SaleItem {
   product_uid: string;
   price: number;
   quantity: number;
-  note?: string;
+  note: string;
   total: number;
   product: { uid: string; name: string; image: string | null };
   sale: { uid: string; name: string };
@@ -16,7 +16,7 @@ export interface SaleItemCreateBody {
   product_uid: string;
   price: number;
   quantity: number;
-  note?: string;
+  note: string;
 }
 
 export interface SaleItemUpdateBody {
@@ -24,12 +24,12 @@ export interface SaleItemUpdateBody {
   product_uid: string;
   price: number;
   quantity: number;
-  note?: string;
+  note: string;
 }
 
 export interface SaleItemBatchRow {
   product_uid: string;
   price: number;
   quantity: number;
-  note?: string;
+  note: string;
 }

@@ -9,11 +9,11 @@ export interface Session {
 
 export interface SessionCreateBody {
   date: string;
-  note?: string;
+  note: string;
 }
 
 export interface SessionUpdateBody {
   uid: string;
   date: string;
-  note?: string;
+  note: string;
 }

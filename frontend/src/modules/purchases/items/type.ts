@@ -4,7 +4,7 @@ export interface PurchaseItem {
   product_uid: string;
   price: number;
   quantity: number;
-  note?: string;
+  note: string;
   total: number;
   product: { uid: string; name: string; image: string | null };
   purchase: { uid: string; name: string };
@@ -17,7 +17,7 @@ export interface PurchaseItemCreateBody {
   product_uid: string;
   price: number;
   quantity: number;
-  note?: string;
+  note: string;
 }
 
 export interface PurchaseItemUpdateBody {
@@ -25,12 +25,12 @@ export interface PurchaseItemUpdateBody {
   product_uid: string;
   price: number;
   quantity: number;
-  note?: string;
+  note: string;
 }
 
 export interface PurchaseItemBatchRow {
   product_uid: string;
   price: number;
   quantity: number;
-  note?: string;
+  note: string;
 }

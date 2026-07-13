@@ -15,13 +15,13 @@ export interface SessionEmployee {
 
 export interface SessionEmployeeBatchRow {
   employee_uid: string;
-  team_uid?: string | null;
+  team_uid: string | null;
   status: keyof typeof status;
-  note?: string;
+  note: string;
 }
 
 export interface SessionEmployeeUpdateBody {
   uid: string;
   status: keyof typeof status;
-  note?: string;
+  note: string;
 }
