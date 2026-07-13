@@ -58,8 +58,8 @@
           </el-input-number>
         </el-form-item>
 
-        <el-form-item :label="$t('note')" prop="note" class="mb-0!">
-          <el-input v-model="formData.note" type="textarea" :rows="2" :placeholder="$t('note')" />
+        <el-form-item :label="$t('description')" prop="description" class="mb-0!">
+          <el-input v-model="formData.description" type="textarea" :rows="2" :placeholder="$t('description')" />
         </el-form-item>
       </el-form>
       <div class="flex justify-end gap-2 mb-0! mt-8">
@@ -119,7 +119,9 @@ const formData = ref<ProjectCreateBody>({
   client_uid: '',
   region_uid: '',
   category_uid: '',
-  status: 0
+  status: 0,
+  note: '',
+  description: ''
 });
 
 const clients = ref<Client[]>([]);

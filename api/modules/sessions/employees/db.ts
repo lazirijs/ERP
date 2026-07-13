@@ -86,7 +86,7 @@ export default {
                 const team_uid = await resolveTeamUid(row.employee_uid, row.team_uid);
                 await database
                     .prepare("INSERT OR IGNORE INTO session_employees (session_uid, employee_uid, team_uid, status, note) VALUES (?, ?, ?, ?, ?)")
-                    .bind(session_uid, row.employee_uid, team_uid, row.status, row.note ?? '')
+                    .bind(session_uid, row.employee_uid, team_uid, row.status, row.note || null)
                     .run();
             }
             return Responses.service.handler.success();

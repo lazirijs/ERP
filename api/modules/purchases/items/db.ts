@@ -147,7 +147,7 @@ export default {
                 UPDATE purchase_items
                 SET product_uid = ?, price = ?, quantity = ?, note = ?
                 WHERE uid = ?
-            `).bind(body.product_uid, body.price, body.quantity, body.note ?? '', body.uid).run();
+            `).bind(body.product_uid, body.price, body.quantity, body.note || null, body.uid).run();
             return Responses.service.handler.success(result);
         } catch (error) {
             if(Responses.schema.data.check(error)) throw error;

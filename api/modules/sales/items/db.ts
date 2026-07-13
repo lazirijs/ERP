@@ -71,7 +71,7 @@ export default {
             for (const row of rows) {
                 await database
                     .prepare("INSERT INTO sale_items (sale_uid, product_uid, price, quantity, note) VALUES (?, ?, ?, ?, ?)")
-                    .bind(sale_uid, row.product_uid, row.price, row.quantity, row.note ?? '')
+                    .bind(sale_uid, row.product_uid, row.price, row.quantity, row.note || null)
                     .run();
             }
             return Responses.service.handler.success();
@@ -174,7 +174,7 @@ export default {
                 UPDATE sale_items
                 SET product_uid = ?, price = ?, quantity = ?, note = ?
                 WHERE uid = ?
-            `).bind(body.product_uid, body.price, body.quantity, body.note ?? '', body.uid).run();
+            `).bind(body.product_uid, body.price, body.quantity, body.note || null, body.uid).run();
             return Responses.service.handler.success(result);
         } catch (error) {
             if(Responses.schema.data.check(error)) throw error;
