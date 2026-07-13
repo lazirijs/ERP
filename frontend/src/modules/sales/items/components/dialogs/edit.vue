@@ -93,7 +93,7 @@ const submit = async (formEl: FormInstance | undefined = formRef.value) => {
       });
       try {
         loadingContainer.value.push('submit');
-        await SaleItemsApi.update({ ...formData.value, note: formData.value.note || undefined });
+        await SaleItemsApi.update(formData.value);
         ElMessage.success(t('itemUpdatedSuccessfully'));
         close(formEl, true);
       } catch (error: any) {

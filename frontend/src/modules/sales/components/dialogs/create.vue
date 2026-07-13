@@ -114,7 +114,7 @@ const submit = async (formEl: FormInstance | undefined = formRef.value) => {
     });
     try {
       loadingContainer.value.push('submit');
-      const response = await SaleApi.create({ ...formData.value, note: formData.value.note || undefined });
+      const response = await SaleApi.create(formData.value);
       ElMessage.success(t('saleCreatedSuccessfully'));
       dialogModel.value = false;
       reset();

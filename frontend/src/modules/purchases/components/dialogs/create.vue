@@ -119,7 +119,7 @@ const submitSingle = async (formEl: FormInstance | undefined = formRef.value) =>
     });
     try {
       loadingContainer.value.push('submit');
-      const response = await PurchaseApi.create({ ...formData.value, note: formData.value.note || undefined });
+      const response = await PurchaseApi.create(formData.value);
       ElMessage.success(t('purchaseCreatedSuccessfully'));
       dialogModel.value = false;
       reset();

@@ -95,7 +95,7 @@ const submit = async (formEl: FormInstance | undefined = formRef.value) => {
       });
       try {
         loadingContainer.value.push('submit');
-        await PurchaseApi.update({ ...formData.value, note: formData.value.note || undefined });
+        await PurchaseApi.update(formData.value);
         ElMessage.success(t('purchaseUpdatedSuccessfully'));
         close(formEl, true);
       } catch (error: any) {
@@ -121,8 +121,8 @@ const open = async () => {
     suppliers.value = suppliersRes.detail.data;
     formData.value.uid = purchaseRes.detail.uid;
     formData.value.name = purchaseRes.detail.name;
-    formData.value.supplier_uid = purchaseRes.detail.supplier_uid ?? null;
-    formData.value.note = purchaseRes.detail.note ?? '';
+    formData.value.supplier_uid = purchaseRes.detail.supplier_uid;
+    formData.value.note = purchaseRes.detail.note;
   } catch (error: any) {
     ElMessage.error(error?.detail?.message || t('loadingFailed'));
     dialogModel.value = false;

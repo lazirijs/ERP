@@ -76,7 +76,7 @@ const submit = async (formEl: FormInstance | undefined = formRef.value) => {
     });
     try {
       loadingContainer.value.push('submit');
-      const response = await sessionsApi.create({ ...formData.value, note: formData.value.note || undefined });
+      const response = await sessionsApi.create(formData.value);
       ElMessage.success(t('sessionCreatedSuccessfully'));
       dialogModel.value = false;
       reset();
