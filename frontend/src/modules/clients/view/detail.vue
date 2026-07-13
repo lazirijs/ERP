@@ -31,13 +31,7 @@
       <div class="col-span-1 md:col-span-3 flex-1 space-y-app">
         <el-tabs v-model="tab" type="border-card">
           <el-tab-pane :label="$t('projects')" name="projects">
-            <data-grid-app
-              v-if="tab === 'projects'"
-              ref="dataGridRef"
-              :config="projectsDataGridConfig"
-              :columns="projectsDataGridConfig.columns"
-              @row-click="$router.push({ name: 'projects-detail', params: { uid: $event.data.uid } })"
-            />
+            <projects-list-app v-if="tab === 'projects'" :view="{ type: 'client', data: formData }" @updated="load()" />
           </el-tab-pane>
           <el-tab-pane :label="$t('sales')" name="sales">
             <sales-list-app v-if="tab === 'sales'" :view="{ type: 'client', data: formData }" @updated="load()" />
@@ -55,15 +49,8 @@ import { useRoute } from 'vue-router';
 import { get } from '../api';
 import type { Client } from '../type';
 import SalesListApp from '@/modules/sales/view/list.vue';
-import type { DataGridPropsConfig } from '@/components/devextreme/datagrid/type';
-import projectsApi from '@/modules/projects/api';
-import { useI18n } from 'vue-i18n';
-import formatter from '@/services/formatter';
-import { status } from '@/modules/projects/constant';
-import type { Project } from '@/modules/projects/type';
-import EditDialogApp from '../components/dialogs/edit.vue';
-
-const { t } = useI18n();
+import EditDialogApp from '@/modules/clients/components/dialogs/edit.vue';
+import ProjectsListApp from '@/modules/projects/view/list.vue';
 
 const route = useRoute();
 
@@ -88,31 +75,4 @@ const load = async () => {
 };
 
 onMounted(load);
-
-const projectsDataGridConfig = ref<DataGridPropsConfig>({
-  dataSource: {
-    key: 'uid',
-    api: (query) => projectsApi.getAll({ ...query, client_uid: route.params.uid as string })
-  },
-  columns: [
-    // { dataField: 'client.name', caption: t('client') },
-    { dataField: 'name', caption: t('name') },
-    { dataField: 'region.name', caption: t('region'), allowSorting: false },
-    { dataField: 'category.name', caption: t('category'), allowSorting: false },
-    {
-      dataField: 'status', caption: t('status'), dataType: 'string',
-      cellTemplate: (container: HTMLElement, options: { value: Project["status"] }) => {
-        let { label, color } = status[options.value];
-        container.innerHTML = `<span class="badge-app-${ color }">${ t(label) }</span>`;
-      },
-      headerFilter: {
-        search: { enabled: true },
-        dataSource: Object.values(status).map(item => ({ text: t(item.label), value: item.id }))
-      },
-      allowFiltering: true
-    },
-    { dataField: 'offer', caption: t('offer'), customizeText: ({ value }) => formatter.currency(value) },
-    { dataField: 'created_at', caption: t('createdAt'), ...formatter.devextreme.datetime, sortOrder: 'desc' }
-  ]
-});
 </script>

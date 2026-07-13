@@ -1,5 +1,5 @@
 <template>
-    <container-app type="fixed">
+    <component :is="props.view?.type ? 'div' : 'container-app'" type="fixed" v-bind="$attrs" :class="{ 'grid gap-app': props.view?.type }">
         <div class="flex justify-between items-center gap-app">
             <div class="flex items-center gap-2">
                 <el-input v-model="search" @input="onSearchChange" dir="auto" :placeholder="$t('search')" class="md:w-75!">
@@ -20,7 +20,7 @@
                     </el-icon>
                 </el-button>
             </div>
-            <el-button @click="createDialogRef?.open()" type="success">
+            <el-button v-if="!props.hideCreate" @click="createDialogRef?.open()" type="success">
                 {{ $t('create') }}
                 <el-icon class="ml-2">
                     <el-icon-plus />
@@ -34,8 +34,8 @@
                 @row-click="$router.push({ name: 'projects-detail', params: { uid: $event.data.uid } })"
             />
         </div>
-        <create-dialog-app ref="createDialogRef" @submitted="dataGridRef?.instance?.refresh()" />
-    </container-app>
+        <create-dialog-app ref="createDialogRef" @submitted="projectsUpdated()" />
+    </component>
 </template>
 
 <script setup lang="ts">
@@ -45,12 +45,21 @@ import ProjectApi from '@/modules/projects/api';
 import CreateDialogApp from '../components/dialogs/create.vue';
 import { createDevExtremeCustomStore } from '@/components/devextreme/service.ts';
 
-import type { DataGridAppRef, DataGridPropsConfig } from '@/components/devextreme/datagrid/type';
+import type { DataGridAppRef, DataGridPropsConfig, DevExtremeDataGridRemoteQueryFilter } from '@/components/devextreme/datagrid/type';
 import { status } from '@/modules/projects/constant';
 import type { Project } from '@/modules/projects/type';
 import formatter from '@/services/formatter';
 import ClientApi from '@/modules/clients/api';
 import type { Client } from '@/modules/clients/type.ts';
+
+const props = defineProps<{
+    view?: { type: 'client'; data: Client };
+    hideCreate?: boolean;
+}>();
+
+const emit = defineEmits<{
+    updated: []
+}>();
 
 const { t } = useI18n();
 
@@ -74,7 +83,17 @@ const devExtremeCustomStore = new createDevExtremeCustomStore();
 const dataGridConfig = ref<DataGridPropsConfig>({
     dataSource: {
         key: 'uid',
-        api: ProjectApi.getAll
+        api: async (query) => {
+            if (props.view) {
+                const filter: DevExtremeDataGridRemoteQueryFilter = {
+                    field: props.view.type + ".name",
+                    values: [props.view.data.uid],
+                    operation: '='
+                }
+                query.filters = [...(query.filters || []), filter];
+            }
+            return await ProjectApi.getAll(query);
+        }
     },
     headerFilter: { visible: true },
     columns: [
@@ -85,7 +104,8 @@ const dataGridConfig = ref<DataGridPropsConfig>({
                     api: ClientApi.getAll,
                     map: (i: Client) => ({ value: i.uid, text: i.name })
                 })
-            }
+            },
+            visible: props.view?.type != "client"
         },
         { dataField: 'name', caption: t('name'), allowHeaderFiltering: false },
         // { dataField: 'region.name', caption: t('region'), allowSorting: false },
@@ -105,4 +125,9 @@ const dataGridConfig = ref<DataGridPropsConfig>({
         { dataField: 'created_at', caption: t('createdAt'), ...formatter.devextreme.datetime, sortOrder: 'desc', allowHeaderFiltering: false }
     ]
 });
+
+const projectsUpdated = () => {
+    dataGridRef.value?.instance?.refresh();
+    emit('updated');
+};
 </script>
