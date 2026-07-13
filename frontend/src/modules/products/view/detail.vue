@@ -45,13 +45,13 @@
       <div class="col-span-1 md:col-span-3 flex-1 space-y-app">
         <el-tabs v-model="tab" type="border-card">
           <el-tab-pane :label="$t('sales')" name="sales">
-            <sales-list-app v-if="tab === 'sales'" :view="{ type: 'product', data: formData }" />
+            <sales-items-list-app v-if="tab === 'sales'" :view="{ type: 'product', data: formData }" @row-click="$" />
           </el-tab-pane>
           <el-tab-pane :label="$t('purchases')" name="purchases">
             <purchase-items-list-app v-if="tab === 'purchases'" :view="{ type: 'product', data: formData }" @row-click="$router.push({ name: 'purchases-detail', params: { uid: $event.data.purchase.uid } })" />
           </el-tab-pane>
           <el-tab-pane :label="$t('suppliers')" name="suppliers">
-            <suppliers-list-app v-if="tab === 'suppliers'" :view="{ type: 'product', data: formData }" />
+            <suppliers-list-app v-if="tab === 'suppliers'" :view="{ type: 'product', data: formData }" @row-click="$router.push({ name: 'suppliers-detail', params: { uid: $event.data.uid } })" />
           </el-tab-pane>
           <el-tab-pane :label="$t('images')" name="images">
             <images-gallery-tab v-if="tab === 'images'" :uid="formData.uid" :image="formData.image" @changed="load()" />
@@ -68,8 +68,9 @@ import { onMounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
 import ProductsApi from '@/modules/products/api';
 import type { Product } from '@/modules/products/type';
-import SalesListApp from '@/modules/sales/view/list.vue';
+import SalesItemsListApp from '@/modules/sales/items/view/list.vue';
 import SuppliersListApp from '@/modules/suppliers/view/list.vue';
+import PurchaseItemsListApp from '@/modules/purchases/items/view/list.vue';
 
 import EditDialogApp from '@/modules/products/components/dialogs/edit.vue';
 import ImagesGalleryTab from '@/modules/products/components/images-gallery.vue';

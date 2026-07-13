@@ -35,12 +35,7 @@
                 :config="salesDataGridConfig"
                 @row-click="$router.push({ name: 'sales-detail', params: { uid: $event.data.uid } })"
             />
-            <data-grid-app
-                v-else
-                ref="dataGridRef"
-                :config="itemsDataGridConfig"
-                @row-click="$router.push({ name: 'sales-detail', params: { uid: $event.data.sale.uid } })"
-            />
+            <sale-items-data-grid-app v-else ref="dataGridRef" @row-click="$router.push({ name: 'sales-detail', params: { uid: $event.data.sale_uid } })" />
         </div>
         <create-dialog-app ref="createDialogRef" :config="{ [props.view?.type || '']: props.view?.data }" @submitted="salesUpdated" />
     </component>
@@ -49,22 +44,19 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue';
 import SaleApi from '../api';
-import SaleItemsApi from '../items/api';
 import { useI18n } from 'vue-i18n';
 import CreateDialogApp from '../components/dialogs/create.vue';
 import { status } from '../constant';
 
 import type { DataGridAppRef, DataGridPropsConfig, DevExtremeDataGridRemoteQueryFilter } from '@/components/devextreme/datagrid/type';
 import formatter from '@/services/formatter';
-import { previewImage } from '@/services/files';
 import { createDevExtremeCustomStore } from '@/components/devextreme/service.ts';
 import ProjectApi from '@/modules/projects/api';
 import type { Project } from '@/modules/projects/type.ts';
 import ClientApi from '@/modules/clients/api';
 import type { Client } from '@/modules/clients/type.ts';
-import type { Sale } from '../type.ts';
-import ProductApi from '@/modules/products/api';
 import type { Product } from '@/modules/products/type.ts';
+import SaleItemsDataGridApp from '@/modules/sales/items/components/datagrid.vue';
 
 const props = defineProps<{
     view?: 
@@ -156,67 +148,6 @@ const salesDataGridConfig = ref<DataGridPropsConfig>({
         { dataField: 'total_amount', caption: t('totalAmountItems'), customizeText: ({ value }) => formatter.currency(value), allowHeaderFiltering: false },
         { dataField: 'total_amount_received', caption: t('totalAmountReceived'), customizeText: ({ value }) => formatter.currency(value), allowHeaderFiltering: false  },
         { dataField: 'total_amount_expensed', caption: t('totalAmountExpensed'), customizeText: ({ value }) => formatter.currency(value), allowHeaderFiltering: false },
-        { dataField: 'created_at', caption: t('createdAt'), ...formatter.devextreme.datetime, sortOrder: 'desc', allowHeaderFiltering: false }
-    ]
-});
-
-const itemsDataGridConfig = ref<DataGridPropsConfig>({
-    dataSource: {
-        key: 'uid',
-        api: async (query) => {
-            if (props.view) {
-                const filter: DevExtremeDataGridRemoteQueryFilter = {
-                    field: props.view.type + ".name",
-                    values: [props.view.data.uid],
-                    operation: '='
-                }
-                query.filters = [...(query.filters || []), filter];
-            }
-            return await SaleItemsApi.getAll(query);
-        }
-    },
-    headerFilter: { visible: true },
-    columns: [
-        { 
-            dataField: 'sale.name', caption: t('sale'), allowSorting: false,
-            headerFilter: {
-                dataSource: devExtremeCustomStore.lookup({
-                    key: 'value',
-                    api: SaleApi.getAll,
-                    map: (i: Sale) => ({ value: i.uid, text: i.name })
-                })
-            }
-        },
-        { 
-            dataField: 'sale.status', caption: t('status'), alignment: 'center', allowHeaderFiltering: true, allowFiltering: false,
-            cellTemplate: (container: HTMLElement, options: { value: 0 | 1 }) => {
-                const { label, color } = status[options.value];
-                container.innerHTML = `<span class="badge-app-${ color }">${ t(label) }</span>`;
-            },
-            headerFilter: { dataSource: Object.values(status).map(i => ({ value: i.id, text: t(i.label) })) }
-        },
-        {
-            dataField: 'product.image', caption: t('image'), alignment: 'center', width: 120, 
-            allowSorting: false, allowEditing: false, allowHeaderFiltering: false, allowFiltering: false,
-            cellTemplate: (container: HTMLElement, options: { value: string }) => {
-                container.innerHTML = previewImage({ type: 'image', src: options.value, format: 'html' });
-            },
-            visible: props.view?.type != 'product'
-        },
-        { 
-            dataField: 'product.name', caption: t('product'), allowSorting: false,
-            headerFilter: {
-                dataSource: devExtremeCustomStore.lookup({
-                    key: 'value',
-                    api: ProductApi.getAll,
-                    map: (i: Product) => ({ value: i.uid, text: i.name })
-                })
-            },
-            visible: props.view?.type != 'product'
-        },
-        { dataField: 'price', caption: t('unitPrice'), customizeText: ({ value }) => formatter.currency(value), allowHeaderFiltering: false },
-        { dataField: 'quantity', caption: t('quantity'), allowHeaderFiltering: false },
-        { dataField: 'total', caption: t('total'), customizeText: ({ value }) => formatter.currency(value), allowHeaderFiltering: false, allowFiltering: false }, // no such column item.total
         { dataField: 'created_at', caption: t('createdAt'), ...formatter.devextreme.datetime, sortOrder: 'desc', allowHeaderFiltering: false }
     ]
 });

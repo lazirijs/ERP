@@ -54,17 +54,7 @@
       <div class="col-span-1 md:col-span-3 flex-1 space-y-app">
         <el-tabs v-model="tab" type="border-card">
           <el-tab-pane :label="$t('items')" name="items">
-            <div v-if="tab === 'items'" class="flex flex-col items-end gap-4">
-              <el-button v-if="formData.status === 0" @click="batchAddDialogRef?.open()" type="success">
-                {{ $t('addItems') }}
-                <el-icon class="ml-2"><el-icon-plus /></el-icon>
-              </el-button>
-              <data-grid-app
-                ref="itemsDataGridRef"
-                :config="itemsDataGridConfig"
-                @row-click="onItemRowClick"
-              />
-            </div>
+            <sale-items-list-app v-if="tab === 'items'" :view="{ type: 'sale', data: formData }" :hide-create="formData.status == 1" @updated="load()" />
           </el-tab-pane>
           <el-tab-pane :label="$t('transactions')" name="transactions">
             <transaction-list-app v-if="tab === 'transactions'" :view="{ type: 'sale', data: formData }" :hide-create="formData.status === 1" @updated="load()" />
@@ -74,46 +64,38 @@
     </div>
 
     <edit-dialog-app ref="editDialogRef" :sale_uid="formData.uid" @submitted="load()" />
-    <batch-add-dialog-app ref="batchAddDialogRef" :sale_uid="formData.uid" @submitted="onItemsChanged" />
-    <item-edit-dialog-app ref="itemEditDialogRef" @submitted="onItemsChanged" />
+    <batch-add-dialog-app ref="batchAddDialogRef" :sale_uid="formData.uid" @submitted="load()" />
+    <item-edit-dialog-app ref="itemEditDialogRef" @submitted="load()" />
   </container-app>
 </template>
 
 <script setup lang="ts">
 import { onMounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
-import { useI18n } from 'vue-i18n';
-import { get } from '../api';
-import itemsApi from '../items/api';
-import type { Sale } from '../type';
-import { status } from '../constant';
-import type { DataGridAppRef, DataGridPropsConfig } from '@/components/devextreme/datagrid/type';
-import formatter from '@/services/formatter';
-import { previewImage } from '@/services/files';
+import SaleApi from '@/modules/sales/api';
+import type { Sale } from '@/modules/sales/type';
+import { status } from '@/modules/sales/constant';
 
 import EditDialogApp from '@/modules/sales/components/dialogs/edit.vue';
 import BatchAddDialogApp from '@/modules/sales/items/components/dialogs/batch-add.vue';
 import ItemEditDialogApp from '@/modules/sales/items/components/dialogs/edit.vue';
 
+import SaleItemsListApp from '@/modules/sales/items/view/list.vue';
 import TransactionListApp from '@/modules/transactions/view/list.vue';
 
-const { t } = useI18n();
 const route = useRoute();
 
 const loadingContainer = ref<('detail')[]>([]);
-const tab = ref('items');
+const tab = ref<'items' | 'transactions'>('items');
 
 const editDialogRef = ref<InstanceType<typeof EditDialogApp>>();
-const batchAddDialogRef = ref<InstanceType<typeof BatchAddDialogApp>>();
-const itemEditDialogRef = ref<InstanceType<typeof ItemEditDialogApp>>();
-const itemsDataGridRef = ref<DataGridAppRef>();
 
 const formData = ref<Sale>({} as Sale);
 
 const load = async () => {
   try {
     loadingContainer.value.push('detail');
-    const response = await get(route.params.uid as string);
+    const response = await SaleApi.get(route.params.uid as string);
     formData.value = response.detail;
   } catch (error) {
     console.error(error);
@@ -123,35 +105,4 @@ const load = async () => {
 };
 
 onMounted(load);
-
-const onItemRowClick = (event: any) => {
-  if (formData.value.status !== 0) return;
-  itemEditDialogRef.value?.open(event.data);
-};
-
-const onItemsChanged = () => {
-  load();
-  itemsDataGridRef.value?.instance?.refresh();
-};
-
-const itemsDataGridConfig = ref<DataGridPropsConfig>({
-  dataSource: {
-    key: 'uid',
-    api: (query) => itemsApi.getAll({ ...query, sale_uid: route.params.uid as string })
-  },
-  columns: [
-    {
-      dataField: 'product.image', caption: t('image'), allowSorting: false, alignment: 'center', width: 120, allowEditing: false,
-      cellTemplate: (container: HTMLElement, options: { value: string }) => {
-        container.innerHTML = previewImage({ type: 'image', src: options.value, format: 'html' });
-      }
-    },
-    { dataField: 'product.name', caption: t('product'), allowSorting: false },
-    { dataField: 'price', caption: t('unitPrice'), customizeText: ({ value }) => formatter.currency(value) },
-    { dataField: 'quantity', caption: t('quantity') },
-    { dataField: 'total', caption: t('total'), customizeText: ({ value }) => formatter.currency(value) },
-    { dataField: 'note', caption: t('note') },
-    { dataField: 'created_at', caption: t('createdAt'), ...formatter.devextreme.datetime, sortOrder: 'desc' }
-  ]
-});
 </script>

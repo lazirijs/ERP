@@ -125,7 +125,7 @@ const remove = async () => {
   }
 };
 
-const open = async (data: SaleItemUpdateBody) => {
+const open = async (data: SaleItem) => {
   dialogModel.value = true;
   try {
     loadingContainer.value.push('loading');

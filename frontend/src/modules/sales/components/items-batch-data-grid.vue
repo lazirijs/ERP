@@ -64,7 +64,7 @@ const itemsDataGridConfig = ref<DataGridPropsConfig>({
       caption: t('unitPrice'),
       dataType: 'number',
       minWidth: 110,
-      allowEditing: false,
+      allowEditing: true,
       customizeText: ({ value }) => formatter.currency(value),
       // validationRules: [{ type: 'required' }, { type: 'range', min: 0 }]
     },
