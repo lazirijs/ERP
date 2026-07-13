@@ -73,7 +73,7 @@ export default {
                     total_amount_expensed: { searchText: 's.total_amount_expensed', values: 's.total_amount_expensed' },
                     created_at: { searchText: 's.created_at', values: 's.created_at' }
                 },
-                excludeColumnsFromSearchText: ['status']
+                excludeColumnsFromSearchText: [...(inputs.excludeColumnsFromSearchText || []), 'status']
             });
 
             if (inputs.project_uid) {

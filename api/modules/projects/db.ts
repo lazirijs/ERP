@@ -88,7 +88,7 @@ export default {
                     total_amount_sold: { searchText: 'p.total_amount_sold', values: 'p.total_amount_sold' },
                     created_at: { searchText: 'p.created_at', values: 'p.created_at' }
                 },
-                excludeColumnsFromSearchText: ['status']
+                excludeColumnsFromSearchText: [...(inputs.excludeColumnsFromSearchText || []), 'status']
             });
 
             if (inputs.client_uid) {

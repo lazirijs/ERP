@@ -118,8 +118,12 @@ export default {
                 columns: {
                     'employee.name': { searchText: 'e.name', values: 'se.employee_uid' },
                     'team.name': { searchText: 't.name', values: 'se.team_uid' },
-                    note: { searchText: 'se.note', values: 'se.note' }
-                }
+                    'session.name': { searchText: 'se.name', values: 'se.session_uid' },
+                    note: { searchText: 'se.note', values: 'se.note' },
+                    status: { searchText: 'se.status', values: 'se.status' },
+                    created_at: { searchText: 'se.created_at', values: 'se.created_at' }
+                },
+                excludeColumnsFromSearchText: [...(inputs.excludeColumnsFromSearchText || []), 'status', 'session.name']
             });
 
             if (inputs.session_uid) {

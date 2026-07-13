@@ -72,7 +72,7 @@ export default {
                     'team.name': { searchText: 'teams.name', values: 'employees.team_uid' },
                     created_at: { searchText: 'employees.created_at', values: 'employees.created_at' }
                 },
-                excludeColumnsFromSearchText: ['status']
+                excludeColumnsFromSearchText: [...(inputs.excludeColumnsFromSearchText || []), 'status']
             });
 
             // team_uid comes as a separate query param: "null" -> employees with no team, otherwise a specific team.

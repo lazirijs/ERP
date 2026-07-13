@@ -63,7 +63,7 @@ export default {
                     created_at: { searchText: 's.created_at', values: 's.created_at' },
                     "product.name": { values: 'pi.product_uid' }
                 },
-                excludeColumnsFromSearchText: ['product.name']
+                excludeColumnsFromSearchText: [...(inputs.excludeColumnsFromSearchText || []), 'product.name']
             });
 
             if (inputs.product_uid) {
