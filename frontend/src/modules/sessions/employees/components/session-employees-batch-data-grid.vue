@@ -93,14 +93,13 @@ const gridConfig = ref<DataGridPropsConfig>({
       }
     },
     {
-      dataField: 'image', caption: t('image'), allowSorting: false, alignment: 'center', width: 120,
+      dataField: 'image', caption: t('image'), alignment: 'center', width: 120,
+      allowSorting: false, allowEditing: false,
       cellTemplate: (container: HTMLElement, options: { value: string }) => {
         container.innerHTML = previewImage({ type: 'avatar', src: options.value, format: 'html' });
       }
     },
-    {
-      dataField: 'team_name', caption: t('team'), allowSorting: false, allowEditing: false, minWidth: 140
-    },
+    { dataField: 'team_name', caption: t('team'), allowSorting: false, allowEditing: false, minWidth: 140 },
     {
       dataField: 'status',
       caption: t('status'),

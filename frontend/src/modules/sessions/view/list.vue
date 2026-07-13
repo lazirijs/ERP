@@ -14,7 +14,16 @@
     >
       <template #dataCell="{ data }">
         <div class="h-full w-full p-1 flex flex-col justify-between">
-          <div class="text-xs text-gray-400 text-right">{{ data.startDate.getDate() }}/{{ (data.startDate.getMonth() + 1).toString().padStart(2, '0') }}</div>
+          <div class="flex justify-between items-center">
+            <div class="text-xs text-right">
+              {{ data.startDate.getDate() }}/{{ (data.startDate.getMonth() + 1).toString().padStart(2, '0') }}
+            </div>
+            <div v-if="summaryFor(data.startDate)?.note" :title="summaryFor(data.startDate)?.note">
+              <el-icon class="text-xs text-gray-400">
+                <el-icon-user />
+              </el-icon>
+            </div>
+          </div>
           <span v-if="summaryFor(data.startDate)" class="w-full text-xs md:text-base md:flex justify-around text-gray-400">
             <template v-if="summaryFor(data.startDate)!.total_present">
               <span :class="`text-${status[0].color}-600`">{{ summaryFor(data.startDate)!.total_present }}</span>
@@ -41,10 +50,10 @@ import { useI18n } from 'vue-i18n';
 import { ElMessage } from 'element-plus';
 import { DxScheduler } from 'devextreme-vue/scheduler';
 
-import sessionsApi from '../api';
-import type { Session } from '../type';
-import CreateDialogApp from '../components/dialogs/create.vue';
-import { status } from '../constant';
+import sessionsApi from '@/modules/sessions/api';
+import type { Session } from '@/modules/sessions/type';
+import CreateDialogApp from '@/modules/sessions/components/dialogs/create.vue';
+import { status } from '@/modules/sessions/constant';
 
 const router = useRouter();
 const { t } = useI18n();

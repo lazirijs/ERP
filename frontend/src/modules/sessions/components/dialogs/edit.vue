@@ -82,7 +82,7 @@ const submit = async (formEl: FormInstance | undefined = formRef.value) => {
     });
     try {
       loadingContainer.value.push('submit');
-      await sessionsApi.update({ ...formData.value, note: formData.value.note || undefined });
+      await sessionsApi.update(formData.value);
       ElMessage.success(t('sessionUpdatedSuccessfully'));
       close(formEl, true);
     } catch (error: any) {
@@ -101,7 +101,7 @@ const open = async () => {
     const response = await sessionsApi.get(props.uid);
     formData.value.uid = response.detail.uid;
     formData.value.date = response.detail.date;
-    formData.value.note = response.detail.note ?? '';
+    formData.value.note = response.detail.note;
   } catch (error: any) {
     ElMessage.error(error?.detail?.message || t('loadingFailed'));
     dialogModel.value = false;
