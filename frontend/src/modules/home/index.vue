@@ -38,7 +38,7 @@
       <div
         v-for="(item, index) in filteredMenuItems.slice(1)" :key="index"
         @click="$router.push({ name: item.routeName })"
-        class="group flex items-center gap-4 px-4 py-4 rounded-xl border border-gray-200 bg-white hover:border-blue-300 hover:shadow-sm hover:-translate-y-px transition-all no-underline cursor-pointer"
+        class="group flex items-center gap-4 px-4 py-4 rounded-md border border-gray-200 bg-white hover:border-blue-300 hover:shadow-sm hover:-translate-y-px transition-all no-underline cursor-pointer"
       >
         <div class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0">
           <el-icon :size="18"><component :is="item.icon" /></el-icon>
