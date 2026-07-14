@@ -64,15 +64,18 @@ export function filtersBuilder(filters: DataGridQuery["filters"], columns: Filte
         if (column) {
             // Header filter (checkbox multi-select) -> IN / NOT IN
             if (filter.values?.length) {
-                const placeholders = filter.values.map(() => "?").join(", ");
-                conditions.push(`${ column.values } ${ filter.type === "exclude" ? "NOT IN" : "IN" } (${ placeholders })`);
-                binds.push(...filter.values);
+                const placeholders = filter.values.map((value) => value !== null ? "?" : "").filter(Boolean).join(", ");
+                const condition: string[] = [];
+                if (placeholders.length) condition.push(`${ column.values } ${ filter.type === "exclude" ? "NOT IN" : "IN" } (${ placeholders })`);
+                if (filter.values.some(value => value === null)) condition.push(`${ column.values } ${ filter.type === "exclude" ? "IS NOT" : "IS" } NULL`);
+                conditions.push(condition.join(" OR "));
+                binds.push(...filter.values.filter(value => value !== null));
             }
     
             // Filter row (single value + operation)
             if (filter.searchText !== undefined && filter.searchText !== null && filter.searchText !== "") {
                 const operation = filter.operation ?? "contains";
-    
+
                 switch (operation) {
                     case "contains":
                         conditions.push(`${ column.searchText } LIKE ?`);
