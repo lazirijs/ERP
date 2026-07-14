@@ -45,6 +45,15 @@ export const update = async (body: EmployeeUpdateBody) => {
   }
 }
 
+export const setTeam = async (body: Omit<EmployeeUpdateBody, 'name' | 'status'>) => {
+  try {
+    const response = await api.put<ApiResponse<undefined>>(endpoint + '/set-team', body);
+    return response.data;
+  } catch (error: any) {
+    throw error.response.data;
+  }
+}
+
 export const getDocuments = async (uid: Employee["uid"]) => {
   try {
     const response = await api.get<ApiResponse<StorageObject[]>>(`${endpoint}/${uid}/documents`);
@@ -74,4 +83,4 @@ export const deleteDocument = async (uid: Employee["uid"], document: string) => 
   }
 }
 
-export default { create, get, getAll, update, getDocuments, uploadDocument, deleteDocument }
+export default { create, get, getAll, update, setTeam, getDocuments, uploadDocument, deleteDocument }

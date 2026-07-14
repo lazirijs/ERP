@@ -32,6 +32,11 @@ const updateBody = t.Object({
     ...createBody.properties
 });
 
+const setTeam = t.Object({
+    uid: employee.properties.uid,
+    team_uid: t.Nullable(t.String())
+});
+
 const uploadDocumentBody = t.Object({
     file: t.File({ maxSize: "10m" })
 });
@@ -64,6 +69,12 @@ export default {
         validation: {
             auth: true,
             body: updateBody
+        }
+    },
+    setTeam: {
+        validation: {
+            auth: true,
+            body: setTeam
         }
     },
     getAll: {

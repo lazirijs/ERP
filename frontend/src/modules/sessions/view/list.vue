@@ -18,24 +18,21 @@
             <div class="text-xs text-right">
               {{ data.startDate.getDate() }}/{{ (data.startDate.getMonth() + 1).toString().padStart(2, '0') }}
             </div>
-            <div v-if="summaryFor(data.startDate)?.note" :title="summaryFor(data.startDate)?.note">
-              <el-icon class="text-xs text-gray-400">
-                <el-icon-user />
-              </el-icon>
-            </div>
+            <el-icon v-if="summaryFor(data.startDate)?.note">
+              <el-icon-edit-pen />
+            </el-icon>
           </div>
-          <span v-if="summaryFor(data.startDate)" class="w-full text-xs md:text-base md:flex justify-around text-gray-400">
+          <span v-if="summaryFor(data.startDate)" class="w-full text-xs md:text-lg font-medium md:flex justify-around">
             <template v-if="summaryFor(data.startDate)!.total_present">
               <span :class="`text-${status[0].color}-600`">{{ summaryFor(data.startDate)!.total_present }}</span>
-              /
+              -
             </template>
             <template v-if="summaryFor(data.startDate)!.total_absence">
               <span :class="`text-${status[1].color}-600`">{{ summaryFor(data.startDate)!.total_absence }}</span>
-              /
+              -
             </template>
             <span>{{ summaryFor(data.startDate)!.total_employees }}</span>
           </span>
-          <p v-if="summaryFor(data.startDate)?.note" class="text-xs font-normal text-gray-400 line-clamp-2">{{ summaryFor(data.startDate)!.note }}</p>
         </div>
       </template>
     </DxScheduler>

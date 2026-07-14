@@ -15,6 +15,9 @@ export default new Elysia({ prefix: "/employees" })
 // --- Update ---
 .put("/", ({ body }) => index.db.update(body), index.schema.update.validation)
 
+// Set team
+.put("/set-team", ({ body }) => index.db.setTeam(body), index.schema.setTeam.validation)
+
 // --- List documents ---
 .get("/:uid/documents", ({ params }) => index.db.getDocuments(params.uid), index.schema.getDocuments.validation)
 

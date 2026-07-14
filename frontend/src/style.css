@@ -47,6 +47,14 @@
   .badge-app-orange {
     @apply badge-app bg-orange-100 text-orange-600;
   }
+
+  .text-red-600 {
+    @apply text-red-600;
+  }
+  
+  .text-green-600 {
+    @apply text-green-600;
+  }
 }
 
 .dx-datagrid-search-panel {
