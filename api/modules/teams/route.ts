@@ -4,7 +4,7 @@ import index from ".";
 export default new Elysia({ prefix: "/teams" })
 
 // --- Create ---
-.post("/", ({ body }) => index.db.create(body), index.schema.create.validation)
+.post("/", ({ body }) => index.service.create(body), index.schema.create.validation)
 
 // --- Get by uid ---
 .get("/:uid", ({ params }) => index.db.getByUid(params.uid), index.schema.get.validation)

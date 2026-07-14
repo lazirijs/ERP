@@ -7,10 +7,11 @@ import type { DataGridQuery, DataGridResponse } from '../../utils/devextreme/dat
 import { buildDataGridSQLiteConditions } from '../../utils/devextreme/datagrid/service';
 
 export default {
-    async create(input: TeamCreateBodyType): Promise<SuccessServiceResponse<undefined>> {
+    async create(input: TeamCreateBodyType): Promise<SuccessServiceResponse<{ uid: string }>> {
         try {
-            await database.prepare("INSERT INTO teams (name, supervisor_uid) VALUES (?, ?)").bind(input.name, input.supervisor_uid).run();
-            return Responses.service.handler.success();
+            const result = await database.prepare("INSERT INTO teams (name, supervisor_uid) VALUES (?, ?) RETURNING uid").bind(input.name, input.supervisor_uid || null).first<{ uid?: string }>();
+            if (!result?.uid) throw Responses.service.handler.error("Failed to create team", 500);
+            return Responses.service.handler.success({ uid: result.uid });
         } catch (error) {
             throw Responses.service.handler.error(error);
         }
@@ -113,7 +114,7 @@ export default {
 
     async update(input: TeamUpdateBodyType): Promise<SuccessServiceResponse<undefined>> {
         try {
-            await database.prepare("UPDATE teams SET name = ?, supervisor_uid = ? WHERE uid = ?").bind(input.name, input.supervisor_uid, input.uid).run();
+            await database.prepare("UPDATE teams SET name = ?, supervisor_uid = ? WHERE uid = ?").bind(input.name, input.supervisor_uid || null, input.uid).run();
             return Responses.service.handler.success();
         } catch (error) {
             throw Responses.service.handler.error(error);

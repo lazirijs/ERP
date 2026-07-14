@@ -133,6 +133,15 @@ export default {
         }
     },
 
+    async setTeam(input: Omit<EmployeeUpdateBodyType, 'name' | 'status'>): Promise<SuccessServiceResponse<undefined>> {
+        try {
+            await database.prepare("UPDATE employees SET team_uid = ? WHERE uid = ?").bind(input.team_uid || null, input.uid).run();
+            return Responses.service.handler.success();
+        } catch (error) {
+            throw Responses.service.handler.error(error);
+        }
+    },
+
     async getDocuments(uid: EmployeeType["uid"]): Promise<SuccessServiceResponse<R2Object[]>> {
         try {
             // `include` is required for R2 list() to return customMetadata (original file name)
