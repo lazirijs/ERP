@@ -50,10 +50,11 @@ export default {
                     .prepare("INSERT INTO purchases (name, supplier_uid, note) VALUES (?, ?, ?) RETURNING uid")
                     .bind(name, supplierUid, '')
                     .first<{ uid: string }>();
+                if (!purchase?.uid) throw Responses.service.handler.error("Failed to create purchase", 500);
                 for (const row of groupRows) {
                     await database
                         .prepare("INSERT INTO purchase_items (purchase_uid, product_uid, price, quantity, note) VALUES (?, ?, ?, ?, ?)")
-                        .bind(purchase!.uid, row.product_uid, row.price, row.quantity, row.note || null)
+                        .bind(purchase.uid, row.product_uid, row.price, row.quantity, row.note || null)
                         .run();
                 }
             }
@@ -162,7 +163,7 @@ export default {
                 UPDATE purchases
                 SET name = ?, supplier_uid = ?, note = ?
                 WHERE uid = ?
-            `).bind(body.name, body.supplier_uid ?? null, body.note || null, body.uid).run();
+            `).bind(body.name, body.supplier_uid || null, body.note || null, body.uid).run();
             return Responses.service.handler.success(result);
         } catch (error) {
             if(Responses.schema.data.check(error)) throw error;

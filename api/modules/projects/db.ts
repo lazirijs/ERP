@@ -146,7 +146,7 @@ export default {
         try {
             await database
                 .prepare("UPDATE projects SET name = ?, client_uid = ?, region_uid = ?, category_uid = ?, status = ?, offer = ?, note = ?, description = ? WHERE uid = ?")
-                .bind(inputs.name, inputs.client_uid, inputs.region_uid, inputs.category_uid, inputs.status, inputs.offer ?? 0, inputs.note || null, inputs.description || null, inputs.uid)
+                .bind(inputs.name, inputs.client_uid || null, inputs.region_uid || null, inputs.category_uid || null, inputs.status, inputs.offer ?? 0, inputs.note || null, inputs.description || null, inputs.uid)
                 .run();
             return Responses.service.handler.success();
         } catch (error) {

@@ -31,7 +31,7 @@ export default {
         try {
             const result = await database
                 .prepare("INSERT INTO sales (name, project_uid, client_uid, note) VALUES (?, ?, ?, ?) RETURNING uid")
-                .bind(input.name || '', input.project_uid ?? null, input.client_uid ?? null, input.note || null)
+                .bind(input.name || '', input.project_uid || null, input.client_uid || null, input.note || null)
                 .first<{ uid: string }>();
             return Responses.service.handler.success(result!);
         } catch (error) {
@@ -119,7 +119,7 @@ export default {
                 UPDATE sales
                 SET name = ?, project_uid = ?, client_uid = ?, status = ?, note = ?
                 WHERE uid = ?
-            `).bind(body.name || null, body.project_uid ?? null, body.client_uid ?? null, body.status, body.note || null, body.uid).run();
+            `).bind(body.name || null, body.project_uid || null, body.client_uid || null, body.status, body.note || null, body.uid).run();
             return Responses.service.handler.success(result);
         } catch (error) {
             if(Responses.schema.data.check(error)) throw error;

@@ -58,7 +58,7 @@ const assertStatusAllowed = (date: string, status: number) => {
 const resolveTeamUid = async (employee_uid: string, provided?: string | null): Promise<string | null> => {
     if (provided !== undefined && provided !== null) return provided;
     const employee = await database.prepare("SELECT team_uid FROM employees WHERE uid = ?").bind(employee_uid).first<{ team_uid: string | null }>();
-    return employee?.team_uid ?? null;
+    return employee?.team_uid || null;
 };
 
 export default {
@@ -69,7 +69,7 @@ export default {
             const team_uid = await resolveTeamUid(input.employee_uid, input.team_uid);
             await database
                 .prepare("INSERT OR IGNORE INTO session_employees (session_uid, employee_uid, team_uid, status, note) VALUES (?, ?, ?, ?, ?)")
-                .bind(input.session_uid, input.employee_uid, team_uid, input.status, input.note || null)
+                .bind(input.session_uid, input.employee_uid, team_uid || null, input.status, input.note || null)
                 .run();
             return Responses.service.handler.success();
         } catch (error) {
@@ -86,7 +86,7 @@ export default {
                 const team_uid = await resolveTeamUid(row.employee_uid, row.team_uid);
                 await database
                     .prepare("INSERT OR IGNORE INTO session_employees (session_uid, employee_uid, team_uid, status, note) VALUES (?, ?, ?, ?, ?)")
-                    .bind(session_uid, row.employee_uid, team_uid, row.status, row.note || null)
+                    .bind(session_uid, row.employee_uid, team_uid || null, row.status, row.note || null)
                     .run();
             }
             return Responses.service.handler.success();
@@ -183,7 +183,7 @@ export default {
                 JOIN sessions s ON se.session_uid = s.uid
                 WHERE se.uid = ?
             `).bind(input.uid).first<{ date: string }>();
-            if (!row) throw Responses.service.handler.error("Session employee not found", 404);
+            if (!row?.date) throw Responses.service.handler.error("Session employee not found", 404);
             if (row.date < today()) throw Responses.service.handler.error("cannotEditPastSession", 400);
             assertStatusAllowed(row.date, input.status);
             await database.prepare("UPDATE session_employees SET status = ?, note = ? WHERE uid = ?")
@@ -202,7 +202,7 @@ export default {
                 JOIN sessions s ON se.session_uid = s.uid
                 WHERE se.uid = ?
             `).bind(uid).first<{ date: string }>();
-            if (!row) throw Responses.service.handler.error("Session employee not found", 404);
+            if (!row?.date) throw Responses.service.handler.error("Session employee not found", 404);
             if (row.date < today()) throw Responses.service.handler.error("cannotEditPastSession", 400);
             await database.prepare("DELETE FROM session_employees WHERE uid = ?").bind(uid).run();
             return Responses.service.handler.success();
