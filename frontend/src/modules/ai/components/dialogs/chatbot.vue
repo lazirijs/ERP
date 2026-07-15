@@ -27,9 +27,9 @@
                             class="group flex items-center gap-1 px-2 py-1.5 rounded cursor-pointer text-sm"
                             :class="thread.uid === store.activeThreadUid && view === 'chat' ? 'bg-white font-medium' : 'hover:bg-gray-100 text-gray-600'">
                             <span class="truncate flex-1">{{ thread.title || $t('newChat') }}</span>
-                            <el-icon class="opacity-0 group-hover:opacity-100 text-gray-400 hover:text-red-500"
+                            <el-icon
                                 @click.stop="removeThread(thread.uid)">
-                                <el-icon-delete />
+                                <el-icon-delete class="opacity-0 group-hover:opacity-100 text-gray-400 hover:text-red-500 transition-all duration-300" />
                             </el-icon>
                         </div>
                         <p v-if="!store.threads.length" class="px-2 py-4 text-xs text-gray-400 text-center">
@@ -50,9 +50,9 @@
                                 {{ $t('askAnything') }}
                             </p>
     
-                            <div v-for="message in store.visibleMessages" :key="message.uid" :title="formatter.date(message.created_at)"
+                            <div v-for="message in store.visibleMessages" :key="message.uid"
                                 class="flex" :class="message.role === 'user' ? 'justify-end' : 'justify-start'">
-                                <div class="max-w-3/4 rounded-lg px-3 py-2 text-sm whitespace-pre-wrap wrap-break-word"
+                                <div :title="formatter.date(message.created_at)" class="max-w-3/4 rounded-lg px-3 py-2 text-sm whitespace-pre-wrap wrap-break-word"
                                     :class="message.role === 'user' ? 'bg-blue-500 text-white' : 'bg-gray-100 text-gray-900'">
                                     {{ message.content }}
     
@@ -269,6 +269,7 @@ const submit = async () => {
     try {
         await store.send(content);
     } catch (error: any) {
+        draft.value = content;
         ElMessage.error(error?.detail?.message || t('somethingWentWrong'));
     }
     scrollToBottom();

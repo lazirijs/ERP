@@ -2,17 +2,18 @@ import { computed, ref } from "vue";
 import { defineStore } from "pinia";
 import AiApi from "@/modules/ai/api";
 import type { AiFile, Message, PendingAction, Scope, Source, Thread } from "@/modules/ai/type";
+import store from "../auth/store";
 
 export default defineStore("ai", () => {
   const threads = ref<Thread[]>([]);
-  const activeThreadUid = ref<string | null>(null);
-  const sendingThreadUid = ref<string | null>(null);
+  const activeThreadUid = ref<string>('new-chat');
+  const sendingThreadUid = ref<string[]>([]);
   const messages = ref<Message[]>([]);
   const pendingActions = ref<PendingAction[]>([]);
 
   const files = ref<AiFile[]>([]);
 
-  const sending = computed(() => activeThreadUid.value && sendingThreadUid.value === activeThreadUid.value);
+  const sending = computed(() => activeThreadUid.value && sendingThreadUid.value.includes(activeThreadUid.value));
   
   const loadingTheads = ref(false);
   const loadingMessages = ref(false);
@@ -20,10 +21,10 @@ export default defineStore("ai", () => {
   const resolvingAction = ref<string | null>(null);
 
   /** `tool` messages are model plumbing -- the transcript only shows the conversation. */
-  const visibleMessages = computed(() => messages.value.filter(message => message.role !== 'tool'));
+  const visibleMessages = computed(() => messages.value.filter(message => message.thread_uid === activeThreadUid.value && message.role !== 'tool'));
 
   /** Only one write can await confirmation at a time -- the loop stops on the first one. */
-  const openAction = computed(() => pendingActions.value.find(action => action.status === 'pending') ?? null);
+  const openAction = computed(() => pendingActions.value.filter(action => action.thread_uid === activeThreadUid.value).find(action => action.status === 'pending') ?? null);
 
   const isIngesting = computed(() =>
     files.value.some(file => file.status === 'pending' || file.status === 'processing')
@@ -68,34 +69,46 @@ export default defineStore("ai", () => {
   };
 
   const send = async (content: string) => {
-    sendingThreadUid.value = activeThreadUid.value;
+    let threadUsed = activeThreadUid.value;
+    const uid = `local-${threadUsed}-${Date.now()}`;
     try {
-      if (activeThreadUid.value === "new-chat") {
-        const created = await AiApi.createThread();
-        if (!created.success) throw created;
-        activeThreadUid.value = created.detail.uid;
-        threads.value.unshift(created.detail);
-      }
-
       // Show the user's message immediately; the turn can take several seconds.
       messages.value.push({
-        uid: `local-${Date.now()}`,
-        thread_uid: activeThreadUid.value!,
+        uid,
+        thread_uid: activeThreadUid.value,
         role: 'user',
         content,
         citations: '',
         created_at: new Date().toISOString()
       });
 
-      const response = await AiApi.sendMessage(activeThreadUid.value!, content);
+      if (threadUsed === "new-chat") {
+        sendingThreadUid.value.push(uid);
+        const created = await AiApi.createThread();
+        if (!created.success) throw created;
+        threadUsed = created.detail.uid;
+        activeThreadUid.value = threadUsed;
+        sendingThreadUid.value = sendingThreadUid.value.map(m => m === uid ? created.detail.uid : m);
+        messages.value = messages.value.map(m => ({ ...m, thread_uid: created.detail.uid }));
+        threads.value.unshift(created.detail);
+      }
+
+      else sendingThreadUid.value.push(threadUsed);
+
+      const response = await AiApi.sendMessage(threadUsed, content);
       if (!response.success) throw response;
 
       messages.value.push(...response.detail.messages);
       if (response.detail.pendingAction) pendingActions.value.push(response.detail.pendingAction);
 
       await loadThreads();
-    } finally {
-      sendingThreadUid.value = null;
+    }
+    catch (error) {
+      if (threadUsed !== "new-chat") await selectThread(threadUsed);
+      throw error;
+    }
+    finally {
+      sendingThreadUid.value = sendingThreadUid.value.filter(uid => uid !== threadUsed);
     }
   };
 
