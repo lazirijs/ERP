@@ -9,7 +9,10 @@
     "db:pull": "rm -rf .wrangler && wrangler d1 export db --remote --output=./database/exports/seed.sql && wrangler d1 execute db --local --file=./database/exports/seed.sql",
     "db:migration:create": "wrangler d1 migrations create db",
     "db:migration:local": "wrangler d1 migrations apply db --local",
-    "db:migration:remote": "wrangler d1 migrations apply db --remote"
+    "db:migration:remote": "wrangler d1 migrations apply db --remote",
+    "ai:migration:create": "wrangler d1 migrations create ai_db",
+    "ai:migration:local": "wrangler d1 migrations apply ai_db --local",
+    "ai:migration:remote": "wrangler d1 migrations apply ai_db --remote"
   },
   "devDependencies": {
     "@types/bun": "latest"
@@ -19,6 +22,7 @@
   },
   "dependencies": {
     "elysia": "^1.4.28",
+    "@sinclair/typebox": "^0.34.48",
     "wrangler": "^4.77.0",
     "@elysiajs/jwt": "^1.4.1",
     "@cloudflare/d1": "^1.4.1",

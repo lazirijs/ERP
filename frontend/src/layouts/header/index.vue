@@ -11,7 +11,7 @@
         <div class="flex items-center gap-4">
             
             <el-button-group direction="horizontal" class="min-w-fit">
-                <el-button>
+                <el-button @click="chatbotDialogRef?.open()">
                     <el-icon>
                         <el-icon-service />
                     </el-icon>
@@ -73,6 +73,7 @@
             </el-dropdown>
 
             <profile-dialog-app ref="profileDialogRef" />
+            <chatbot-dialog-app v-if="$authStore().isAuthed" ref="chatbotDialogRef" />
         </div>
         
     </header>
@@ -87,6 +88,7 @@ import AuthApi from '@/modules/auth/api';
 import { ElLoading, ElMessage } from 'element-plus';
 import { useI18n } from 'vue-i18n';
 import ProfileDialogApp from '@/layouts/header/components/dialogs/profile.vue';
+import ChatbotDialogApp from '@/modules/ai/components/dialogs/chatbot.vue';
 import confirmDialog from '@/services/dialog/confirm';
 
 const { t } = useI18n();
@@ -103,6 +105,7 @@ const authStore = AuthStore();
 const authApi = new AuthApi();
 
 const profileDialogRef = ref<InstanceType<typeof ProfileDialogApp>>();
+const chatbotDialogRef = ref<InstanceType<typeof ChatbotDialogApp>>();
 
 const toggleCollapse = () => {
   emit('toggle-collapse', !props.isCollapsed);

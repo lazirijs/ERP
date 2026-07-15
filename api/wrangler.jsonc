@@ -24,6 +24,12 @@
 			"database_name": "database",
 			"migrations_dir": "database/migrations",
 			// "database_id": "",
+		},
+		{
+			"binding": "ai_db",
+			"database_name": "ai_database",
+			"migrations_dir": "database/ai/migrations",
+			"database_id": "2452e23a-bac5-4a73-ba81-2730b5bbef9e",
 		}
 	],
 	"r2_buckets": [
@@ -31,7 +37,36 @@
 			"binding": "storage",
 			"bucket_name": "storage"
 		}
-	], 
+	],
+	// Workers AI and Vectorize have no local simulation, so these two bindings
+	// proxy to Cloudflare while the rest of the Worker runs locally (`wrangler dev`).
+	// `remote: false` on AI is an error; omitting it proxies anyway with a warning.
+	"ai": {
+		"binding": "AI",
+		"remote": true
+	},
+	"vectorize": [
+		{
+			"binding": "VECTORIZE",
+			"index_name": "erp-docs-dev",
+			"remote": true
+		}
+	],
+	"queues": {
+		"producers": [
+			{
+				"binding": "INGEST_QUEUE",
+				"queue": "ai-ingest"
+			}
+		],
+		"consumers": [
+			{
+				"queue": "ai-ingest",
+				"max_batch_size": 5,
+				"max_retries": 3
+			}
+		]
+	},
 	"vars": {
 		"CLIENT_ORIGIN": "https://frontend-46i.pages.dev",
 		"JWT_SECRET": "env.JWT_SECRET"
