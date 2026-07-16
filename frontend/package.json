@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "vite",
     "build": "vue-tsc -b && vite build",
-    "preview": "vite preview"
+    "preview": "pnpm run build && wrangler dev",
+    "deploy": "pnpm run build && wrangler deploy"
   },
   "dependencies": {
     "@element-plus/icons-vue": "^2.3.2",
@@ -20,6 +21,7 @@
     "vue-router": "^5.0.3"
   },
   "devDependencies": {
+    "@cloudflare/vite-plugin": "^1.45.0",
     "@tailwindcss/vite": "^4.2.1",
     "@types/node": "^24.12.0",
     "@vitejs/plugin-vue": "^6.0.5",
@@ -27,6 +29,7 @@
     "tailwindcss": "^4.2.1",
     "typescript": "~5.9.3",
     "vite": "^8.0.0",
-    "vue-tsc": "^3.2.5"
+    "vue-tsc": "^3.2.5",
+    "wrangler": "^4.111.0"
   }
 }
