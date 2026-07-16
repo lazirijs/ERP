@@ -36,4 +36,6 @@ report.[0-9]_.[0-9]_.[0-9]_.[0-9]_.json
 # Cloudflare Workers
 .wrangler/
 .dev.vars
-db/exports
+
+database/exports
+database/ai/exports
