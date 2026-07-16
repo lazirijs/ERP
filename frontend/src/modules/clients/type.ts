@@ -6,9 +6,13 @@ export interface Client extends ClientCreateBody {
 
 export interface ClientCreateBody {
   name: string;
+  contact: string;
+  address: string;
 }
 
 export interface ClientUpdateBody {
   uid: string;
   name: string;
+  contact: string;
+  address: string;
 }

@@ -1,9 +1,18 @@
 <template>
   <el-dialog v-model="dialogModel" :title="$t('editClient')" align-center class="min-w-11/12 md:min-w-1/4! md:max-w-1/4!" @closed="reset()" :before-close="(done: any) => !$arrayHasAny(loadingContainer, ['loading', 'submit']) && done()">
-    <el-form ref="formRef" v-loading="$arrayHasAny(loadingContainer, ['loading', 'submit'])" :model="formData" :rules="formRules" @submit.prevent="submit()" label-position="top" class="w-full">
-      <el-form-item :label="$t('name')" prop="name">
+    <el-form ref="formRef" v-loading="$arrayHasAny(loadingContainer, ['loading', 'submit'])" :model="formData" :rules="formRules" @submit.prevent="submit()" label-position="top" class="w-full grid gap-4">
+      <el-form-item :label="$t('name')" prop="name" class="mb-0!">
         <el-input v-model="formData.name" :placeholder="$t('client')" />
       </el-form-item>
+
+      <el-form-item :label="$t('contact')" prop="contact" class="mb-0!">
+        <el-input v-model="formData.contact" :placeholder="$t('contact')" />
+      </el-form-item>
+
+      <el-form-item :label="$t('address')" prop="address" class="mb-0!">
+        <el-input v-model="formData.address" :placeholder="$t('address')" />
+      </el-form-item>
+
       <el-form-item class="mb-0! mt-8">
         <div class="ml-auto">
           <el-button @click="close()">
@@ -47,12 +56,20 @@ const formRules = reactive<Record<keyof ClientUpdateBody, FormItemRule | FormIte
   name: [
     { required: true, message: t('required'), trigger: 'submit' },
     { min: 3, max: 50, message: t('lengthShouldBe3To50'), trigger: 'submit' },
+  ],
+  contact: [
+    { min: 3, max: 50, message: t('lengthShouldBe3To50'), trigger: 'submit' },
+  ],
+  address: [
+    { min: 3, max: 100, message: t('lengthShouldBe3To100'), trigger: 'submit' },
   ]
 });
 
-const formData = ref<ClientUpdateBody>({ 
+const formData = ref<ClientUpdateBody>({
   uid: props.client_uid,
-  name: ''
+  name: '',
+  contact: '',
+  address: ''
 });
 
 const reset = (formEl: FormInstance | undefined = formRef.value) => {
@@ -103,6 +120,8 @@ const open = async () => {
     const response = await ClientApi.get(props.client_uid);
     formData.value.name = response.detail.name;
     formData.value.uid = response.detail.uid;
+    formData.value.contact = response.detail.contact;
+    formData.value.address = response.detail.address;
   } catch (error: any) {
     const errorMessage = error?.detail?.message || t('loadingFailed');
     ElMessage.error(errorMessage);

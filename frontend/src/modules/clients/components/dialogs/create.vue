@@ -1,9 +1,18 @@
 <template>
   <el-dialog v-model="dialogModel" :title="$t('createClient')" align-center class="min-w-11/12 md:min-w-1/4! md:max-w-1/4!" @closed="reset()" :before-close="(done: any) => !loadingContainer.includes('submit') && done()">
-    <el-form ref="formRef" v-loading="loadingContainer.includes('submit')" :model="formData" :rules="formRules" @submit.prevent="submit()" label-position="top" class="w-full">
-      <el-form-item :label="$t('name')" prop="name">
+    <el-form ref="formRef" v-loading="loadingContainer.includes('submit')" :model="formData" :rules="formRules" @submit.prevent="submit()" label-position="top" class="w-full grid gap-4">
+      <el-form-item :label="$t('name')" prop="name" class="mb-0!">
         <el-input v-model="formData.name" :placeholder="$t('client')" />
       </el-form-item>
+
+      <el-form-item :label="$t('contact')" prop="contact" class="mb-0!">
+        <el-input v-model="formData.contact" :placeholder="$t('contact')" />
+      </el-form-item>
+
+      <el-form-item :label="$t('address')" prop="address" class="mb-0!">
+        <el-input v-model="formData.address" :placeholder="$t('address')" />
+      </el-form-item>
+
       <el-form-item class="mb-0! mt-8">
         <div class="ml-auto">
           <el-button @click="close()">
@@ -40,10 +49,12 @@ const formRules = reactive<Record<keyof ClientCreateBody, FormItemRule | FormIte
   name: [
     { required: true, message: t('required'), trigger: 'submit' },
     { min: 3, max: 50, message: t('lengthShouldBe3To50'), trigger: 'submit' },
-  ]
+  ],
+  contact: { min: 3, max: 50, message: t('lengthShouldBe3To50'), trigger: 'submit' },
+  address: { min: 3, max: 100, message: t('lengthShouldBe3To100'), trigger: 'submit' }
 });
 
-const formData = ref<ClientCreateBody>({ name: '' });
+const formData = ref<ClientCreateBody>({ name: '', contact: '', address: '' });
 
 const reset = (formEl: FormInstance | undefined = formRef.value) => {
   if (!formEl) return;

@@ -70,6 +70,8 @@ const dataGridConfig = ref<DataGridPropsConfig>({
     },
     columns: [
         { dataField: 'name', caption: t('name') },
+        { dataField: 'contact', caption: t('contact') },
+        { dataField: 'address', caption: t('address') },
         { dataField: 'total_projects', caption: t('totalProjects'), allowFiltering: false },
         { dataField: 'created_at', caption: t('createdAt'), ...formatter.devextreme.datetime, sortOrder: 'desc' }
     ]

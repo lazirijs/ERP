@@ -9,7 +9,10 @@ import { buildDataGridSQLiteConditions } from '../../utils/devextreme/datagrid/s
 export default {
     async create(input: ClientCreateBodyType): Promise<SuccessServiceResponse<undefined>> {
         try {
-            await database.prepare("INSERT INTO clients (name) VALUES (?)").bind(input.name).run();
+            await database
+                .prepare("INSERT INTO clients (name, contact, address) VALUES (?, ?, ?)")
+                .bind(input.name, input.contact || null, input.address || null)
+                .run();
             return Responses.service.handler.success();
         } catch (error) {
             throw Responses.service.handler.error(error);
@@ -60,6 +63,8 @@ export default {
                 filters: inputs.filters,
                 columns: {
                     name: { searchText: 'c.name', values: 'c.name' },
+                    contact: { searchText: 'c.contact', values: 'c.contact' },
+                    address: { searchText: 'c.address', values: 'c.address' },
                     created_at: { searchText: 'c.created_at', values: 'c.created_at' }
                 }
             });
@@ -106,9 +111,9 @@ export default {
         try {
             const result = await database.prepare(`
                 UPDATE clients
-                SET name = ?
+                SET name = ?, contact = ?, address = ?
                 WHERE uid = ?
-            `).bind(body.name, body.uid).run();
+            `).bind(body.name, body.contact, body.address, body.uid).run();
             return Responses.service.handler.success(result);
         } catch (error) {
             if(Responses.schema.data.check(error)) throw error;

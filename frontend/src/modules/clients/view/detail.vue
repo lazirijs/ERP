@@ -19,6 +19,16 @@
             <span class="block text-sm text-gray-900">{{ formData.name }}</span>
           </div>
           <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">{{ $t('contact') }}</label>
+            <span v-if="formData.contact" class="block text-sm text-gray-900">{{ formData.contact }}</span>
+            <span v-else class="block text-sm text-gray-400">{{ $t('notProvided') }}</span>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">{{ $t('address') }}</label>
+            <span v-if="formData.address" class="block text-sm text-gray-900">{{ formData.address }}</span>
+            <span v-else class="block text-sm text-gray-400">{{ $t('notProvided') }}</span>
+          </div>
+          <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">{{ $t('totalProjects') }}</label>
             <span class="block text-sm text-gray-900">{{ formData.total_projects }}</span>
           </div>
