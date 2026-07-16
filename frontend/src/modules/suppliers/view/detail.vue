@@ -7,7 +7,7 @@
             <el-button @click="$router.back()" text class="m-0!">
               <el-icon><el-icon-arrow-left /></el-icon>
             </el-button>
-            <span class="hidden lg:block">{{ $t('generalInfo') }}</span>
+            <span>{{ $t('generalInfo') }}</span>
             <el-button @click="editDialogRef?.open()" text class="m-0!">
               <el-icon><el-icon-edit /></el-icon>
             </el-button>

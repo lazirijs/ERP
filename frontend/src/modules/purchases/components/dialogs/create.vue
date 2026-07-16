@@ -1,40 +1,43 @@
 <template>
   <el-dialog v-model="dialogModel" :title="$t('create')" align-center :class="mode === 'items' ? 'min-w-11/12 md:min-w-4/5!' : 'min-w-11/12 md:min-w-1/4! md:max-w-1/4!'" @closed="reset()" :before-close="(done: any) => !loadingContainer.includes('submit') && done()">
-    <div v-if="!props.supplier" class="flex justify-between items-center mb-6">
-      <el-segmented v-model="mode" :options="modeOptions" :class="{ 'w-full': mode === 'purchase' }" />
-      <el-button v-if="mode === 'items'" type="primary" @click="batchGridRef?.addRow()" class="ml-auto">
-        <el-icon class="mr-2">
-          <el-icon-plus />
-        </el-icon>
-        {{ $t('addItem') }}
-      </el-button>
-    </div>
+    <div v-loading="loadingContainer.length">
 
-    <!-- Single purchase -->
-    <el-form v-if="mode === 'purchase'" ref="formRef" v-loading="loadingContainer.length" :model="formData" :rules="formRules" @submit.prevent="submit()" label-position="top" class="w-full grid gap-4">
-      <el-form-item :label="$t('name')" prop="name" class="mb-0!">
-        <el-input v-model="formData.name" :placeholder="$t('name')" />
-      </el-form-item>
-      <el-form-item :label="$t('supplier')" prop="supplier_uid" class="mb-0!">
-        <el-select v-model="formData.supplier_uid" :disabled="!!props.supplier" clearable filterable :placeholder="$t('supplier')" class="w-full">
-          <el-option v-for="supplier in suppliers" :key="supplier.uid" :label="supplier.name" :value="supplier.uid" />
-        </el-select>
-      </el-form-item>
-      <el-form-item :label="$t('note')" prop="note" class="mb-0!">
-        <el-input v-model="formData.note" type="textarea" :placeholder="$t('note')" />
-      </el-form-item>
-    </el-form>
-
-    <!-- Multiple purchases (batch: rows grouped by supplier) -->
-    <items-batch-data-grid-app v-else v-loading="loadingContainer.includes('submit')" ref="batchGridRef" :show-supplier="true" />
-
-    <div class="flex justify-end gap-2 mb-0! mt-8">
-      <el-button @click="close()">
-        {{ $t("close") }}
-      </el-button>
-      <el-button type="primary" @click="submit()">
-        {{ $t("create") }}
-      </el-button>
+      <div v-if="!props.supplier" class="flex justify-between items-center mb-6">
+        <el-segmented v-model="mode" :options="modeOptions" :class="{ 'w-full': mode === 'purchase' }" />
+        <el-button v-if="mode === 'items'" type="primary" @click="batchGridRef?.addRow()" class="ml-auto">
+          <el-icon class="mr-2">
+            <el-icon-plus />
+          </el-icon>
+          {{ $t('addItem') }}
+        </el-button>
+      </div>
+  
+      <!-- Single purchase -->
+      <el-form v-if="mode === 'purchase'" ref="formRef" :model="formData" :rules="formRules" @submit.prevent="submit()" label-position="top" class="w-full grid gap-4">
+        <el-form-item :label="$t('name')" prop="name" class="mb-0!">
+          <el-input v-model="formData.name" :placeholder="$t('name')" />
+        </el-form-item>
+        <el-form-item :label="$t('supplier')" prop="supplier_uid" class="mb-0!">
+          <el-select v-model="formData.supplier_uid" :disabled="!!props.supplier" clearable filterable :placeholder="$t('supplier')" class="w-full">
+            <el-option v-for="supplier in suppliers" :key="supplier.uid" :label="supplier.name" :value="supplier.uid" />
+          </el-select>
+        </el-form-item>
+        <el-form-item :label="$t('note')" prop="note" class="mb-0!">
+          <el-input v-model="formData.note" type="textarea" :placeholder="$t('note')" />
+        </el-form-item>
+      </el-form>
+  
+      <!-- Multiple purchases (batch: rows grouped by supplier) -->
+      <items-batch-data-grid-app v-else ref="batchGridRef" :show-supplier="true" />
+  
+      <div class="flex justify-end gap-2 mb-0! mt-8">
+        <el-button @click="close()">
+          {{ $t("close") }}
+        </el-button>
+        <el-button type="primary" @click="submit()">
+          {{ $t("create") }}
+        </el-button>
+      </div>
     </div>
 
   </el-dialog>

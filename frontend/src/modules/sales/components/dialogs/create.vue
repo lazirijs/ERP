@@ -19,15 +19,15 @@
       <el-form-item :label="$t('note')" prop="note" class="mb-0!">
         <el-input v-model="formData.note" type="textarea" :rows="2" :placeholder="$t('note')" />
       </el-form-item>
+      <el-form-item class="mb-0! mt-8">
+        <el-button @click="close()">
+          {{ $t("close") }}
+        </el-button>
+        <el-button type="primary" @click="submit()">
+          {{ $t("create") }}
+        </el-button>
+      </el-form-item>
     </el-form>
-    <div class="flex justify-end gap-2 mb-0! mt-8">
-      <el-button @click="close()">
-        {{ $t("close") }}
-      </el-button>
-      <el-button type="primary" @click="submit()">
-        {{ $t("create") }}
-      </el-button>
-    </div>
   </el-dialog>
 </template>
 
