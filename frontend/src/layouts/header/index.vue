@@ -10,11 +10,12 @@
 
         <div class="flex items-center gap-4">
             
-            <el-button-group direction="horizontal" class="min-w-fit">
-                <el-button @click="chatbotDialogRef?.open()">
+            <el-button-group v-if="$route.meta.auth == 'required'" direction="horizontal" class="min-w-fit">
+                <el-button @click="chatbotDialogRef?.open()" text>
                     <el-icon>
                         <el-icon-service />
                     </el-icon>
+                    <small type="warning" size="small" class="absolute -top-1.5 right-1 bg-yellow-500 text-white px-1 rounded">BETA</small>
                 </el-button>
                 <!-- <el-button>
                     <el-icon>

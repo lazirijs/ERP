@@ -2,6 +2,16 @@
     <el-dialog v-model="dialogModel" :title="$t('assistant')" align-center body-class="p-0!"
         class="min-w-11/12 md:min-w-4/5! md:max-w-4/5!" @opened="onOpened">
 
+        <template #header>
+            <div class="flex items-center gap-2">
+                <span>{{ $t('assistant') }}</span>
+                
+                <div>
+                    <small type="warning" class="bg-yellow-500 text-white px-1 rounded">BETA</small>
+                </div>
+            </div>
+        </template>
+
         <div class="flex md:hidden gap-2">
             <el-button @click="startNewChat" class="w-1/6">
                 <el-icon>

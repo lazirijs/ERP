@@ -6,13 +6,10 @@ import { languages } from "@/translate/constants";
 import i18n from "@/translate";
 
 export default defineStore("app", () => {
-  const app = ref<string>(import.meta.env.VITE_APP_NAME);
   const isMobile = ref<boolean>(window.innerWidth < 768);
   const selectedLocale = computed(() => languages[i18n.global.locale.value as LanguagesCode]);
 
-  const changeValue = (value: string) => {
-    app.value = value;
-  };
+  window.addEventListener("resize", () => isMobile.value = window.innerWidth < 768);
 
   const setLanguage = (code: LanguagesCode) => {
     i18n.global.locale.value = code;
@@ -21,5 +18,5 @@ export default defineStore("app", () => {
     localStorage.setItem("locale", code);
   };
 
-  return { app, isMobile, selectedLocale, changeValue, setLanguage };
+  return { isMobile, selectedLocale, setLanguage };
 });

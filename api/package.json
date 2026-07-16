@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "wrangler dev",
     "deploy": "wrangler deploy",
-    "db:pull": "rm -rf .wrangler && wrangler d1 export db --remote --output=./database/exports/seed.sql && wrangler d1 execute db --local --file=./database/exports/seed.sql",
+    "db:pull": "wrangler d1 export db --remote --output=./database/exports/seed.sql && wrangler d1 execute db --local --file=./database/exports/seed.sql",
+    "aidb:pull": "wrangler d1 export ai_db --remote --output=./database/ai/exports/seed.sql && wrangler d1 execute ai_db --local --file=./database/ai/exports/seed.sql",
     "db:migration:create": "wrangler d1 migrations create db",
     "db:migration:local": "wrangler d1 migrations apply db --local",
     "db:migration:remote": "wrangler d1 migrations apply db --remote",
