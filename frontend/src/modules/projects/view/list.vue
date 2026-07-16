@@ -1,7 +1,7 @@
 <template>
     <component :is="props.view?.type ? 'div' : 'container-app'" type="fixed" v-bind="$attrs" :class="{ 'grid gap-app': props.view?.type }">
-        <div class="flex justify-between items-center gap-app">
-            <div class="flex items-center gap-2">
+        <div class="flex justify-between items-center gap-3 sm:gap-app">
+            <div class="w-full sm:w-auto flex items-center gap-2">
                 <el-input v-model="search" @input="onSearchChange" dir="auto" :placeholder="$t('search')" class="md:w-75!">
                     <template #prefix>
                         <el-icon>
@@ -20,9 +20,9 @@
                     </el-icon>
                 </el-button>
             </div>
-            <el-button v-if="!props.hideCreate" @click="createDialogRef?.open()" type="success">
-                {{ $t('create') }}
-                <el-icon class="ml-2">
+            <el-button v-if="!props.hideCreate" @click="createDialogRef?.open()" class="w-8 sm:w-auto m-0!" type="success">
+                <span class="hidden sm:block">{{ $t('create') }}</span>
+                <el-icon class="sm:ml-2">
                     <el-icon-plus />
                 </el-icon>
             </el-button>

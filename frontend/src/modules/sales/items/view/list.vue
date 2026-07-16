@@ -1,7 +1,7 @@
 <template>
     <component :is="props.view?.type ? 'div' : 'container-app'" type="fixed" v-bind="$attrs" :class="{ 'grid gap-app': props.view?.type }">
-        <div v-if="!props.hideHeader" class="flex justify-between items-center gap-app">
-            <div class="flex items-center gap-2">
+        <div v-if="!props.hideHeader" class="flex justify-between items-center gap-3 sm:gap-app">
+            <div class="w-full sm:w-auto flex items-center gap-2">
                 <el-input v-model="search" @input="onSearchChange" dir="auto" :placeholder="$t('search')" class="md:w-75!">
                     <template #prefix>
                         <el-icon>
