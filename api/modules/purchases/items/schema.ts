@@ -2,11 +2,11 @@ import { t } from "elysia";
 import DataGridSchema from "../../../utils/devextreme/datagrid/schema";
 
 const createBody = t.Object({
-    purchase_uid: t.String(),
-    product_uid: t.String(),
+    purchase_uid: t.String({ minLength: 16, maxLength: 16 }),
+    product_uid: t.String({ minLength: 16, maxLength: 16 }),
     price: t.Number({ minimum: 0 }),
     quantity: t.Number({ minimum: 1 }),
-    note: t.String({ maxLength: 255 })
+    note: t.Optional(t.Union([ t.Literal(""), t.String({ minLength: 3, maxLength: 255 }) ]))
 });
 
 const item = t.Object({
@@ -15,7 +15,7 @@ const item = t.Object({
     product_uid: t.String(),
     price: t.Number(),
     quantity: t.Number(),
-    note: t.String(),
+    note: t.Nullable(t.String()),
     total: t.Number(),
     product: t.Object({ uid: t.String(), name: t.String(), image: t.Nullable(t.String()) }),
     purchase: t.Object({ uid: t.String(), name: t.String() }),
@@ -36,12 +36,12 @@ const updateBody = t.Object({
 });
 
 const batchBody = t.Object({
-    purchase_uid: t.String(),
+    purchase_uid: t.String({ minLength: 16, maxLength: 16 }),
     rows: t.Array(t.Object({
-        product_uid: t.String(),
+        product_uid: t.String({ minLength: 16, maxLength: 16 }),
         price: t.Number({ minimum: 0 }),
         quantity: t.Number({ minimum: 1 }),
-        note: t.String({ maxLength: 255 })
+        note: t.Optional(t.Union([ t.Literal(""), t.String({ minLength: 3, maxLength: 255 }) ]))
     }))
 });
 

@@ -2,14 +2,14 @@ import { t } from "elysia";
 import DataGridSchema from "../../utils/devextreme/datagrid/schema";
 
 const createBody = t.Object({
-    name: t.String({ minLength: 3, maxLength: 255 }),
-    client_uid: t.String({ required: true }),
-    region_uid: t.Optional(t.String({ required: true })),
-    category_uid: t.Optional(t.String({ required: true })),
+    name: t.String({ minLength: 1, maxLength: 50 }),
+    client_uid: t.String({ minLength: 16, maxLength: 16 }),
+    region_uid: t.Optional(t.String({ minLength: 16, maxLength: 16 })),
+    category_uid: t.Optional(t.String({ minLength: 16, maxLength: 16 })),
     status: t.Union([ t.Literal(0), t.Literal(1), t.Literal(2), t.Literal(3) ]),
     offer: t.Optional(t.Number({ default: 0 })),
-    note: t.String({ maxLength: 255 }),
-    description: t.String({ maxLength: 255 })
+    note: t.Optional(t.Union([ t.Literal(""), t.String({ minLength: 3, maxLength: 255 }) ])),
+    description: t.Optional(t.Union([ t.Literal(""), t.String({ minLength: 3, maxLength: 255 }) ]))
 });
 
 const project = t.Object({
@@ -23,17 +23,17 @@ const project = t.Object({
         name: t.String(),
         created_at: t.String({ format: "date-time" })
     }),
-    region: t.Object({
+    region: t.Nullable(t.Object({
         uid: t.String(),
         name: t.String(),
         created_at: t.String({ format: "date-time" })
-    }),
-    category: t.Object({
+    })),
+    category: t.Nullable(t.Object({
         uid: t.String(),
         parent_uid: t.String(),
         name: t.String(),
         created_at: t.String({ format: "date-time" })
-    }),
+    })),
     created_at: t.String({ format: "date-time" })
 });
 

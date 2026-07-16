@@ -2,12 +2,9 @@ import { t } from "elysia";
 import DataGridSchema from "../../utils/devextreme/datagrid/schema";
 
 const createBody = t.Object({
-    name: t.String({ minLength: 3, maxLength: 50 }),
+    name: t.String({ minLength: 1, maxLength: 50 }),
     price: t.Number({ minimum: 0 }),
-    description: t.Union([
-        t.String({ minLength: 3, maxLength: 100 }),
-        t.Literal(""),
-    ])
+    description: t.Optional(t.Union([ t.Literal(""), t.String({ minLength: 3, maxLength: 255 }) ]))
 });
 
 const product = t.Object({

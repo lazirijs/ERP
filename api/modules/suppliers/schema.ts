@@ -3,18 +3,9 @@ import DataGridSchema from "../../utils/devextreme/datagrid/schema";
 
 const createBody = t.Object({
     name: t.String({ minLength: 3, maxLength: 50 }),
-    description: t.Union([
-        t.String({ minLength: 3, maxLength: 100 }),
-        t.Literal(""),
-    ]),
-    contact: t.Union([
-        t.String({ minLength: 3, maxLength: 50 }),
-        t.Literal(""),
-    ]),
-    address: t.Union([
-        t.String({ minLength: 3, maxLength: 100 }),
-        t.Literal(""),
-    ])
+    description: t.Optional(t.Union([ t.Literal(""), t.String({ minLength: 3, maxLength: 255 }) ])),
+    contact: t.Optional(t.Union([ t.Literal(""), t.String({ minLength: 3, maxLength: 255 }) ])),
+    address: t.Optional(t.Union([ t.Literal(""), t.String({ minLength: 3, maxLength: 255 }) ]))
 });
 
 const supplier = t.Object({

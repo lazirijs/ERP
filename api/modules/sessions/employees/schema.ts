@@ -4,11 +4,11 @@ import DataGridSchema from "../../../utils/devextreme/datagrid/schema";
 const status = t.Union([t.Literal(0), t.Literal(1)]);
 
 const createBody = t.Object({
-    session_uid: t.String(),
-    employee_uid: t.String(),
-    team_uid: t.Optional(t.Union([t.String(), t.Null()])),
+    session_uid: t.String({ minLength: 16, maxLength: 16 }),
+    employee_uid: t.String({ minLength: 16, maxLength: 16 }),
+    team_uid: t.Optional(t.Union([t.String({ minLength: 16, maxLength: 16 }), t.Null()])),
     status,
-    note: t.String({ maxLength: 255 })
+    note: t.Optional(t.Union([ t.Literal(""), t.String({ minLength: 3, maxLength: 255 }) ]))
 });
 
 const sessionEmployee = t.Object({
@@ -17,7 +17,7 @@ const sessionEmployee = t.Object({
     employee_uid: t.String(),
     team_uid: t.Nullable(t.String()),
     status,
-    note: t.String(),
+    note: t.Nullable(t.String()),
     date: t.String(),
     employee: t.Object({ uid: t.String(), name: t.String(), image: t.Nullable(t.String()) }),
     team: t.Nullable(t.Object({ uid: t.String(), name: t.String() })),
@@ -37,19 +37,19 @@ const getAllQuery = t.Object({
 });
 
 const batchBody = t.Object({
-    session_uid: t.String(),
+    session_uid: t.String({ minLength: 16, maxLength: 16 }),
     rows: t.Array(t.Object({
-        employee_uid: t.String(),
-        team_uid: t.Optional(t.Union([t.String(), t.Null()])),
+        employee_uid: t.String({ minLength: 16, maxLength: 16 }),
+        team_uid: t.Optional(t.Union([t.String({ minLength: 16, maxLength: 16 }), t.Null()])),
         status,
-        note: t.String({ maxLength: 255 })
+        note: t.Optional(t.Union([ t.Literal(""), t.String({ minLength: 3, maxLength: 255 }) ]))
     }))
 });
 
 const updateBody = t.Object({
     uid: sessionEmployee.properties.uid,
     status,
-    note: t.String({ maxLength: 255 })
+    note: t.Optional(t.Union([ t.Literal(""), t.String({ minLength: 3, maxLength: 255 }) ]))
 });
 
 export default {

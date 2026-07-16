@@ -3,7 +3,7 @@ import DataGridSchema from "../../utils/devextreme/datagrid/schema";
 
 const user = t.Object({
     uid: t.String(),
-    name: t.String({ minLength: 3, maxLength: 255 }),
+    name: t.String({ minLength: 1, maxLength: 50 }),
     email: t.String({ format: "email" }),
     created_at: t.String({ format: "date-time" })
 });

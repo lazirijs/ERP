@@ -3,15 +3,15 @@ import DataGridSchema from "../../utils/devextreme/datagrid/schema";
 
 const createBody = t.Object({
     name: t.String({ minLength: 3, maxLength: 50 }),
-    supplier_uid: t.Nullable(t.String()),
-    note: t.String({ maxLength: 255 })
+    supplier_uid: t.Nullable(t.String({ minLength: 16, maxLength: 16 })),
+    note: t.Optional(t.Union([ t.Literal(""), t.String({ minLength: 3, maxLength: 255 }) ]))
 });
 
 const purchase = t.Object({
     uid: t.String(),
     name: t.String(),
     supplier_uid: t.Nullable(t.String()),
-    note: t.String(),
+    note: t.Nullable(t.String()),
     supplier: t.Nullable(t.Object({
         uid: t.String(),
         name: t.String()
@@ -40,11 +40,11 @@ const updateBody = t.Object({
 
 const batchBody = t.Object({
     rows: t.Array(t.Object({
-        supplier_uid: t.Nullable(t.String()),
-        product_uid: t.String(),
+        supplier_uid: t.Nullable(t.String({ minLength: 16, maxLength: 16 })),
+        product_uid: t.String({ minLength: 16, maxLength: 16 }),
         price: t.Number({ minimum: 0 }),
         quantity: t.Number({ minimum: 1 }),
-        note: t.String()
+        note: t.Optional(t.Union([ t.Literal(""), t.String({ minLength: 3, maxLength: 255 }) ])),
     }))
 });
 

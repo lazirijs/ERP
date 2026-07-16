@@ -2,8 +2,8 @@ import { t } from "elysia";
 import DataGridSchema from "../../utils/devextreme/datagrid/schema";
 
 const createBody = t.Object({
-    name: t.String(),
-    supervisor_uid: t.String()
+    name: t.String({ minLength: 1, maxLength: 50 }),
+    supervisor_uid: t.String({ minLength: 16, maxLength: 16 })
 });
 
 const team = t.Object({

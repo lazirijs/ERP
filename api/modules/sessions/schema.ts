@@ -3,13 +3,13 @@ import DataGridSchema from "../../utils/devextreme/datagrid/schema";
 
 const createBody = t.Object({
     date: t.String({ minLength: 10, maxLength: 10 }),   // 'YYYY-MM-DD'
-    note: t.String({ maxLength: 255 })
+    note: t.Optional(t.Union([ t.Literal(""), t.String({ minLength: 3, maxLength: 255 }) ]))
 });
 
 const session = t.Object({
     uid: t.String(),
     date: t.String(),
-    note: t.String(),
+    note: t.Nullable(t.String()),
     total_employees: t.Number(),
     total_absence: t.Number(),
     created_at: t.String({ format: "date-time" })

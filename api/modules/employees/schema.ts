@@ -2,15 +2,15 @@ import { t } from "elysia";
 import DataGridSchema from "../../utils/devextreme/datagrid/schema";
 
 const createBody = t.Object({
-    name: t.String(),
+    name: t.String({ minLength: 1, maxLength: 50 }),
     status: t.Union([ t.Literal(0), t.Literal(1), t.Literal(2), t.Literal(3) ]),
-    team_uid: t.Nullable(t.String())
+    team_uid: t.Nullable(t.String({ minLength: 16, maxLength: 16 }))
 });
 
 const employee = t.Object({
     uid: t.String(),
     ...createBody.properties,
-    image: t.Optional(t.Nullable(t.String())),
+    image: t.Nullable(t.String()),
     team: t.Nullable(t.Object({
         uid: t.String(),
         name: t.String()
@@ -34,7 +34,7 @@ const updateBody = t.Object({
 
 const setTeam = t.Object({
     uid: employee.properties.uid,
-    team_uid: t.Nullable(t.String())
+    team_uid: t.Nullable(t.String({ minLength: 16, maxLength: 16 }))
 });
 
 const uploadDocumentBody = t.Object({

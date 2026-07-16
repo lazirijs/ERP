@@ -2,10 +2,10 @@ import { t } from "elysia";
 import DataGridSchema from "../../utils/devextreme/datagrid/schema";
 
 const createBody = t.Object({
-    name: t.String({ maxLength: 50 }),
-    project_uid: t.String(),
-    client_uid: t.String(),
-    note: t.String({ maxLength: 255 })
+    name: t.String({ minLength: 1, maxLength: 50 }),
+    project_uid: t.String({ minLength: 16, maxLength: 16 }),
+    client_uid: t.String({ minLength: 16, maxLength: 16 }),
+    note: t.Optional(t.Union([ t.Literal(""), t.String({ minLength: 3, maxLength: 255 }) ]))
 });
 
 const sale = t.Object({
@@ -14,7 +14,7 @@ const sale = t.Object({
     project_uid: t.String(),
     client_uid: t.String(),
     status: t.Union([t.Literal(0), t.Literal(1)]),
-    note: t.String(),
+    note: t.Nullable(t.String()),
     project: t.Nullable(t.Object({
         uid: t.String(),
         name: t.String()
