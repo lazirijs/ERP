@@ -35,6 +35,14 @@ const sortable: Record<string, string> = {
     created_at: "si.created_at"
 };
 
+// A completed sale is frozen: its lines have committed COGS and FIFO stock allocation,
+// so they can no longer be added to, edited, or removed.
+const assertSaleEditable = async (sale_uid: string) => {
+    const sale = await database.prepare("SELECT status FROM sales WHERE uid = ?").bind(sale_uid).first<{ status: 0 | 1 } | undefined>();
+    if (!sale) throw Responses.service.handler.error({ message: "Sale not found" }, 404);
+    if (sale.status === 1) throw Responses.service.handler.error({ message: "This sale is completed and its items can no longer be changed." }, 400);
+};
+
 // Ensure the product has enough stock. `addBack` re-adds the quantity a sale item
 // already reserves (when editing that same item's product) before comparing.
 const checkStock = async (product_uid: string, requested: number, addBack: number = 0) => {
@@ -49,6 +57,7 @@ const checkStock = async (product_uid: string, requested: number, addBack: numbe
 export default {
     async create(input: ItemCreateBodyType): Promise<SuccessServiceResponse<undefined>> {
         try {
+            await assertSaleEditable(input.sale_uid);
             await checkStock(input.product_uid, input.quantity);
             await database
                 .prepare("INSERT INTO sale_items (sale_uid, product_uid, price, quantity, note) VALUES (?, ?, ?, ?, ?)")
@@ -63,6 +72,7 @@ export default {
 
     async createBatch({ sale_uid, rows }: ItemBatchBodyType): Promise<SuccessServiceResponse<undefined>> {
         try {
+            await assertSaleEditable(sale_uid);
             // Aggregate requested quantity per product, then verify stock before inserting anything
             const requested = new Map<string, number>();
             for (const row of rows) requested.set(row.product_uid, (requested.get(row.product_uid) ?? 0) + row.quantity);
@@ -163,9 +173,11 @@ export default {
     async update(body: ItemUpdateBodyType) {
         try {
             const current = await database
-                .prepare("SELECT product_uid, quantity FROM sale_items WHERE uid = ?")
+                .prepare("SELECT sale_uid, product_uid, quantity FROM sale_items WHERE uid = ?")
                 .bind(body.uid)
-                .first<{ product_uid: string; quantity: number }>();
+                .first<{ sale_uid: string; product_uid: string; quantity: number }>();
+            if (!current) throw Responses.service.handler.error({ message: "Item not found" }, 404);
+            await assertSaleEditable(current.sale_uid);
             // If the product is unchanged, this item's current reservation is available to it again
             const addBack = current && current.product_uid === body.product_uid ? current.quantity : 0;
             await checkStock(body.product_uid, body.quantity, addBack);
@@ -184,6 +196,9 @@ export default {
 
     async delete(uid: ItemType["uid"]) {
         try {
+            const current = await database.prepare("SELECT sale_uid FROM sale_items WHERE uid = ?").bind(uid).first<{ sale_uid: string } | undefined>();
+            if (!current) throw Responses.service.handler.error({ message: "Item not found" }, 404);
+            await assertSaleEditable(current.sale_uid);
             const result = await database.prepare("DELETE FROM sale_items WHERE uid = ?").bind(uid).run();
             return Responses.service.handler.success(result);
         } catch (error) {

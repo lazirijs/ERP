@@ -37,6 +37,14 @@ const sortable: Record<string, string> = {
     created_at: "pi.created_at"
 };
 
+// A purchase lot that has been (partly) consumed by a completed sale is frozen: its price
+// and quantity are baked into that sale's cost of goods, so it can't be edited or deleted.
+const assertLotNotConsumed = async (uid: string) => {
+    const lot = await database.prepare("SELECT sold_quantity FROM purchase_items WHERE uid = ?").bind(uid).first<{ sold_quantity: number } | undefined>();
+    if (!lot) throw Responses.service.handler.error({ message: "Item not found" }, 404);
+    if (lot.sold_quantity > 0) throw Responses.service.handler.error({ message: "This purchase item has already been sold and can no longer be edited or deleted." }, 400);
+};
+
 export default {
     async create(input: ItemCreateBodyType): Promise<SuccessServiceResponse<undefined>> {
         try {
@@ -143,6 +151,7 @@ export default {
 
     async update(body: ItemUpdateBodyType) {
         try {
+            await assertLotNotConsumed(body.uid);
             const result = await database.prepare(`
                 UPDATE purchase_items
                 SET product_uid = ?, price = ?, quantity = ?, note = ?
@@ -157,6 +166,7 @@ export default {
 
     async delete(uid: ItemType["uid"]) {
         try {
+            await assertLotNotConsumed(uid);
             const result = await database.prepare("DELETE FROM purchase_items WHERE uid = ?").bind(uid).run();
             return Responses.service.handler.success(result);
         } catch (error) {

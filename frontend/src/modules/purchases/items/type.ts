@@ -4,6 +4,7 @@ export interface PurchaseItem {
   product_uid: string;
   price: number;
   quantity: number;
+  sold_quantity: number;
   note: string;
   total: number;
   product: { uid: string; name: string; image: string | null };

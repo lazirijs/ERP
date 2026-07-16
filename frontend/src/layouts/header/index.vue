@@ -15,7 +15,7 @@
                     <el-icon>
                         <el-icon-service />
                     </el-icon>
-                    <small class="absolute -top-1.5 right-1 bg-yellow-500 text-white px-1 rounded">BETA</small>
+                    <small class="absolute -top-1.5 right-1 bg-yellow-500 text-white px-1 rounded mr-0.5">BETA</small>
                 </el-button>
                 <!-- <el-button>
                     <el-icon>

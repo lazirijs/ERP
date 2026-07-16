@@ -44,7 +44,11 @@ import type { Sale } from '@/modules/sales/type.ts';
 import type { SaleItem } from '@/modules/sales/items/type.ts';
 import type { Product } from '@/modules/products/type.ts';
 import type { DataGridAppRef } from '@/components/devextreme/datagrid/type';
+import { ElMessage } from 'element-plus';
+import { useI18n } from 'vue-i18n';
 import router from '@/router';
+
+const { t } = useI18n();
 
 const props = defineProps<{
     view?: 
@@ -74,7 +78,11 @@ const toggleFilterRowVisibility = () => {
 };
 
 const onRowClick = (event: { data: SaleItem }) => {
-    if (props.view?.type == 'sale') itemEditDialogRef?.value?.open(event.data);
+    if (props.view?.type == 'sale') {
+        // A completed sale is frozen: its cost of goods is committed, so items can't be edited.
+        if (props.view.data.status == 1) return ElMessage.info(t('saleCompletedItemsLocked'));
+        itemEditDialogRef?.value?.open(event.data);
+    }
     else router.push({ name: 'sales-detail', params: { uid: event.data.sale.uid } })
 };
 

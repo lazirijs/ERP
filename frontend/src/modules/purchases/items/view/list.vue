@@ -45,7 +45,11 @@ import type { Product } from '@/modules/products/type.ts';
 import type { Supplier } from '@/modules/suppliers/type.ts';
 import type { DataGridAppRef } from '@/components/devextreme/datagrid/type';
 import type { PurchaseItem } from '@/modules/purchases/items/type.ts';
+import { ElMessage } from 'element-plus';
+import { useI18n } from 'vue-i18n';
 import router from '@/router';
+
+const { t } = useI18n();
 
 const props = defineProps<{
     view?: 
@@ -76,7 +80,11 @@ const toggleFilterRowVisibility = () => {
 };
 
 const onRowClick = (event: { data: PurchaseItem }) => {
-    if (props.view?.type == 'purchase') itemEditDialogRef?.value?.open(event.data);
+    if (props.view?.type == 'purchase') {
+        // A lot already consumed by a completed sale is frozen (its price/qty are baked into COGS).
+        if (event.data.sold_quantity > 0) return ElMessage.info(t('purchaseItemSoldLocked'));
+        itemEditDialogRef?.value?.open(event.data);
+    }
     else router.push({ name: 'purchases-detail', params: { uid: event.data.purchase.uid } })
 };
 
