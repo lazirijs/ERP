@@ -1,14 +1,19 @@
 <template>
     <el-dialog v-model="dialogModel" :title="$t('assistant')" align-center body-class="p-0!"
-        class="min-w-11/12 md:min-w-4/5! md:max-w-4/5!" @opened="onOpened">
+        :class="{ 'min-w-11/12 md:min-w-4/5! md:max-w-4/5!': !fullScreen }" :fullscreen="fullScreen" @opened="onOpened">
 
-        <template #header>
-            <div class="flex items-center gap-2">
-                <span>{{ $t('assistant') }}</span>
+        <template #header="">
+            <div class="flex justify-between items-center gap-2 relative w-full">
+                <span>
+                    {{ $t('assistant') }}
+                    <small class="text-xs bg-yellow-500 text-white px-1 mx-2 rounded">BETA</small>
+                </span>            
                 
-                <div>
-                    <small type="warning" class="bg-yellow-500 text-white px-1 rounded">BETA</small>
-                </div>
+                <el-button link @click="fullScreen = !fullScreen">
+                    <el-icon class="absolute -top-1.5">
+                        <el-icon-full-screen :class="{ 'text-blue-400': fullScreen === true }" />
+                    </el-icon>
+                </el-button>
             </div>
         </template>
 
@@ -25,7 +30,7 @@
             </el-button-group>
         </div>
 
-        <div class="flex h-[70vh] border-t border-gray-200">
+        <div class="flex border-t border-gray-200" :class="{ 'h-[70vh]': !fullScreen,'h-[90vh]': fullScreen }">
 
             <!-- Sidebar -->
             <aside class="hidden md:flex flex-col w-56 shrink-0 border-r border-gray-200">
@@ -142,8 +147,8 @@
                         </p>
                         <el-upload v-if="currentTab.uploadable" :auto-upload="false" :show-file-list="false"
                             :on-change="onFileSelected">
-                            <el-button size="small" type="primary" :loading="uploading">
-                                <el-icon class="mr-1"><el-icon-upload-filled /></el-icon>
+                            <el-button size="small" type="primary">
+                                <el-icon class="mr-1"><component :is="`el-icon-${ uploading ? 'loading' : 'upload-filled' }`" :class="{ 'animate-spin': uploading }" /></el-icon>
                                 {{ $t('upload') }}
                             </el-button>
                         </el-upload>
@@ -215,9 +220,10 @@ const store = AiStore();
 
 const dialogModel = ref(false);
 const view = ref<'chat' | 'files' | 'history'>('chat');
-const draft = ref('');
+const draft = ref<string>('');
 const activeTab = ref('all');
-const uploading = ref(false);
+const uploading = ref<boolean>(false);
+const fullScreen = ref<boolean>(false);
 const scrollbarChatRef = ref<ScrollbarInstance>();
 
 // Company and personal are uploadable from here. The per-module tabs surface
