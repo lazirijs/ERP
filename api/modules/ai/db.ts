@@ -1,7 +1,6 @@
 import Constant from "./constant";
 import Tools from "./tools";
 import provider from "./providers";
-import { system } from "./prompt";
 import database from "../../database/ai";
 import storage from "../../storage";
 import { vectorize, ingestQueue } from "./bindings";
@@ -65,6 +64,94 @@ const capped = (value: unknown) => {
     return text.length > 4000 ? `${ text.slice(0, 4000) }… (truncated)` : text;
 };
 
+/**
+ * Turns an upstream AI failure into something the user can act on.
+ *
+ * Workers AI reports quota exhaustion as a normal error, so without this every
+ * cause -- out of neurons, expired dev proxy token, real outage -- reads as the
+ * same unhelpful "couldn't reach the AI service", and the actual problem (the
+ * daily allocation is gone until it resets) stays buried in the Worker logs.
+ */
+const explainAiFailure = (error: any): string => {
+    const message = String(error?.message ?? error);
+
+    // 4006: daily free-plan neuron allocation used up.
+    if (message.includes("4006") || /neurons/i.test(message)) {
+        return "The daily Workers AI allowance for this account has been used up, so I can't answer right now. It resets each day, or the Workers Paid plan removes the limit.";
+    }
+
+    // 3xxx / rate limiting.
+    if (/rate.?limit|429/i.test(message)) {
+        return "The AI service is rate limiting us at the moment. Please try again in a minute.";
+    }
+
+    return "Sorry, I couldn't reach the AI service just then. Please try again in a moment.";
+};
+
+/**
+ * Guard for any reply generated without tools.
+ *
+ * A tool-less reply cannot have done anything -- but asked to "create the product
+ * now", the model will happily answer "The new product has been created." That is
+ * the worst failure this feature has: a fluent lie about a write that never
+ * happened. The rule is in the system prompt too, but the small model ignores it
+ * there, so it is repeated as the last thing before generation, where it sticks.
+ */
+const withoutToolsGuard = (messages: ChatMessage[]): ChatMessage[] => [
+    ...messages,
+    {
+        role: "system",
+        content: [
+            "IMPORTANT: you have no tools available for this reply.",
+            "You have NOT created, saved, updated, deleted, proposed or looked up anything.",
+            "Never say or imply that you did -- no 'I've created', 'I've proposed', 'has been created'.",
+            "If the user asked you to create or change something, tell them plainly that you couldn't do it this time and ask them to say it again."
+        ].join(" ")
+    }
+];
+
+/**
+ * Decides whether a turn can skip the tool loop.
+ *
+ * Handing the 70B model a tool list puts it in tool-selection mode, where a
+ * greeting either comes back as "Your request is incomplete" or sends it looping
+ * through list_ tools -- and costs ~25s either way. Small talk gets a ~2s chat
+ * call instead and never reaches the tools.
+ *
+ * It asks "is this only small talk?" rather than "does this need data?" on
+ * purpose. The latter is open-ended and fails on anything outside its examples:
+ * it judged "what are the skills listed in my CV?" as needing nothing, so the
+ * question never reached search_documents and the model improvised. Recognising
+ * a greeting is a far narrower job, and everything else falls through to the
+ * tools -- so an unsure router costs a slow answer, never a wrong one.
+ */
+const isSmallTalk = async (message: string): Promise<boolean> => {
+    try {
+        const { text } = await provider.generate({
+            messages: [
+                {
+                    role: "system",
+                    content: [
+                        "You classify one user message.",
+                        "Answer YES only if it is purely a greeting, thanks, goodbye or small talk,",
+                        "or asks who you are or what you can do, with no request for information.",
+                        "Examples of YES: 'hi', 'hello', 'thanks!', 'how are you', 'who are you', 'what can you do'.",
+                        "Answer NO for everything else: any question, any request, and anything mentioning a",
+                        "document, file, CV, report, product, employee, project, purchase, or a task to carry out.",
+                        "Reply with exactly one word: YES or NO."
+                    ].join(" ")
+                },
+                { role: "user", content: message }
+            ]
+        });
+
+        return /^\W*yes\b/i.test(text.trim());
+    } catch {
+        // Router is an optimisation, never a gate -- fall back to the tool loop.
+        return false;
+    }
+};
+
 const saveMessage = (threadUid: string, role: ChatMessageType["role"], content: string, citations: CitationType[] = []) =>
     database.prepare(`
         INSERT INTO chat_messages (thread_uid, role, content, citations)
@@ -84,17 +171,49 @@ const runLoop = async (caller: CallerType, threadUid: string, seed?: ChatMessage
     const produced: ChatMessageType[] = [];
     const citations: CitationType[] = [];
     const messages: ChatMessage[] = [
-        { role: "system", content: system },
+        { role: "system", content: Constant.systemPrompt },
         ...await loadHistory(threadUid),
         ...(seed ? [seed] : [])
     ];
 
+    // Plain conversation never touches the tool loop -- it just talks.
+    const lastUserMessage = [...messages].reverse().find(message => message.role === "user");
+    if (!seed && lastUserMessage && await isSmallTalk(lastUserMessage.content)) {
+        const { text } = await provider.generate({ messages: withoutToolsGuard(messages) });
+        const message = await saveMessage(
+            threadUid,
+            "assistant",
+            text.trim() || "Sorry, I didn't catch that. Could you rephrase?"
+        );
+        produced.push(message!);
+        return { messages: produced, pendingAction: null };
+    }
+
+    // Whether a tool actually ran -- decides whether the model's prose is usable.
+    let usedTools = false;
+
     for (let iteration = 0; iteration < Constant.maxToolIterations; iteration++) {
-        const { text, toolCalls } = await provider.generate({ messages, tools: Tools.definitions });
+        let { text, toolCalls } = await provider.generate({ messages, tools: Tools.definitions });
 
         // No tools requested -- this is the answer.
         if (!toolCalls.length) {
-            const message = await saveMessage(threadUid, "assistant", text || "…", citations);
+            // The model was given tools and chose none: usually because nothing
+            // fits ("add a client"). In tool-selection mode it says so to the
+            // developer -- "Your function definitions are not comprehensive enough"
+            // -- so re-ask without the tool list to get an answer for the user.
+            // Once a tool has run there is a real result to summarise and the
+            // reply is already fine, so leave that case alone.
+            if (!usedTools) {
+                const conversational = await provider.generate({ messages: withoutToolsGuard(messages) });
+                text = conversational.text || text;
+            }
+
+            const message = await saveMessage(
+                threadUid,
+                "assistant",
+                text.trim() || "Sorry, I didn't catch that. Could you rephrase?",
+                citations
+            );
             produced.push(message!);
             return { messages: produced, pendingAction: null };
         }
@@ -140,17 +259,22 @@ const runLoop = async (caller: CallerType, threadUid: string, seed?: ChatMessage
                 citations.push(...(result as { citations: CitationType[] }).citations);
             }
 
+            usedTools = true;
+
             const content = capped(result);
             messages.push({ role: "tool", name: call.name, toolCallId: call.id, content });
             produced.push((await saveMessage(threadUid, "tool", content))!);
         }
     }
 
-    // Ran out of iterations while still calling tools.
+    // Ran out of iterations while still calling tools. Everything looked up so far
+    // is in `messages`, so ask once without the tool list: that both stops the
+    // looping and usually produces a real answer instead of an apology.
+    const { text } = await provider.generate({ messages });
     const message = await saveMessage(
         threadUid,
         "assistant",
-        "I wasn't able to finish that -- I kept needing more lookups. Try asking for one thing at a time.",
+        text.trim() || "Sorry, I got a bit lost working that out. Could you ask me one thing at a time?",
         citations
     );
     produced.push(message!);
@@ -350,7 +474,18 @@ export default {
                     .run();
             }
 
-            const result = await runLoop(caller, threadUid);
+            let result: TurnResult;
+            try {
+                result = await runLoop(caller, threadUid);
+            } catch (error) {
+                // The user's message is already persisted. If the turn dies here
+                // (upstream AI outage, expired dev proxy token) and we just rethrow,
+                // the thread is left with a question and no answer -- it reads as if
+                // the assistant ignored them. Answer honestly instead.
+                console.log("AI turn failed", error);
+                const message = await saveMessage(threadUid, "assistant", explainAiFailure(error));
+                result = { messages: [message!], pendingAction: null };
+            }
 
             await database.prepare("UPDATE chat_threads SET updated_at = strftime('%Y-%m-%dT%H:%M:%SZ', 'now') WHERE uid = ?")
                 .bind(threadUid)

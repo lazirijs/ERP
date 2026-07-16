@@ -1,3 +1,4 @@
+import { extractText, getDocumentProxy } from "unpdf";
 import Constant from "./constant";
 import storage from "../../storage";
 import database from "../../database/ai";
@@ -16,6 +17,38 @@ const chunkText = (text: string): string[] => {
     }
 
     return chunks;
+};
+
+/**
+ * Pulls the text out of a stored file.
+ *
+ * PDFs do not go through toMarkdown. It parses a PDF's StructTree, and on a
+ * perfectly ordinary tagged CV exported from a design tool it returned nothing
+ * but the metadata dictionary (PDFFormatVersion, Creator, ...) -- which then got
+ * embedded and answered questions with. unpdf reads the same file's text layer
+ * fine, so it does PDFs and toMarkdown keeps everything else (docx, xlsx, csv,
+ * html, images).
+ */
+const extract = async (file: FilesIndexType, buffer: ArrayBuffer): Promise<string> => {
+    const isPdf = file.content_type === "application/pdf" || file.file_name.toLowerCase().endsWith(".pdf");
+
+    if (isPdf) {
+        const pdf = await getDocumentProxy(new Uint8Array(buffer));
+        const { text } = await extractText(pdf, { mergePages: true });
+        if (text.trim()) return text;
+        // An image-only PDF has no text layer -- fall through and let toMarkdown
+        // describe it, which is better than nothing but is not OCR.
+    }
+
+    const converted = await ai.toMarkdown({
+        name: file.file_name,
+        blob: new Blob([buffer], { type: file.content_type || undefined })
+    });
+
+    // Conversion reports failure in-band rather than throwing.
+    if (converted.format === "error") throw new Error(converted.error || "This file could not be read");
+
+    return converted.data ?? "";
 };
 
 const setStatus = (uid: string, status: FilesIndexType["status"], fields: { chunk_count?: number; error?: string } = {}) =>
@@ -38,19 +71,12 @@ export default async function ingest({ file_uid }: IngestMessageType) {
         const object = await storage.get(file.r2_key);
         if (!object) throw new Error("File not found in storage");
 
-        // toMarkdown covers pdf/docx/xlsx/csv/text and OCRs images.
-        const converted = await ai.toMarkdown({
-            name: file.file_name,
-            blob: new Blob([await object.arrayBuffer()], { type: file.content_type || undefined })
-        });
+        const text = await extract(file, await object.arrayBuffer());
 
-        // Conversion reports failure in-band rather than throwing.
-        if (converted.format === "error") {
-            throw new Error(converted.error || "This file could not be read");
+        const chunks = chunkText(text);
+        if (!chunks.length) {
+            throw new Error("No readable text found in this file. If it is a scan or a photo, its text cannot be read yet.");
         }
-
-        const chunks = chunkText(converted.data ?? "");
-        if (!chunks.length) throw new Error("No text could be extracted from this file");
 
         // Drop any vectors from a previous attempt so a retry cannot leave orphans.
         if (file.chunk_count > 0) {

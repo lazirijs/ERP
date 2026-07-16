@@ -99,7 +99,11 @@ const provider: Provider = {
     },
 
     async generate({ messages, tools }) {
-        const result = await ai.run(Constant.models.generation as any, {
+        // No tools means this is a plain conversational turn -- route it to the
+        // small fast model rather than paying ~25s of 70B inference to say hello.
+        const model = tools?.length ? Constant.models.generation : Constant.models.conversation;
+
+        const result = await ai.run(model as any, {
             messages: toWorkersAiMessages(messages),
             ...(tools?.length ? { tools: toWorkersAiTools(tools) } : {})
         }) as GenerationResponse;

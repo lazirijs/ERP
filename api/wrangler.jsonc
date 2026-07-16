@@ -4,7 +4,7 @@
  */
 {
 	"$schema": "node_modules/wrangler/config-schema.json",
-	"name": "app",
+	"name": "ERP API",
 	"compatibility_date": "2026-03-17",
 	"main": "index.ts",
 	// "assets": {
@@ -23,7 +23,7 @@
 			"binding": "db",
 			"database_name": "database",
 			"migrations_dir": "database/migrations",
-			// "database_id": "",
+			"database_id": "f6e4a62c-5d38-4163-9f85-950cb1570ad1",
 		},
 		{
 			"binding": "ai_db",

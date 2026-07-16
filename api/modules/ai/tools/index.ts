@@ -1,10 +1,10 @@
 import { Value } from "@sinclair/typebox/value";
 import documents from "./documents";
-import erp from "./erp";
+import ERPTools from "./erp";
 import type { Tool } from "./type";
 import type { ToolDefinition } from "../providers/type";
 
-const list: Tool[] = [...documents, ...erp];
+const list: Tool[] = [...documents, ...ERPTools];
 
 const byName = new Map(list.map(tool => [tool.name, tool]));
 
@@ -23,8 +23,7 @@ export type ValidationResult =
     | { ok: false; message: string };
 
 /** True for a schema that accepts null, i.e. t.Nullable(...) -> anyOf: [..., {type:'null'}]. */
-const allowsNull = (schema: any): boolean =>
-    schema?.type === "null" || (Array.isArray(schema?.anyOf) && schema.anyOf.some(allowsNull));
+const allowsNull = (schema: any): boolean => schema?.type === "null" || (Array.isArray(schema?.anyOf) && schema.anyOf.some(allowsNull));
 
 /**
  * Models routinely emit the *string* "null" for a nullable field. On a

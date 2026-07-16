@@ -11,7 +11,7 @@ export default {
         try {
             await database
                 .prepare("INSERT INTO suppliers (name, description, contact, address) VALUES (?, ?, ?, ?)")
-                .bind(input.name, input.description, input.contact, input.address)
+                .bind(input.name, input.description || null, input.contact || null, input.address || null)
                 .run();
             return Responses.service.handler.success();
         } catch (error) {

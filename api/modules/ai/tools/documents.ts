@@ -36,9 +36,10 @@ const scopeFilter = (caller: CallerType) => ({
 const searchDocuments: Tool = {
     name: "search_documents",
     description:
-        "Search the company's uploaded documents (contracts, invoices, reports, specs, scanned files) and return the most relevant excerpts. " +
-        "Call this whenever the user asks a question whose answer would come from a document rather than from live ERP records, " +
-        "or when they refer to something 'in the file', 'in the contract', or 'in the report'. Do not answer document questions from memory.",
+        "Search every uploaded document -- contracts, invoices, reports, specs, policies, CVs and resumes, notes -- and return the most relevant excerpts. " +
+        "Call this whenever the answer would come from a document rather than from live ERP records: any mention of a document, a file, a CV, " +
+        "'the thing I uploaded', 'in the file', 'in the contract', or a question about their own documents. " +
+        "Pass the user's question as the query. Never answer a document question from memory, and never tell the user to search for it themselves.",
     schema: searchBody,
     kind: "read",
 

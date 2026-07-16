@@ -10,9 +10,9 @@
     "db:migration:create": "wrangler d1 migrations create db",
     "db:migration:local": "wrangler d1 migrations apply db --local",
     "db:migration:remote": "wrangler d1 migrations apply db --remote",
-    "ai:migration:create": "wrangler d1 migrations create ai_db",
-    "ai:migration:local": "wrangler d1 migrations apply ai_db --local",
-    "ai:migration:remote": "wrangler d1 migrations apply ai_db --remote"
+    "aidb:migration:create": "wrangler d1 migrations create ai_db",
+    "aidb:migration:local": "wrangler d1 migrations apply ai_db --local",
+    "aidb:migration:remote": "wrangler d1 migrations apply ai_db --remote"
   },
   "devDependencies": {
     "@types/bun": "latest"
@@ -22,11 +22,12 @@
   },
   "dependencies": {
     "elysia": "^1.4.28",
-    "@sinclair/typebox": "^0.34.48",
     "wrangler": "^4.77.0",
     "@elysiajs/jwt": "^1.4.1",
     "@cloudflare/d1": "^1.4.1",
     "@elysiajs/cors": "^1.4.1",
-    "@elysiajs/openapi": "^1.4.14"
+    "@elysiajs/openapi": "^1.4.14",
+    "@sinclair/typebox": "^0.34.48",
+    "unpdf": "^1.6.2"
   }
 }

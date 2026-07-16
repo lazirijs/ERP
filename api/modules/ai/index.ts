@@ -1,9 +1,9 @@
-import schema from "./schema";
 import db from "./db";
+import schema from "./schema";
 import constant from "./constant";
 
 export default {
-    schema,
     db,
+    schema,
     constant
 };

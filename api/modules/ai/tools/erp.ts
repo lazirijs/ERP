@@ -92,7 +92,13 @@ const writeTools: Tool[] = [
         name: "create_product",
         description:
             "Create a new product. Call this when the user asks to add, create or register a product. " +
-            "The user must confirm before it is saved, so propose the call as soon as you have a name and price.",
+            "Name and price are the only things you need from the user. " +
+            // The schema marks description required (it is `string | ""`), so without
+            // this the model keeps asking for one -- and invents a "category" field --
+            // instead of ever calling the tool.
+            "description is required by the schema but is not something to ask for: pass an empty string \"\" unless the user actually gave one. " +
+            "There is no category, quantity or image field -- never ask for them. " +
+            "Call it as soon as you have a name and a price; the user confirms on a card before anything is saved, so do not ask for permission first.",
         // Reused verbatim -- cannot drift from POST /products.
         schema: Products.schema.create.validation.body,
         kind: "write",
@@ -103,9 +109,11 @@ const writeTools: Tool[] = [
         name: "create_employee",
         description:
             "Create a new employee. Call this when the user asks to add, hire or register an employee. " +
-            "status must be one of: 0 = active, 1 = inactive, 2 = on vacation, 3 = left -- use 0 unless the user says otherwise. " +
-            "team_uid must be null unless the user names a team you have already looked up. " +
-            "The user must confirm before it is saved.",
+            "The name is the only thing you need from the user. " +
+            "status is required by the schema: use 0 (0 = active, 1 = inactive, 2 = on vacation, 3 = left) unless the user says otherwise -- do not ask for it. " +
+            "team_uid is required by the schema: pass null unless the user names a team you have already looked up -- do not ask for it. " +
+            "There is no email, phone, salary or role field -- never ask for them. " +
+            "Call it as soon as you have a name; the user confirms on a card before anything is saved, so do not ask for permission first.",
         // Reused verbatim -- cannot drift from POST /employees.
         schema: Employees.schema.create.validation.body,
         kind: "write",

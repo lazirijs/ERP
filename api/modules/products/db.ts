@@ -12,7 +12,7 @@ export default {
         try {
             const result = await database
                 .prepare("INSERT INTO products (name, price, description) VALUES (?, ?, ?) RETURNING uid")
-                .bind(input.name, input.price, input.description)
+                .bind(input.name, input.price, input.description || null)
                 .first<{ uid: string }>();
             return Responses.service.handler.success(result!);
         } catch (error) {

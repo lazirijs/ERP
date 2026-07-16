@@ -9,7 +9,7 @@ import { buildDataGridSQLiteConditions } from '../../utils/devextreme/datagrid/s
 export default {
     async create(input: AccountCreateBodyType): Promise<SuccessServiceResponse<undefined>> {
         try {
-            await database.prepare("INSERT INTO accounts (name, description) VALUES (?, ?)").bind(input.name, input.description).run();
+            await database.prepare("INSERT INTO accounts (name, description) VALUES (?, ?)").bind(input.name, input.description || null).run();
             return Responses.service.handler.success();
         } catch (error) {
             throw Responses.service.handler.error(error);
