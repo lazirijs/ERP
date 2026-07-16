@@ -3,7 +3,7 @@ import formatter from '@/services/formatter';
 import type { ApiResponse } from "@/api/type";
 import { defaultQuery } from "@/components/devextreme/datagrid/constant";
 import type { DevExtremeDataGridRemoteDataFormat, DevExtremeDataGridRemoteQuery } from "@/components/devextreme/datagrid/type";
-import type { Transaction, TransactionCreateBody, TransactionGetAllQuery } from "./type";
+import type { Transaction, TransactionCreateBody } from "./type";
 
 const endpoint = '/transactions';
 

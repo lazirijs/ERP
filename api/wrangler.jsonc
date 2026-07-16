@@ -4,7 +4,7 @@
  */
 {
 	"$schema": "node_modules/wrangler/config-schema.json",
-	"name": "erpapi",
+	"name": "erp-api",
 	"compatibility_date": "2026-03-17",
 	"main": "index.ts",
 	// "assets": {
