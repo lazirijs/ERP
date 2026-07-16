@@ -2,7 +2,6 @@ import { computed, ref } from "vue";
 import { defineStore } from "pinia";
 import AiApi from "@/modules/ai/api";
 import type { AiFile, Message, PendingAction, Scope, Source, Thread } from "@/modules/ai/type";
-import store from "../auth/store";
 
 export default defineStore("ai", () => {
   const threads = ref<Thread[]>([]);
@@ -113,9 +112,9 @@ export default defineStore("ai", () => {
   };
 
   const resolveAction = async (uid: string, approve: boolean) => {
-    resolvingAction.value = uid;
+    resolvingAction.value = ( approve ? 'confirm-' : 'reject-' ) + uid;
     try {
-      const response = approve ? await AiApi.confirmAction(uid) : await AiApi.rejectAction(uid);
+      const response = await AiApi[ approve ? 'confirmAction' : 'rejectAction' ](uid);
       if (!response.success) throw response;
 
       const action = pendingActions.value.find(item => item.uid === uid);

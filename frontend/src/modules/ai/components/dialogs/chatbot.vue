@@ -2,11 +2,23 @@
     <el-dialog v-model="dialogModel" :title="$t('assistant')" align-center body-class="p-0!"
         class="min-w-11/12 md:min-w-4/5! md:max-w-4/5!" @opened="onOpened">
 
+        <div class="flex md:hidden gap-2">
+            <el-button @click="startNewChat" class="w-1/6">
+                <el-icon>
+                    <el-icon-plus />
+                </el-icon>
+            </el-button>
+            <el-button-group direction="horizontal" class="w-full mb-4">
+                <el-button @click="view = 'chat'" :type="view === 'chat' && 'primary'" class="w-1/3">{{ $t("chat") }}</el-button>
+                <el-button @click="view = 'files'" :type="view === 'files' && 'primary'" class="w-1/3">{{ $t("files") }}</el-button>
+                <el-button @click="view = 'history'" :type="view === 'history' && 'primary'" class="w-1/3">{{ $t("history") }}</el-button>
+            </el-button-group>
+        </div>
+
         <div class="flex h-[70vh] border-t border-gray-200">
 
             <!-- Sidebar -->
-            <aside v-if="!$appStore().isMobile || showSidebar"
-                class="w-56 shrink-0 border-r border-gray-200 bg-gray-50 flex flex-col">
+            <aside class="hidden md:flex flex-col w-56 shrink-0 border-r border-gray-200">
                 <div class="py-3 pr-3 space-y-2">
                     <el-button type="primary" plain class="w-full" @click="startNewChat">
                         <el-icon class="mr-1"><el-icon-plus /></el-icon>
@@ -45,7 +57,7 @@
                 <!-- Chat -->
                 <template v-if="view === 'chat'">
                     <el-scrollbar ref="scrollbarChatRef" v-loading="store.loadingMessages">
-                        <div class="flex-1 overflow-y-auto p-4 space-y-4">
+                        <div class="flex-1 overflow-y-auto py-4 md:p-4 space-y-4">
                             <p v-if="!store.visibleMessages.length" class="text-center text-sm text-gray-400 py-10">
                                 {{ $t('askAnything') }}
                             </p>
@@ -66,7 +78,7 @@
                             </div>
     
                             <!-- The write gate: nothing has been saved until this is confirmed -->
-                            <el-card v-if="store.openAction" shadow="never" class="border-amber-300! bg-amber-50!">
+                            <template v-if="store.openAction">
                                 <div class="flex items-center gap-2 mb-2">
                                     <el-icon class="text-amber-500"><el-icon-warning-filled /></el-icon>
                                     <span class="font-medium text-sm">{{ $t('confirmAction') }}</span>
@@ -82,16 +94,14 @@
                                 </div>
     
                                 <div class="flex justify-end gap-2">
-                                    <el-button size="small" :loading="store.resolvingAction === store.openAction.uid"
-                                        @click="store.resolveAction(store.openAction!.uid, false)">
+                                    <el-button @click="store.resolveAction(store.openAction!.uid, false)" size="small" :loading="store.resolvingAction === ('reject-' + store.openAction.uid)" :disabled="store.resolvingAction">
                                         {{ $t('reject') }}
                                     </el-button>
-                                    <el-button size="small" type="primary" :loading="store.resolvingAction === store.openAction.uid"
-                                        @click="store.resolveAction(store.openAction!.uid, true)">
+                                    <el-button @click="store.resolveAction(store.openAction!.uid, true)" size="small" type="primary" :loading="store.resolvingAction === ('confirm-' + store.openAction.uid)" :disabled="store.resolvingAction">
                                         {{ $t('confirm') }}
                                     </el-button>
                                 </div>
-                            </el-card>
+                            </template>
     
                             <div v-if="store.sending" class="flex justify-start">
                                 <div class="bg-gray-100 rounded-lg px-3 py-2">
@@ -111,8 +121,8 @@
                 </template>
 
                 <!-- Files -->
-                <template v-else>
-                    <el-tabs v-model="activeTab" class="pl-4 pt-2" @tab-change="loadTab">
+                <template v-else-if="view === 'files'">
+                    <el-tabs v-model="activeTab" class="md:pl-4 pt-2" @tab-change="loadTab">
                         <el-tab-pane v-for="tab in tabs" :key="tab.name" :label="$t(tab.label)" :name="tab.name" />
                     </el-tabs>
 
@@ -159,6 +169,23 @@
                     </el-scrollbar>
                 </template>
 
+                <el-scrollbar v-else-if="view === 'history'" v-loading="store.loadingTheads">
+                    <div class="flex-1 overflow-y-auto pr-2 pb-2 space-y-1">
+                        <div v-for="thread in store.threads" :key="thread.uid" @click="openThread(thread.uid)"
+                            class="group flex items-center gap-1 px-2 py-1.5 rounded cursor-pointer text-sm"
+                            :class="thread.uid === store.activeThreadUid ? 'bg-white font-medium' : 'hover:bg-gray-100 text-gray-600'">
+                            <span class="truncate flex-1">{{ thread.title || $t('newChat') }}</span>
+                            <el-icon
+                                @click.stop="removeThread(thread.uid)">
+                                <el-icon-delete class="opacity-0 group-hover:opacity-100 text-gray-400 hover:text-red-500 transition-all duration-300" />
+                            </el-icon>
+                        </div>
+                        <p v-if="!store.threads.length" class="px-2 py-4 text-xs text-gray-400 text-center">
+                            {{ $t('noMessages') }}
+                        </p>
+                    </div>
+                </el-scrollbar>
+
             </section>
         </div>
     </el-dialog>
@@ -169,22 +196,19 @@ import { computed, nextTick, onUnmounted, ref, watch } from 'vue';
 import { ElMessage, type ScrollbarInstance, type UploadFile } from 'element-plus';
 import { useI18n } from 'vue-i18n';
 import AiStore from '@/modules/ai/store';
-import AppStore from '@/stores/app';
 import type { AiFile, Citation, FilesTab, Message } from '@/modules/ai/type';
 import confirmDialog from '@/services/dialog/confirm';
 import formatter from '@/services/formatter';
 
 const { t } = useI18n();
 const store = AiStore();
-const appStore = AppStore();
 
 const dialogModel = ref(false);
-const view = ref<'chat' | 'files'>('chat');
+const view = ref<'chat' | 'files' | 'history'>('chat');
 const draft = ref('');
 const activeTab = ref('all');
 const uploading = ref(false);
 const scrollbarChatRef = ref<ScrollbarInstance>();
-const showSidebar = ref(true);
 
 // Company and personal are uploadable from here. The per-module tabs surface
 // documents that belong to an ERP record, so they are read-only in the assistant.
@@ -240,12 +264,10 @@ const scrollToBottom = async () => {
 const startNewChat = () => {
     store.newChat();
     view.value = 'chat';
-    if (appStore.isMobile) showSidebar.value = false;
 };
 
 const openThread = async (uid: string) => {
     view.value = 'chat';
-    if (appStore.isMobile) showSidebar.value = false;
     await store.selectThread(uid);
     scrollToBottom();
 };
@@ -257,7 +279,6 @@ const loadTab = () => {
 
 const openFiles = () => {
     view.value = 'files';
-    if (appStore.isMobile) showSidebar.value = false;
     loadTab();
 };
 
@@ -333,7 +354,6 @@ const onOpened = () => {
 defineExpose({
     open: () => {
         dialogModel.value = true;
-        showSidebar.value = !appStore.isMobile;
     }
 });
 </script>
