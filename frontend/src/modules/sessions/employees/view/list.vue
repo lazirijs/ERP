@@ -20,7 +20,7 @@
                     </el-icon>
                 </el-button>
             </div>
-            <el-button @click="onAdd" class="w-8 sm:w-auto m-0!" type="success">
+            <el-button v-if="!hideCreate" @click="onAdd" class="w-8 sm:w-auto m-0!" type="success">
                 <span class="hidden sm:block">{{ $t('create') }}</span>
                 <el-icon class="sm:ml-2">
                     <el-icon-plus />
@@ -67,6 +67,7 @@ const emit = defineEmits<{
 
 const props = defineProps<{
     session: Session;
+    hideCreate?: boolean;
 }>();
 
 const { t } = useI18n();

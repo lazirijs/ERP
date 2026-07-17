@@ -68,7 +68,7 @@
 		]
 	},
 	"vars": {
-		"CLIENT_ORIGIN": "https://frontend-46i.pages.dev",
+		"CLIENT_ORIGIN": "https://laziri-erp.pages.dev",
 		"JWT_SECRET": "env.JWT_SECRET"
 	}
 	/**

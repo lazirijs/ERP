@@ -40,7 +40,7 @@
       <div class="col-span-1 md:col-span-3 flex-1 space-y-app">
         <el-tabs v-model="tab" type="border-card">
           <el-tab-pane :label="$t('employees')" name="employees">
-            <session-employees-list v-if="tab === 'employees'" :session="formData" @updated="load()" />
+            <session-employees-list v-if="tab === 'employees'" :session="formData" :hideCreate="!editable" @updated="load()" />
           </el-tab-pane>
         </el-tabs>
       </div>

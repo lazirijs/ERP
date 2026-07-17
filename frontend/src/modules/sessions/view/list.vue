@@ -22,7 +22,7 @@
               <el-icon-edit-pen />
             </el-icon>
           </div>
-          <span v-if="summaryFor(data.startDate)" class="w-full text-xs md:text-lg font-medium md:flex justify-around">
+          <span v-if="summaryFor(data.startDate)" class="w-full text-xs md:text-base font-medium md:flex justify-around">
             <template v-if="summaryFor(data.startDate)!.total_present">
               <span :class="`text-${status[0].color}-600`">{{ summaryFor(data.startDate)!.total_present }}</span>
               -

@@ -7,7 +7,7 @@
           Good {{ timeOfDay }}, {{ $authStore().profile?.name }} 👋
         </h1>
         <p class="w-3/4 md:w-full text-sm text-gray-500">
-          Here's a quick overview of everything you have access to as {Role}.
+          Here's a quick overview of everything you have access to as {{ $authStore().profile?.is_admin ? $t("admin"): $authStore().profile?.role?.name }}.
         </p>
       </div>
       <div class="w-full md:w-56">
