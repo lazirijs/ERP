@@ -86,7 +86,9 @@ export default {
             }
 
             query.push(...conditions);
-            query.push("GROUP BY employees.uid");
+            // No GROUP BY: the teams join is a LEFT JOIN on teams.uid (primary key), so it is
+            // 1:1 and never multiplies rows. Grouping would force a full scan + temp-b-tree
+            // sort and defeat the created_at / team_uid indexes.
 
             if (inputs.sort?.length) {
                 const { selector, desc } = inputs.sort[0]!;

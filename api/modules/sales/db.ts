@@ -161,7 +161,10 @@ export default {
                 orderBy = `ORDER BY ${ sortCol } ${ desc ? "DESC" : "ASC" }`;
             }
 
-            const query = [selectSale, ...conditions, "GROUP BY s.uid", orderBy, limit, offset].join(" ");
+            // No GROUP BY: both joins (projects, clients) are LEFT JOINs to a parent on its
+            // primary key, so they are 1:1 and never multiply rows. Grouping here would only
+            // force a full scan + temp-b-tree sort and defeat the created_at / FK indexes.
+            const query = [selectSale, ...conditions, orderBy, limit, offset].join(" ");
             const prepare = database.prepare(query);
             const result = binds.length ? await prepare.bind(...binds).run() : await prepare.run();
             result.results = (result.results as any[]).map(parseRow);
