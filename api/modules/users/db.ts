@@ -41,6 +41,41 @@ export default {
         }
     },
     
+    // The permission keys a user effectively holds, for the auth profile payload.
+    // is_admin is a blanket bypass (migration 0031), so an admin resolves to the whole
+    // catalog rather than to their role's grants — callers then only ever need to ask
+    // "does this user hold this key?" instead of also special-casing admins.
+    // Kept out of getByUid on purpose: that result is signed into the auth JWT cookie,
+    // and the full catalog would bloat the token.
+    async getPermissions(uid: UserType["uid"]): Promise<SuccessServiceResponse<string[]>> {
+        try {
+            const user = await database
+                .prepare("SELECT is_admin, role_uid FROM users WHERE uid = ?")
+                .bind(uid)
+                .first<{ is_admin: 0 | 1; role_uid: string | null }>();
+            if (!user) throw Responses.service.handler.error("User not found", 404);
+
+            if (user.is_admin === 1) {
+                const all = await database.prepare("SELECT key FROM permissions").all<{ key: string }>();
+                return Responses.service.handler.success(all.results.map(i => i.key));
+            }
+
+            if (!user.role_uid) return Responses.service.handler.success<string[]>([]);
+
+            const granted = await database.prepare(`
+                SELECT p.key
+                FROM role_permissions rp
+                JOIN permissions p ON p.uid = rp.permission_uid
+                WHERE rp.role_uid = ?
+            `).bind(user.role_uid).all<{ key: string }>();
+
+            return Responses.service.handler.success(granted.results.map(i => i.key));
+        } catch (error) {
+            if(Responses.schema.data.check(error)) throw error;
+            throw Responses.service.handler.error(error);
+        }
+    },
+
     async getAll(inputs: DataGridQuery): Promise<SuccessServiceResponse<DataGridResponse<UserType>>> {
         try {
             let limit = "LIMIT " + inputs.take;

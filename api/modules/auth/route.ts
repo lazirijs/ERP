@@ -9,18 +9,27 @@ import type { AuthPluginType } from "./type";
 
 const maxAge = Auth.constant.cookieOptions.maxAge!;
 
+// The signed cookie carries only the user row; permissions ride alongside it in the
+// response body instead, so the token stays small and a role's grants take effect on the
+// next profile fetch rather than being frozen into the JWT until it expires.
+const withPermissions = async (uid: string) => {
+    const user = await Users.db.getByUid(uid);
+    const permissions = await Users.db.getPermissions(uid);
+    return { user: user.detail, profile: { ...user.detail, permissions: permissions.detail } };
+};
+
 export default (new Elysia({ prefix: "/auth" }) as unknown as AuthPluginType)
 
 // --- Login ---
 .post("/login", async ({ body, jwt, cookie: { auth } }) => {
     try {
         const checkCredentials = await Auth.service.checkCredentials(body);
-        const user = await Users.db.getByUid(checkCredentials.detail.uid);
-        
-        const value = await jwt.sign({ user: user.detail, expires_at: Date.now() + maxAge });
+        const { user, profile } = await withPermissions(checkCredentials.detail.uid);
+
+        const value = await jwt.sign({ user, expires_at: Date.now() + maxAge });
         auth?.set({ ...Auth.constant.cookieOptions, value });
 
-        return user;
+        return Responses.service.handler.success(profile);
     } catch (error) {
         if(Responses.schema.data.check(error)) throw error;
         throw Responses.service.handler.error(error);
@@ -30,12 +39,12 @@ export default (new Elysia({ prefix: "/auth" }) as unknown as AuthPluginType)
 // --- Get profile ---
 .get("/profile", async ({ user, jwt, cookie: { auth } }) => {
     try {
-        const result = await Users.db.getByUid(user.uid);
-        
-        const value = await jwt.sign({ user: result.detail, expires_at: Date.now() + maxAge });
+        const { user: result, profile } = await withPermissions(user.uid);
+
+        const value = await jwt.sign({ user: result, expires_at: Date.now() + maxAge });
         auth?.set({ ...Auth.constant.cookieOptions, value });
 
-        return Responses.service.handler.success(result.detail);
+        return Responses.service.handler.success(profile);
     } catch (error) {
         if(Responses.schema.data.check(error)) throw error;
         throw Responses.service.handler.error(error);
@@ -46,12 +55,12 @@ export default (new Elysia({ prefix: "/auth" }) as unknown as AuthPluginType)
 .post("/profile", async ({ user, body, jwt, cookie: { auth } }) => {
     try {
         await Auth.db.updateProfile(user.uid, body);
-        const result = await Users.db.getByUid(user.uid);
-        
-        const value = await jwt.sign({ user: result.detail, expires_at: Date.now() + maxAge });
+        const { user: result, profile } = await withPermissions(user.uid);
+
+        const value = await jwt.sign({ user: result, expires_at: Date.now() + maxAge });
         auth?.set({ ...Auth.constant.cookieOptions, value });
 
-        return result;
+        return Responses.service.handler.success(profile);
     } catch (error) {
         if(Responses.schema.data.check(error)) throw error;
         throw Responses.service.handler.error(error);

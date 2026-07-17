@@ -56,9 +56,9 @@
                 </el-button>
                 <ChangePasswordDialogApp ref="changePasswordDialogRef" />
                 <div class="min-w-fit">
-                    <el-button @click="dialogModel = false">
+                    <!-- <el-button @click="dialogModel = false">
                         {{ $t("close") }}
-                    </el-button>
+                    </el-button> -->
                     <el-button type="primary" @click="showUpdateProfileForm">
                         {{ $t("edit") }}
                     </el-button>
