@@ -232,6 +232,19 @@ const routes: Route[] = [
     ],
   },
   {
+    path: "/reports",
+    meta: {
+      auth: "required",
+    },
+    children: [
+      {
+        path: "list",
+        name: "reports-list",
+        component: () => import("@/modules/reports/view/list.vue")
+      },
+    ],
+  },
+  {
     path: "/sessions",
     meta: {
       auth: "required",

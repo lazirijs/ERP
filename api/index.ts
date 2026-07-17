@@ -21,6 +21,7 @@ import SalesRoute from "./modules/sales/route"
 import EmployeesRoute from "./modules/employees/route"
 import TeamsRoute from "./modules/teams/route"
 import SessionsRoute from "./modules/sessions/route"
+import ReportsRoute from "./modules/reports/route"
 import AiRoute from "./modules/ai/route"
 import ingest from "./modules/ai/ingest"
 import type { IngestMessageType } from "./modules/ai/type"
@@ -58,6 +59,7 @@ const app = new Elysia({ adapter: CloudflareAdapter })
 .use(EmployeesRoute)
 .use(TeamsRoute)
 .use(SessionsRoute)
+.use(ReportsRoute)
 .use(AiRoute)
 
 .compile();

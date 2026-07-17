@@ -6,8 +6,8 @@
     />
 
     <aside
-        class="fixed inset-y-0 left-0 z-50 bg-white border-r border-gray-300 transition-all duration-300 lg:static"
-        :class="[ isCollapsed ? '-translate-x-full lg:translate-x-0 lg:w-16' : 'translate-x-0 w-64' ]"
+        class="fixed inset-y-0 left-0 z-50 bg-white border-r border-gray-300 transition-all duration-300 md:static"
+        :class="[ isCollapsed ? '-translate-x-full md:translate-x-0 md:w-16' : 'translate-x-0 w-64' ]"
     >
     <div class="flex flex-col h-full overflow-hidden">
         <div :class="[ isCollapsed ? 'justify-center' : 'justify-between']" class="min-h-16! flex items-center border-b border-gray-300 font-bold text-xl cursor-pointer px-4">
