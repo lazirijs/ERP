@@ -7,6 +7,8 @@ import Responses from "./utils/response";
 import Auth from './modules/auth'
 import AuthRoute from "./modules/auth/route"
 import UsersRoute from "./modules/users/route"
+import RolesRoute from "./modules/roles/route"
+import PermissionsRoute from "./modules/permissions/route"
 import ClientsRoute from "./modules/clients/route"
 import ProjectsRoute from "./modules/projects/route"
 import StorageRoute from "./storage/route"
@@ -42,6 +44,8 @@ const app = new Elysia({ adapter: CloudflareAdapter })
 
 .use(AuthRoute)
 .use(UsersRoute)
+.use(RolesRoute)
+.use(PermissionsRoute)
 .use(ClientsRoute)
 .use(ProjectsRoute)
 .use(StorageRoute)

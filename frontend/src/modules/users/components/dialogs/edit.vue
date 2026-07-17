@@ -1,22 +1,37 @@
 <template>
   <el-dialog v-model="dialogModel" :title="$t('editUser')" align-center class="min-w-11/12 md:min-w-1/4! md:max-w-1/4!" @closed="reset()" :before-close="(done: any) => !loadingContainer.includes('submit') && done()">
     <el-form ref="formRef" v-loading="loadingContainer.includes('submit')" :model="formData" :rules="formRules" @submit.prevent="submit()" label-position="top" class="w-full">
-      <div class="size-26 mx-auto my-6 overflow-hidden rounded-full bg-gray-100 border border-gray-200">
+      <!-- <div class="size-26 mx-auto my-6 overflow-hidden rounded-full bg-gray-100 border border-gray-200">
         <img :src="$previewImage({ type: 'avatar' })" class="object-cover size-full" />
-      </div>
+      </div> -->
       <el-form-item :label="$t('name')" prop="name">
           <el-input v-model="formData.name" placeholder="User" />
       </el-form-item>
       <el-form-item :label="$t('email')" prop="email">
           <el-input v-model="formData.email" type="email" placeholder="user@mail.com" />
       </el-form-item>
-      <!-- <el-form-item :label="$t('phone')" prop="phone">
-          <el-input v-model="formData.phone" placeholder="0555555555" />
-      </el-form-item> -->
+      <el-form-item :label="$t('status')" prop="status">
+          <el-select v-model="formData.status" class="w-full">
+              <template #label="{ value }">
+                  <span :class="`badge-app-${ status[value as 0 | 1 | 2].color } p-1!`">{{ $t(status[value as 0 | 1 | 2].label) }}</span>
+              </template>
+              <el-option v-for="s in status" :key="s.id" :label="$t(s.label)" :value="s.id">
+                  <span :class="`badge-app-${ s.color }`">{{ $t(s.label) }}</span>
+              </el-option>
+          </el-select>
+      </el-form-item>
+      <el-form-item :label="$t('role')" prop="role_uid">
+          <el-select v-model="formData.role_uid" clearable filterable :disabled="formData.is_admin" :placeholder="$t('selectRole')" class="w-full">
+              <el-option v-for="role in roles" :key="role.uid" :label="role.name" :value="role.uid" />
+          </el-select>
+      </el-form-item>
+      <el-form-item :label="$t('administrator')" prop="is_admin">
+          <div class="flex items-center gap-2">
+              <el-switch v-model="formData.is_admin" @change="onAdminChange" />
+              <span class="text-xs text-gray-400">{{ $t('adminBypassesPermissions') }}</span>
+          </div>
+      </el-form-item>
       <el-form-item class="mb-0! mt-8">
-          <el-button @click="reset()" text>
-              {{ $t("reset") }}
-          </el-button>
           <div class="ml-auto">
               <el-button @click="close()">
                   {{ $t("close") }}
@@ -34,9 +49,12 @@
 import { ref, reactive } from 'vue';
 import { ElMessage } from 'element-plus';
 import type { FormInstance, FormRules } from 'element-plus'
-import type { UserUpdateBody } from '@/modules/users/type';
+import type { User, UserUpdateBody } from '@/modules/users/type';
+import type { Role } from '@/modules/roles/type';
+import { status } from '@/modules/users/constant';
 import { useI18n } from 'vue-i18n';
 import userApi from '@/modules/users/api';
+import RoleApi from '@/modules/roles/api';
 
 const emit = defineEmits<{ submitted: [] }>();
 
@@ -46,6 +64,13 @@ const loadingContainer = ref<("submit")[]>([]);
 
 const formRef = ref<FormInstance>();
 const dialogModel = ref<boolean>(false);
+
+const roles = ref<Role[]>([]);
+
+// An admin bypasses all permission checks, so a role is redundant — clear it.
+const onAdminChange = (isAdmin: string | number | boolean) => {
+  if (isAdmin) formData.value.role_uid = null;
+};
 
 const formRules = reactive<FormRules>({
   name: [
@@ -62,6 +87,9 @@ const formData = ref<UserUpdateBody>({
   uid: '',
   name: '',
   email: '',
+  role_uid: null,
+  is_admin: false,
+  status: 1,
   created_at: '',
 });
 
@@ -98,11 +126,25 @@ const submit = async (formEl: FormInstance | undefined = formRef.value) => {
   })
 };
 
-defineExpose({
-  open: (data: UserUpdateBody) => {
-    formData.value = data;
-    dialogModel.value = true;
-  },
-  // close: () => close()
-});
+const open = async (data: User) => {
+  dialogModel.value = true;
+  // is_admin comes from the API as 0/1; the switch binds a boolean.
+  formData.value = {
+    uid: data.uid,
+    name: data.name,
+    email: data.email,
+    role_uid: data.role_uid ?? null,
+    is_admin: !!data.is_admin,
+    status: data.status,
+    created_at: data.created_at,
+  };
+  try {
+    const response = await RoleApi.getAll({ take: 100 });
+    roles.value = response.detail.data;
+  } catch {
+    roles.value = [];
+  }
+};
+
+defineExpose({ open });
 </script>

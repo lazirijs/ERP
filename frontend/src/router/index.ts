@@ -44,6 +44,19 @@ const routes: Route[] = [
     ],
   },
   {
+    path: "/roles",
+    meta: {
+      auth: "required",
+    },
+    children: [
+      {
+        path: "list",
+        name: "roles-list",
+        component: () => import("@/modules/roles/view/list.vue")
+      },
+    ],
+  },
+  {
     path: "/clients",
     meta: {
       auth: "required",

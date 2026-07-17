@@ -12,17 +12,28 @@ export default {
     async create(inputs: UserCreateBodyType): Promise<SuccessServiceResponse<undefined>> {
         try {
             const hashPassword = await Services.password.hash(inputs.password || "123456");
-            await database.prepare("INSERT INTO users (name, email, password) VALUES (?, ?, ?)").bind(inputs.name, inputs.email, hashPassword).run();
+            await database
+                .prepare("INSERT INTO users (name, email, password, role_uid, is_admin, status) VALUES (?, ?, ?, ?, ?, ?)")
+                .bind(inputs.name, inputs.email, hashPassword, inputs.role_uid || null, inputs.is_admin ? 1 : 0, inputs.status ?? 1)
+                .run();
             return Responses.service.handler.success();
         } catch (error) {
             throw Responses.service.handler.error(error);
         }
     },
-    
+
     async getByUid(uid: UserType["uid"]): Promise<SuccessServiceResponse<UserSafeType>> {
         try {
-            const result = await database.prepare("SELECT uid, name, email, created_at FROM users WHERE uid = ?").bind(uid).first();
+            const result = await database.prepare(`
+                SELECT
+                    u.uid, u.name, u.email, u.role_uid, u.is_admin, u.status, u.created_at,
+                    CASE WHEN u.role_uid IS NOT NULL THEN json_object('uid', r.uid, 'name', r.name) END AS role
+                FROM users u
+                LEFT JOIN roles r ON u.role_uid = r.uid
+                WHERE u.uid = ?
+            `).bind(uid).first();
             if (!result) throw Responses.service.handler.error("User not found", 404);
+            result.role = result.role ? JSON.parse(result.role as string) : null;
             return Responses.service.handler.success(result as UserSafeType);
         } catch (error) {
             if(Responses.schema.data.check(error)) throw error;
@@ -38,10 +49,18 @@ export default {
             // console.log(inputs);
 
             const waitList = Object.keys(Schema.data.value.properties);
-            
-            const from = "FROM users";
 
-            const query: string[] = ["SELECT uid, name, email, created_at", from];
+            const from = `
+                FROM users u
+                LEFT JOIN roles r ON u.role_uid = r.uid
+            `;
+
+            const query: string[] = [`
+                SELECT
+                    u.uid, u.name, u.email, u.role_uid, u.is_admin, u.status, u.created_at,
+                    CASE WHEN u.role_uid IS NOT NULL THEN json_object('uid', r.uid, 'name', r.name) END AS role
+                ${ from }
+            `];
             let orderBy: string;
             let result;
 
@@ -49,10 +68,13 @@ export default {
                 searchText: inputs.searchText,
                 filters: inputs.filters,
                 columns: {
-                    name: { searchText: 'name', values: 'name' },
-                    email: { searchText: 'email', values: 'email' },
-                    created_at: { searchText: 'created_at', values: 'created_at' }
-                }
+                    name: { searchText: 'u.name', values: 'u.name' },
+                    email: { searchText: 'u.email', values: 'u.email' },
+                    status: { searchText: 'u.status', values: 'u.status' },
+                    'role.name': { searchText: 'r.name', values: 'u.role_uid' },
+                    created_at: { searchText: 'u.created_at', values: 'u.created_at' }
+                },
+                excludeColumnsFromSearchText: [...(inputs.excludeColumnsFromSearchText || []), 'status']
             });
 
             query.push(...conditions);
@@ -60,7 +82,8 @@ export default {
             if (inputs.sort?.length) {
                 const { selector, desc } = inputs.sort[0]!;
                 if(!waitList.includes(selector)) throw Responses.service.handler.error("Invalid sort field: " + selector, 400);
-                orderBy = `ORDER BY ${ selector } ${ desc ? "DESC" : "ASC" }`;
+                const sortCol = selector === "role" ? "r.name" : `u.${ selector }`;
+                orderBy = `ORDER BY ${ sortCol } ${ desc ? "DESC" : "ASC" }`;
                 query.push(orderBy);
             }
 
@@ -69,6 +92,7 @@ export default {
 
             const prepare = database.prepare(query.join(" "));
             result = binds.length ? await prepare.bind(...binds).run() : await prepare.run();
+            result.results = (result.results as any[]).map(row => ({ ...row, role: row.role ? JSON.parse(row.role) : null }));
 
             let countResult = { count: -1 };
             if(inputs.requireTotalCount) {
@@ -93,7 +117,10 @@ export default {
 
     async update(inputs: UserUpdateBodyType): Promise<SuccessServiceResponse<undefined>> {
         try {
-            await database.prepare("UPDATE users SET name = ?, email = ? WHERE uid = ?").bind(inputs.name, inputs.email, inputs.uid).run();
+            await database
+                .prepare("UPDATE users SET name = ?, email = ?, role_uid = ?, is_admin = ?, status = ? WHERE uid = ?")
+                .bind(inputs.name, inputs.email, inputs.role_uid || null, inputs.is_admin ? 1 : 0, inputs.status ?? 1, inputs.uid)
+                .run();
             return Responses.service.handler.success();
         } catch (error) {
             throw Responses.service.handler.error(error);

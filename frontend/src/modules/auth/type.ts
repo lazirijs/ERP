@@ -1,4 +1,4 @@
-import type { User, UserUpdateBody } from "../users/type";
+import type { User } from "../users/type";
 
 export interface LoginBody {
   email: string;
@@ -9,7 +9,14 @@ export interface Profile extends User {
   permissions: string[];
 }
 
-export type ProfileUpdateBody = UserUpdateBody;
+// Self-service profile edits never carry role_uid / is_admin — those are admin-only
+// (set via the users module), so this stays a narrow, safe subset.
+export interface ProfileUpdateBody {
+  uid: string;
+  name: string;
+  email: string;
+  created_at?: string;
+}
 
 export interface ChangePasswordBody {
   currentPassword: string;

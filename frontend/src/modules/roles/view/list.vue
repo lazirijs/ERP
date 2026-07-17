@@ -27,27 +27,26 @@
                 </el-icon>
             </el-button>
         </div>
-        <create-dialog-app ref="createDialogRef" @submitted="dataGridRef?.instance?.refresh()" />
-        <edit-dialog-app ref="editDialogRef" @submitted="dataGridRef?.instance?.refresh()" />
         <div class="flex-1 min-h-0 min-w-0">
             <data-grid-app
                 ref="dataGridRef"
                 :config="dataGridConfig"
-                :columns="dataGridConfig.columns"
-                @row-click="editDialogRef?.open($event.data)"
+                @row-click="editDialogRef?.open($event.data.uid)"
             />
         </div>
+        <create-dialog-app ref="createDialogRef" @submitted="dataGridRef?.instance?.refresh()" />
+        <edit-dialog-app ref="editDialogRef" @submitted="dataGridRef?.instance?.refresh()" />
     </container-app>
 </template>
 
 <script setup lang="ts">
 import { ref } from 'vue';
 import { useI18n } from 'vue-i18n';
-import UserApi from '@/modules/users/api';
+import RoleApi from '@/modules/roles/api';
+import CreateDialogApp from '@/modules/roles/components/dialogs/create.vue';
+import EditDialogApp from '@/modules/roles/components/dialogs/edit.vue';
+
 import formatter from '@/services/formatter';
-import CreateDialogApp from '@/modules/users/components/dialogs/create.vue';
-import EditDialogApp from '@/modules/users/components/dialogs/edit.vue';
-import { status } from '@/modules/users/constant';
 import type { DataGridAppRef, DataGridPropsConfig } from '@/components/devextreme/datagrid/type';
 
 const { t } = useI18n();
@@ -71,27 +70,13 @@ const toggleFilterRowVisibility = () => {
 const dataGridConfig = ref<DataGridPropsConfig>({
     dataSource: {
         key: 'uid',
-        api: UserApi.getAll
+        api: async (query) => await RoleApi.getAll(query)
     },
     headerFilter: { visible: true },
     columns: [
         { dataField: 'name', caption: t('name'), allowHeaderFiltering: false },
-        { dataField: 'email', caption: t('email'), allowHeaderFiltering: false },
-        { dataField: 'role.name', caption: t('role'), allowHeaderFiltering: false, allowSorting: false, customizeText: ({ value }) => value || t('noRole') },
-        {
-            dataField: 'status', caption: t('status'), alignment: 'center', allowHeaderFiltering: true, allowFiltering: false,
-            cellTemplate: (container: HTMLElement, options: { value: 0 | 1 | 2 }) => {
-                const { label, color } = status[options.value];
-                container.innerHTML = `<span class="badge-app-${ color }">${ t(label) }</span>`;
-            },
-            headerFilter: { dataSource: Object.values(status).map(i => ({ value: i.id, text: t(i.label) })) }
-        },
-        {
-            dataField: 'is_admin', caption: t('administrator'), alignment: 'center', allowHeaderFiltering: false, allowFiltering: false,
-            cellTemplate: (container: HTMLElement, options: { value: 0 | 1 }) => {
-                container.innerHTML = options.value ? `<span class="badge-app-green">${ t('yes') }</span>` : `<span class="text-gray-400">${ t('no') }</span>`;
-            }
-        },
+        { dataField: 'description', caption: t('description'), allowHeaderFiltering: false, allowSorting: false },
+        { dataField: 'permissions_count', caption: t('permissions'), alignment: 'center', allowHeaderFiltering: false, allowFiltering: false },
         { dataField: 'created_at', caption: t('createdAt'), ...formatter.devextreme.datetime, sortOrder: 'desc', allowHeaderFiltering: false }
     ]
 });
