@@ -44,7 +44,7 @@
           <el-icon :size="18"><component :is="item.icon" /></el-icon>
         </div>
         <span class="flex-1 text-sm font-medium text-gray-700 capitalize">
-          {{ item.name }}
+          {{ $t(item.name) }}
         </span>
         <el-icon class="text-gray-300 opacity-0 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all">
           <el-icon-arrow-right />

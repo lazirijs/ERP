@@ -19,7 +19,7 @@
                 <dx-series value-field="revenue" :name="$t('reportsRevenue')" :color="palette.blue" />
                 <dx-series value-field="cogs" :name="$t('reportsCogs')" :color="palette.orange" />
                 <dx-series value-field="profit" :name="$t('reportsProfit')" :color="palette.green" />
-                <dx-argument-axis argument-type="datetime" :min-tick-interval="{ days: 1 }" :label="{ format: 'MMM dd' }" />
+                <dx-argument-axis argument-type="datetime" :label="{ format: 'MMM dd' }" />
                 <dx-value-axis :label="{ customizeText: valueAxisText }" />
                 <dx-legend vertical-alignment="top" horizontal-alignment="right" />
                 <dx-tooltip :enabled="true" :shared="true" :customize-tooltip="currencyTooltip" />

@@ -18,7 +18,7 @@
                 <dx-common-series-settings argument-field="date" type="bar" :bar-padding="0.3" />
                 <dx-series value-field="amount_in" :name="$t('reportsAmountIn')" :color="palette.green" />
                 <dx-series value-field="amount_out" :name="$t('reportsAmountOut')" :color="palette.red" />
-                <dx-argument-axis argument-type="datetime" :min-tick-interval="{ days: 1 }" :label="{ format: 'MMM dd' }" />
+                <dx-argument-axis argument-type="datetime" :label="{ format: 'MMM dd' }" />
                 <dx-value-axis :label="{ customizeText: valueAxisText }" />
                 <dx-legend vertical-alignment="top" horizontal-alignment="right" />
                 <dx-tooltip :enabled="true" :shared="true" :customize-tooltip="currencyTooltip" />

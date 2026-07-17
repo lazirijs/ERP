@@ -18,7 +18,7 @@
                 <dx-common-series-settings argument-field="date" type="stackedbar" :bar-padding="0.3" />
                 <dx-series value-field="present" :name="$t('reportsPresent')" :color="palette.blue" />
                 <dx-series value-field="absent" :name="$t('reportsAbsent')" :color="palette.orange" />
-                <dx-argument-axis argument-type="datetime" :min-tick-interval="{ days: 1 }" :label="{ format: 'MMM dd' }" />
+                <dx-argument-axis argument-type="datetime" :label="{ format: 'MMM dd' }" />
                 <dx-legend vertical-alignment="top" horizontal-alignment="right" />
                 <dx-tooltip :enabled="true" :shared="true" />
             </dx-chart>
