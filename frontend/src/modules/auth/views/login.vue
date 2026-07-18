@@ -52,8 +52,8 @@ const rulesAddUser = reactive<FormRules<LoginBody>>({
 });
 
 const formData = ref<LoginBody>({
-  email: '',
-  password: '',
+  email: 'user@mail.com',
+  password: '123456',
 });
 
 const login = async (formEl: FormInstance | undefined = ruleFormRef.value) => {
