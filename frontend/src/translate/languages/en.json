@@ -368,7 +368,7 @@
   "reportsEmployeesCountHint": "{count} employees",
   "reportsAttendanceOverTime": "Attendance over time",
   "reportsByTeam": "By team",
-  "loginCredentialsFilled": "Login credentials are already filled.",
+  "loginCredentialsFilled": "Login credentials are already filled (don't use incognito mode).",
   "loginDevelopmentNote": "The project is still under development, however, we would like you to try it.",
   "hereAQuickOverviewOfEverythingYouHaveAccessToAs": "Here's a quick overview of everything you have access to as",
   "noModulesFound": "No modules found",

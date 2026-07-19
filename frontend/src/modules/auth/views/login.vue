@@ -67,8 +67,11 @@ const login = async (formEl: FormInstance | undefined = ruleFormRef.value) => {
       try {
         loading.value = true;
         const result = await authApi.login(formData.value);
-        authStore.login(result.detail);
-        ElMessage.success(t('userLoggedSuccessfully'));
+        if (result.success) {
+          const profile = await authApi.profile();
+          authStore.login(profile.detail);
+          ElMessage.success(t('userLoggedSuccessfully'));
+        }
       } catch (error: any) {
         const errorMessage = error?.detail?.message || t("failedToLogin");
         ElMessage.error(errorMessage);

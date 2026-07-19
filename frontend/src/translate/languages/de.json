@@ -368,7 +368,7 @@
   "reportsEmployeesCountHint": "{count} Mitarbeiter",
   "reportsAttendanceOverTime": "Anwesenheit im Zeitverlauf",
   "reportsByTeam": "Nach Team",
-  "loginCredentialsFilled": "Anmeldedaten sind bereits ausgefüllt.",
+  "loginCredentialsFilled": "Anmeldedaten sind bereits ausgefüllt (verwenden Sie nicht den Inkognito-Modus).",
   "loginDevelopmentNote": "Das Projekt befindet sich noch in der Entwicklung, jedoch möchten wir, dass Sie es ausprobieren.",
   "hereAQuickOverviewOfEverythingYouHaveAccessToAs": "Hier ist eine kurze Übersicht über alles, auf das Sie Zugriff haben als",
   "noModulesFound": "Keine Module gefunden",

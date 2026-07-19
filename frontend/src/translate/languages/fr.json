@@ -368,7 +368,7 @@
   "reportsEmployeesCountHint": "{count} employés",
   "reportsAttendanceOverTime": "Présence dans le temps",
   "reportsByTeam": "Par équipe",
-  "loginCredentialsFilled": "Les identifiants de connexion sont déjà remplis.",
+  "loginCredentialsFilled": "Les identifiants de connexion sont déjà remplis (n'utilisez pas le mode navigation privée).",
   "loginDevelopmentNote": "Le projet est encore en développement, mais nous aimerions que vous l'essayiez.",
   "hereAQuickOverviewOfEverythingYouHaveAccessToAs": "Voici un aperçu rapide de tout ce que vous avez accès en tant que",
   "noModulesFound": "Aucun module trouvé",
