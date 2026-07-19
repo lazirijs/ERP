@@ -1,11 +1,12 @@
 import { currency } from "@/constants";
 
 export default {
-  currency: (value?: number | string, useCurrencyCode = true) => {
+  currency: (value?: number | string, useCurrencyCode = true, decimalNumbersValue: number = 2) => {
     if (!value) value = 0;
     const num = Number(value);
     if (isNaN(num)) return '';
-    return `${num}`.replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + (useCurrencyCode ? ` ${currency}` : '');
+    const decimalNumbers = num.toFixed(decimalNumbersValue);
+    return `${decimalNumbers}`.replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + (useCurrencyCode ? ` ${currency}` : '');
   },
   number: (value: string, isInteger: boolean = false): number => {
     if (!value) return 0;
