@@ -1,14 +1,15 @@
 /* eslint-disable prettier/prettier */
 import { createI18n } from "vue-i18n";
-import fr from "@/translate/languages/fr.json";
-import en from "@/translate/languages/en.json";
 import ar from "@/translate/languages/ar.json";
+import en from "@/translate/languages/en.json";
+import fr from "@/translate/languages/fr.json";
+import de from "@/translate/languages/de.json";
 
 const i18n = createI18n({
   legacy: false,
-  locale: localStorage.locale || "fr",
+  locale: localStorage.locale || "en",
   globalInjection: true,
-  messages: { fr, en, ar },
+  messages: { en, ar, fr, de },
 });
 
 export const t = i18n.global.t;

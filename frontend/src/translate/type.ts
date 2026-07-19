@@ -1,4 +1,4 @@
-export type LanguagesCode = "en" | "ar" | "fr";
+export type LanguagesCode = "en" | "ar" | "fr" | "de";
 
 export type LanguagesApps = "app" | "devextreme" | "elementPlus";
 

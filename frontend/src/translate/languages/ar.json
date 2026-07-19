@@ -367,5 +367,13 @@
   "reportsSessionsCount": "الجلسات",
   "reportsEmployeesCountHint": "{count} موظف",
   "reportsAttendanceOverTime": "الحضور عبر الزمن",
-  "reportsByTeam": "حسب الفريق"
+  "reportsByTeam": "حسب الفريق",
+  "loginCredentialsFilled": "تم ملء بيانات تسجيل الدخول بالفعل.",
+  "loginDevelopmentNote": "المشروع لا يزال قيد التطوير، ولكن نود أن تجربه.",
+  "hereAQuickOverviewOfEverythingYouHaveAccessToAs": "إليك نظرة سريعة على كل ما لديك الوصول إليه كـ",
+  "noModulesFound": "لم يتم العثور على وحدات",
+  "tryDifferentSearchTerm": "جرّب مصطلح بحث مختلف.",
+  "goodMorning": "صباح الخير",
+  "goodAfternoon": "مساء الخير",
+  "goodEvening": "مساء الخير"
 }

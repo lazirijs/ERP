@@ -4,16 +4,16 @@
     <div class="flex flex-wrap items-start justify-between gap-6 mb-10">
       <div>
         <h1 class="text-2xl font-bold text-gray-900 tracking-tight mb-1">
-          Good {{ timeOfDay }}, {{ $authStore().profile?.name }} 👋
+          {{ $t(timeOfDay || "goodMorning") }}, {{ $authStore().profile?.name }}
         </h1>
         <p class="w-3/4 md:w-full text-sm text-gray-500">
-          Here's a quick overview of everything you have access to as {{ $authStore().profile?.is_admin ? $t("admin"): $authStore().profile?.role?.name }}.
+          {{ $t("hereAQuickOverviewOfEverythingYouHaveAccessToAs") }} <span class="first-letter:uppercase">{{ $authStore().profile?.is_admin ? $t("admin"): $authStore().profile?.role?.name }}</span>.
         </p>
       </div>
       <div class="w-full md:w-56">
         <el-input
           v-model="search"
-          placeholder="Search modules..."
+          :placeholder="$t('search')"
           clearable
         >
           <template #prefix>
@@ -29,8 +29,8 @@
       class="flex flex-col items-center justify-center py-20 gap-2 text-gray-400"
     >
       <el-icon :size="40" class="opacity-30 mb-2"><el-icon-search /></el-icon>
-      <p class="text-base font-medium text-gray-600">No modules found</p>
-      <p class="text-sm">Try a different search term.</p>
+      <p class="text-base font-medium text-gray-600">{{ $t("noModulesFound") }}</p>
+      <p class="text-sm">{{ $t("tryDifferentSearchTerm") }}</p>
     </div>
 
     <!-- Modules grid -->
@@ -62,9 +62,9 @@ const search = ref('');
 
 const timeOfDay = computed(() => {
   const h = new Date().getHours()
-  if (h < 12) return 'morning'
-  if (h < 18) return 'afternoon'
-  return 'evening'
+  if (h < 12) return 'goodMorning'
+  if (h < 18) return 'goodAfternoon'
+  return 'goodEvening'
 })
 
 const filteredMenuItems = computed(() => {
