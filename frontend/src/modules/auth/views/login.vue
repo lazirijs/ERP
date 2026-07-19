@@ -1,6 +1,6 @@
 <template>
   <container-app type="fixed">
-    <div class="md:h-screen w-full flex items-center justify-center md:max-w-1/4! mx-auto">
+    <div class="md:h-screen w-full flex flex-col items-center justify-center md:max-w-1/4! mx-auto">
       <el-form v-loading="loading" ref="ruleFormRef" class="w-full bg-white space-y-8 p-4 border border-gray-200 rounded-lg" label-position="top" :model="formData" :rules="rulesAddUser" @submit.prevent="login()">
         <div class="relative group size-24 mt-4 mx-auto rounded-full bg-gray-100 border border-gray-200 flex items-center justify-center">
           <el-icon size="2rem">
@@ -19,6 +19,10 @@
           {{ $t("login") }}
         </el-button>
       </el-form>
+      <p class="w-full bg-white border border-gray-200 text-gray-500 text-xs text-center p-2 m-2 rounded">
+        <strong class="mr-1">{{ $t("loginCredentialsFilled") }}</strong>
+        <br class="hidden sm:block">{{ $t("loginDevelopmentNote") }}
+      </p>
     </div>
   </container-app>
 </template>
