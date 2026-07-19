@@ -20,8 +20,8 @@
         </el-button>
       </el-form>
       <p class="w-full bg-white border border-gray-200 text-gray-500 text-xs text-center p-2 m-2 rounded">
-        <strong class="mr-1">{{ $t("loginCredentialsFilled") }}</strong>
-        <br class="hidden sm:block">{{ $t("loginDevelopmentNote") }}
+        <strong>{{ $t("loginCredentialsFilled") }}</strong>
+        {{ $t("loginDevelopmentNote") }}
       </p>
     </div>
   </container-app>

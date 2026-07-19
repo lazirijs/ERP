@@ -1,4 +1,4 @@
-export const currency = 'DZD';
+export const currency = '€';
 
 export default {
     currency
