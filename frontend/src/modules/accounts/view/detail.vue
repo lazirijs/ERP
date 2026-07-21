@@ -7,7 +7,7 @@
             <el-button @click="$router.back()" text class="m-0!">
               <el-icon><el-icon-arrow-left /></el-icon>
             </el-button>
-            <span>{{ $t('generalInfo') }}</span>
+            <span class="truncate">{{ $t('generalInfo') }}</span>
             <el-button @click="editDialogRef?.open()" text class="m-0!">
               <el-icon><el-icon-edit /></el-icon>
             </el-button>
@@ -30,9 +30,9 @@
         </div>
       </el-card>
       <div class="col-span-1 md:col-span-3 flex-1 space-y-app">
-        <el-tabs v-model="tab" type="border-card">
+        <el-tabs type="border-card" :default-value="$route.query.tab || 'transactions'" @tab-change="$router.replace({ query: { tab: $event } })">
           <el-tab-pane :label="$t('transactions')" name="transactions">
-            <transaction-list-app v-if="tab === 'transactions'" :view="{ type: 'account', data: formData }" />
+            <transaction-list-app v-if="$route.query.tab === 'transactions'" :view="{ type: 'account', data: formData }" />
           </el-tab-pane>
         </el-tabs>
       </div>
@@ -53,8 +53,6 @@ import TransactionListApp from '@/modules/transactions/view/list.vue';
 const route = useRoute();
 
 const loadingContainer = ref<('detail')[]>([]);
-
-const tab = ref('transactions');
 
 const editDialogRef = ref<InstanceType<typeof EditDialogApp>>();
 

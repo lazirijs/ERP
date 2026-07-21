@@ -39,12 +39,12 @@
         </div>
       </el-card>
       <div class="col-span-1 md:col-span-3 flex-1 space-y-app">
-        <el-tabs v-model="tab" type="border-card">
+        <el-tabs type="border-card" :default-value="$route.query.tab || 'projects'" @tab-change="$router.replace({ query: { tab: $event } })">
           <el-tab-pane :label="$t('projects')" name="projects">
-            <projects-list-app v-if="tab === 'projects'" :view="{ type: 'client', data: formData }" @updated="load()" />
+            <projects-list-app v-if="$route.query.tab === 'projects' || !$route.query.tab" :view="{ type: 'client', data: formData }" @updated="load()" />
           </el-tab-pane>
           <el-tab-pane :label="$t('sales')" name="sales">
-            <sales-list-app v-if="tab === 'sales'" :view="{ type: 'client', data: formData }" @updated="load()" />
+            <sales-list-app v-if="$route.query.tab === 'sales'" :view="{ type: 'client', data: formData }" @updated="load()" />
           </el-tab-pane>
         </el-tabs>
       </div>
@@ -65,8 +65,6 @@ import ProjectsListApp from '@/modules/projects/view/list.vue';
 const route = useRoute();
 
 const loadingContainer = ref<('detail')[]>([]);
-
-const tab = ref('projects');
 
 const editDialogRef = ref<InstanceType<typeof EditDialogApp>>();
 

@@ -3,7 +3,7 @@ import DataGridSchema from "../../utils/devextreme/datagrid/schema";
 
 const createBody = t.Object({
     name: t.String({ minLength: 1, maxLength: 50 }),
-    supervisor_uid: t.String({ minLength: 16, maxLength: 16 })
+    supervisor_uid: t.String({ minLength: 32, maxLength: 32 })
 });
 
 const team = t.Object({

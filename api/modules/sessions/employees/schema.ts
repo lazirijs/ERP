@@ -4,9 +4,9 @@ import DataGridSchema from "../../../utils/devextreme/datagrid/schema";
 const status = t.Union([t.Literal(0), t.Literal(1)]);
 
 const createBody = t.Object({
-    session_uid: t.String({ minLength: 16, maxLength: 16 }),
-    employee_uid: t.String({ minLength: 16, maxLength: 16 }),
-    team_uid: t.Optional(t.Union([t.String({ minLength: 16, maxLength: 16 }), t.Null()])),
+    session_uid: t.String({ minLength: 32, maxLength: 32 }),
+    employee_uid: t.String({ minLength: 32, maxLength: 32 }),
+    team_uid: t.Optional(t.Union([t.String({ minLength: 32, maxLength: 32 }), t.Null()])),
     status,
     note: t.Optional(t.Union([ t.Literal(""), t.String({ minLength: 3, maxLength: 255 }) ]))
 });
@@ -37,10 +37,10 @@ const getAllQuery = t.Object({
 });
 
 const batchBody = t.Object({
-    session_uid: t.String({ minLength: 16, maxLength: 16 }),
+    session_uid: t.String({ minLength: 32, maxLength: 32 }),
     rows: t.Array(t.Object({
-        employee_uid: t.String({ minLength: 16, maxLength: 16 }),
-        team_uid: t.Optional(t.Union([t.String({ minLength: 16, maxLength: 16 }), t.Null()])),
+        employee_uid: t.String({ minLength: 32, maxLength: 32 }),
+        team_uid: t.Optional(t.Union([t.String({ minLength: 32, maxLength: 32 }), t.Null()])),
         status,
         note: t.Optional(t.Union([ t.Literal(""), t.String({ minLength: 3, maxLength: 255 }) ]))
     }))

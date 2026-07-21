@@ -29,9 +29,9 @@
         </div>
       </el-card>
       <div class="col-span-1 md:col-span-3 flex-1 space-y-app">        
-        <el-tabs v-model="tab" type="border-card">
+        <el-tabs type="border-card" :default-value="$route.query.tab || 'employees'" @tab-change="$router.replace({ query: { tab: $event } })">
           <el-tab-pane :label="$t('employees')" name="employees">
-            <div v-if="tab === 'employees'" class="grid gap-app">
+            <div v-if="$route.query.tab === 'employees' || !$route.query.tab" class="grid gap-app">
               <div class="flex justify-between items-center gap-app">
                 <div class="flex items-center gap-2">
                     <el-input v-model="search" @input="onSearchChange" dir="auto" :placeholder="$t('search')" class="md:w-75!">
@@ -96,7 +96,6 @@ const route = useRoute();
 
 const loadingContainer = ref<('detail')[]>(['detail']);
 
-const tab = ref('employees');
 const dataGridRef = ref<DataGridAppRef>();
 
 const editDialogRef = ref<InstanceType<typeof EditDialogApp>>();

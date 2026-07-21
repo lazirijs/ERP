@@ -4,7 +4,7 @@ import DataGridSchema from "../../utils/devextreme/datagrid/schema";
 const createBody = t.Object({
     name: t.String({ minLength: 1, maxLength: 50 }),
     status: t.Union([ t.Literal(0), t.Literal(1), t.Literal(2), t.Literal(3) ]),
-    team_uid: t.Nullable(t.String({ minLength: 16, maxLength: 16 }))
+    team_uid: t.Nullable(t.String({ minLength: 32, maxLength: 32 }))
 });
 
 const employee = t.Object({
@@ -34,7 +34,7 @@ const updateBody = t.Object({
 
 const setTeam = t.Object({
     uid: employee.properties.uid,
-    team_uid: t.Nullable(t.String({ minLength: 16, maxLength: 16 }))
+    team_uid: t.Nullable(t.String({ minLength: 32, maxLength: 32 }))
 });
 
 const uploadDocumentBody = t.Object({

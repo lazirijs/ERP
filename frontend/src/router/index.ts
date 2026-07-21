@@ -36,11 +36,6 @@ const routes: Route[] = [
         name: "users-list",
         component: () => import("@/modules/users/views/list.vue")
       },
-      {
-        path: "detail/:uid",
-        name: "users-detail",
-        component: () => import("@/modules/users/views/detail.vue")
-      },
     ],
   },
   {

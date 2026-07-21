@@ -2,8 +2,8 @@ import { t } from "elysia";
 import DataGridSchema from "../../../utils/devextreme/datagrid/schema";
 
 const createBody = t.Object({
-    sale_uid: t.String({ minLength: 16, maxLength: 16 }),
-    product_uid: t.String({ minLength: 16, maxLength: 16 }),
+    sale_uid: t.String({ minLength: 32, maxLength: 32 }),
+    product_uid: t.String({ minLength: 32, maxLength: 32 }),
     price: t.Number({ minimum: 0 }),
     quantity: t.Number({ minimum: 1 }),
     note: t.Optional(t.Union([ t.Literal(""), t.String({ minLength: 3, maxLength: 255 }) ]))
@@ -43,9 +43,9 @@ const updateBody = t.Object({
 });
 
 const batchBody = t.Object({
-    sale_uid: t.String({ minLength: 16, maxLength: 16 }),
+    sale_uid: t.String({ minLength: 32, maxLength: 32 }),
     rows: t.Array(t.Object({
-        product_uid: t.String({ minLength: 16, maxLength: 16 }),
+        product_uid: t.String({ minLength: 32, maxLength: 32 }),
         price: t.Number({ minimum: 0 }),
         quantity: t.Number({ minimum: 1 }),
         note: t.Optional(t.Union([ t.Literal(""), t.String({ minLength: 3, maxLength: 255 }) ]))

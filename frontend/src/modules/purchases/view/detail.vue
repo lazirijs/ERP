@@ -7,7 +7,7 @@
             <el-button @click="$router.back()" text class="m-0!">
               <el-icon><el-icon-arrow-left /></el-icon>
             </el-button>
-            <span>{{ $t('generalInfo') }}</span>
+            <span class="truncate">{{ $t('generalInfo') }}</span>
             <el-button @click="editDialogRef?.open()" text class="m-0!">
               <el-icon><el-icon-edit /></el-icon>
             </el-button>
@@ -47,15 +47,15 @@
         </div>
       </el-card>
       <div class="col-span-1 md:col-span-3 flex-1 space-y-app">
-        <el-tabs v-model="tab" type="border-card">
+        <el-tabs type="border-card" :default-value="$route.query.tab || 'items'" @tab-change="$router.replace({ query: { tab: $event } })">
           <el-tab-pane :label="$t('items')" name="items">
-            <purchase-items-list-app v-if="tab === 'items'" :view="{ type: 'purchase', data: formData }" @updated="load()" />
+            <purchase-items-list-app v-if="$route.query.tab === 'items' || !$route.query.tab" :view="{ type: 'purchase', data: formData }" @updated="load()" />
           </el-tab-pane>
           <el-tab-pane :label="$t('expenses')" name="transactions">
-            <transaction-list-app v-if="tab === 'transactions'" :view="{ type: 'purchase', data: formData }" @updated="load()" />
+            <transaction-list-app v-if="$route.query.tab === 'transactions'" :view="{ type: 'purchase', data: formData }" @updated="load()" />
           </el-tab-pane>
           <el-tab-pane :label="$t('documents')" name="documents">
-            <documents-tab v-if="tab === 'documents'" :uid="formData.uid" />
+            <documents-tab v-if="$route.query.tab === 'documents'" :uid="formData.uid" />
           </el-tab-pane>
         </el-tabs>
       </div>
@@ -79,7 +79,6 @@ import TransactionListApp from '@/modules/transactions/view/list.vue';
 const route = useRoute();
 
 const loadingContainer = ref<('detail')[]>([]);
-const tab = ref('items');
 
 const editDialogRef = ref<InstanceType<typeof EditDialogApp>>();
 

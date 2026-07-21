@@ -7,7 +7,7 @@
             <el-button @click="$router.back()" text class="m-0!">
               <el-icon><el-icon-arrow-left /></el-icon>
             </el-button>
-            <span>{{ $t('generalInfo') }}</span>
+            <span class="truncate">{{ $t('generalInfo') }}</span>
             <el-button @click="editDialogRef?.open()" text class="m-0!">
               <el-icon><el-icon-edit /></el-icon>
             </el-button>
@@ -43,18 +43,18 @@
         </div>
       </el-card>
       <div class="col-span-1 md:col-span-3 flex-1 space-y-app">
-        <el-tabs v-model="tab" type="border-card">
+        <el-tabs type="border-card" :default-value="$route.query.tab || 'sales'" @tab-change="$router.replace({ query: { tab: $event } })">
           <el-tab-pane :label="$t('sales')" name="sales">
-            <sales-items-list-app v-if="tab === 'sales'" :view="{ type: 'product', data: formData }" @row-click="$" />
+            <sales-items-list-app v-if="$route.query.tab === 'sales' || !$route.query.tab" :view="{ type: 'product', data: formData }" @row-click="$" />
           </el-tab-pane>
           <el-tab-pane :label="$t('purchases')" name="purchases">
-            <purchase-items-list-app v-if="tab === 'purchases'" :view="{ type: 'product', data: formData }" @row-click="$router.push({ name: 'purchases-detail', params: { uid: $event.data.purchase.uid } })" />
+            <purchase-items-list-app v-if="$route.query.tab === 'purchases'" :view="{ type: 'product', data: formData }" @row-click="$router.push({ name: 'purchases-detail', params: { uid: $event.data.purchase.uid } })" />
           </el-tab-pane>
           <el-tab-pane :label="$t('suppliers')" name="suppliers">
-            <suppliers-list-app v-if="tab === 'suppliers'" :view="{ type: 'product', data: formData }" @row-click="$router.push({ name: 'suppliers-detail', params: { uid: $event.data.uid } })" />
+            <suppliers-list-app v-if="$route.query.tab === 'suppliers'" :view="{ type: 'product', data: formData }" @row-click="$router.push({ name: 'suppliers-detail', params: { uid: $event.data.uid } })" />
           </el-tab-pane>
           <el-tab-pane :label="$t('images')" name="images">
-            <images-gallery-tab v-if="tab === 'images'" :uid="formData.uid" :image="formData.image" @changed="load()" />
+            <images-gallery-tab v-if="$route.query.tab === 'images'" :uid="formData.uid" :image="formData.image" @changed="load()" />
           </el-tab-pane>
         </el-tabs>
       </div>
@@ -78,8 +78,6 @@ import ImagesGalleryTab from '@/modules/products/components/images-gallery.vue';
 const route = useRoute();
 
 const loadingContainer = ref<('detail')[]>([]);
-
-const tab = ref<'sales' | 'purchases' | 'suppliers' | 'images'>('sales');
 
 const editDialogRef = ref<InstanceType<typeof EditDialogApp>>();
 

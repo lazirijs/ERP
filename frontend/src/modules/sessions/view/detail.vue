@@ -7,7 +7,7 @@
             <el-button @click="$router.back()" text class="m-0!">
               <el-icon><el-icon-arrow-left /></el-icon>
             </el-button>
-            <span>{{ $t('generalInfo') }}</span>
+            <span class="truncate">{{ $t('generalInfo') }}</span>
             <el-button @click="onEdit" text class="m-0!">
               <el-icon><el-icon-edit /></el-icon>
             </el-button>
@@ -38,9 +38,9 @@
         </div>
       </el-card>
       <div class="col-span-1 md:col-span-3 flex-1 space-y-app">
-        <el-tabs v-model="tab" type="border-card">
+        <el-tabs type="border-card" :default-value="$route.query.tab || 'employees'" @tab-change="$router.replace({ query: { tab: $event } })">
           <el-tab-pane :label="$t('employees')" name="employees">
-            <session-employees-list v-if="tab === 'employees'" :session="formData" :hideCreate="!editable" @updated="load()" />
+            <session-employees-list v-if="$route.query.tab === 'employees' || !$route.query.tab" :session="formData" :hideCreate="!editable" @updated="load()" />
           </el-tab-pane>
         </el-tabs>
       </div>
@@ -65,8 +65,6 @@ const { t } = useI18n();
 const route = useRoute();
 
 const loadingContainer = ref<('detail')[]>(['detail']);
-
-const tab = ref('employees');
 
 const editDialogRef = ref<InstanceType<typeof EditDialogApp>>();
 
