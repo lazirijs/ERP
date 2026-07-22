@@ -369,7 +369,7 @@
   "reportsAttendanceOverTime": "Présence dans le temps",
   "reportsByTeam": "Par équipe",
   "loginCredentialsFilled": "Les identifiants de connexion sont déjà remplis (n'utilisez pas le mode navigation privée).",
-  "loginDevelopmentNote": "Le projet est encore en développement, mais nous aimerions que vous l'essayiez.",
+  "loginDevelopmentNote": "Le projet est encore en développement, mais <a href='https://www.linkedin.com/in/laziriamar/' target='_blank' class='font-bold text-blue-500'>je</a> voudrais que vous l'essayiez.",
   "hereAQuickOverviewOfEverythingYouHaveAccessToAs": "Voici un aperçu rapide de tout ce que vous avez accès en tant que",
   "noModulesFound": "Aucun module trouvé",
   "tryDifferentSearchTerm": "Essayez un autre terme de recherche.",

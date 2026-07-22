@@ -7,7 +7,7 @@ import de from "@/translate/languages/de.json";
 
 const i18n = createI18n({
   legacy: false,
-  locale: localStorage.locale || "en",
+  locale: localStorage.locale || "de",
   globalInjection: true,
   messages: { en, ar, fr, de },
 });
