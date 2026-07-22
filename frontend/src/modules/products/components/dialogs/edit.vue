@@ -20,11 +20,7 @@
       </el-form-item>
 
       <el-form-item :label="$t('price')" prop="price" class="mb-0!">
-        <el-input-number v-model="formData.price" :min="0" :controls="false" class="w-full!">
-          <template #suffix>
-            <span>{{ currency }}</span>
-          </template>
-        </el-input-number>
+        <currency-input-app v-model="formData.price" :min="0" class="w-full!" />
       </el-form-item>
 
       <el-form-item :label="$t('description')" prop="description" class="mb-0!">
@@ -53,7 +49,6 @@ import type { ProductUpdateBody } from '@/modules/products/type';
 import { useI18n } from 'vue-i18n';
 import { previewImage } from '@/services/files';
 import ProductApi from '../../api';
-import { currency } from '@/constants';
 import confirmDialog from '@/services/dialog/confirm';
 import { ensurePermission } from '@/services/permission';
 

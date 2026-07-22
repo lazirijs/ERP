@@ -7,9 +7,7 @@
         </el-select>
       </el-form-item>
       <el-form-item :label="$t('unitPrice')" prop="price" class="mb-0!">
-        <el-input-number v-model.number="formData.price" :min="0" :controls="false" :parser="$formatter.number" :formatter="(amount: number) => $formatter.currency(amount, false)" class="w-full!">
-          <template #suffix><span>{{ currency }}</span></template>
-        </el-input-number>
+        <currency-input-app v-model.number="formData.price" :min="0" class="w-full!" />
       </el-form-item>
       <el-form-item :label="$t('quantity')" prop="quantity" class="mb-0!">
         <el-input-number v-model.number="formData.quantity" :min="1" :precision="0" class="w-full!" />
@@ -42,7 +40,6 @@ import { useI18n } from 'vue-i18n';
 import PurchaseApi from '../../api';
 import ProductApi from '@/modules/products/api';
 import type { Product } from '@/modules/products/type';
-import { currency } from '@/constants';
 import confirmDialog from '@/services/dialog/confirm';
 import { ensurePermission } from '@/services/permission';
 

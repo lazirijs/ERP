@@ -18,6 +18,7 @@ import type { LanguagesCode } from "@/translate/type";
 
 import ContainerApp from '@/layouts/container.vue';
 import DataGridApp from '@/components/devextreme/datagrid/index.vue';
+import CurrencyInputApp from '@/components/currency-input.vue';
 
 import '@/style.css';
 
@@ -47,6 +48,7 @@ app.use(() => {
 
 app.component("container-app", ContainerApp);
 app.component("data-grid-app", DataGridApp);
+app.component("currency-input-app", CurrencyInputApp);
 
 for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
   app.component("el-icon-" + key.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase(), component)

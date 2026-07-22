@@ -51,11 +51,7 @@
         </el-form-item>
         
         <el-form-item :label="$t('offer')" prop="offer" class="mb-0!">
-          <el-input-number v-model="formData.offer" :min="0" :controls="false" :parser="$formatter.number" :formatter="(amount: number) => $formatter.currency(amount, false)" class="w-full!">
-            <template #suffix>
-              <span>{{ currency }}</span>
-            </template>
-          </el-input-number>
+          <currency-input-app v-model="formData.offer" :min="0" class="w-full!" />
         </el-form-item>
 
         <el-form-item :label="$t('description')" prop="description" class="mb-0!">
@@ -89,7 +85,6 @@ import ClientApi from '@/modules/clients/api';
 // import RegionApi from '@/modules/clients/regions/api';
 import CategoryApi from '@/modules/projects/categories/api';
 import confirmDialog from '@/services/dialog/confirm';
-import { currency } from '@/constants';
 import { ensurePermission } from '@/services/permission';
 
 const emit = defineEmits<{ submitted: [] }>();

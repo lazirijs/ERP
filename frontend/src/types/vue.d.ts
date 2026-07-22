@@ -18,6 +18,7 @@ declare module 'vue' {
   interface GlobalComponents {
     'container-app': typeof import('@/layouts/container.vue')['default'];
     'data-grid-app': typeof import('@/components/devextreme/datagrid/index.vue')['default'];
+    'currency-input-app': typeof import('@/components/currency-input.vue')['default'];
   }
 }
 

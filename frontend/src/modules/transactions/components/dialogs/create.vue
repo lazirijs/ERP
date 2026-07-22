@@ -17,11 +17,7 @@
       </el-form-item>
 
       <el-form-item :label="$t('amount')" prop="amount" class="mb-0!">
-        <el-input-number v-model="formData.amount" :min="0" :controls="false" :parser="$formatter.number" :formatter="(amount: number) => $formatter.currency(amount, false)" class="w-full!">          
-          <template #suffix>
-            <span>{{ currency }}</span>
-          </template>
-        </el-input-number>
+        <currency-input-app v-model="formData.amount" :min="0" class="w-full!" />
       </el-form-item>
 
       <el-form-item v-if="!formData.purchase_uid" :label="$t('project')" prop="project_uid" class="mb-0!">
@@ -85,7 +81,6 @@ import SaleApi from '@/modules/sales/api';
 import PurchaseApi from '@/modules/purchases/api';
 import type { Project } from '@/modules/projects/type';
 import type { Account } from '@/modules/accounts/type';
-import { currency } from '@/constants';
 import type { Employee } from '@/modules/employees/type';
 import type { Sale } from '@/modules/sales/type';
 import confirmDialog from '@/services/dialog/confirm';
