@@ -35,6 +35,7 @@ report.[0-9]_.[0-9]_.[0-9]_.[0-9]_.json
 
 # Cloudflare Workers
 wrangler.jsonc
+*.local.jsonc
 .wrangler/
 .dev.vars
 
