@@ -27,7 +27,7 @@
           <el-button @click="close()">
             {{ $t("close") }}
           </el-button>
-          <el-button type="primary" @click="submit()">
+          <el-button type="primary" :disabled="!$hasPermission('sessions.update')" @click="submit()">
             {{ $t("save") }}
           </el-button>
         </div>
@@ -45,6 +45,7 @@ import sessionEmployeesApi from '@/modules/sessions/employees/api';
 import { status } from '@/modules/sessions/constant';
 import type { SessionEmployeeUpdateBody } from '@/modules/sessions/employees/type';
 import confirmDialog from '@/services/dialog/confirm';
+import { ensurePermission } from '@/services/permission';
 
 const props = defineProps<{
   allowPresent?: boolean;
@@ -95,6 +96,7 @@ const submit = async () => {
 };
 
 const open = async (uid: string) => {
+  if (!ensurePermission('sessions.update')) return;
   loadingContainer.value.push('loading');
   dialogModel.value = true;
   formData.value.uid = uid;

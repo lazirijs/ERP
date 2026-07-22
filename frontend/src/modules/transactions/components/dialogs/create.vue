@@ -64,7 +64,7 @@
       <el-button @click="close()">
         {{ $t("close") }}
       </el-button>
-      <el-button type="primary" @click="submit()">
+      <el-button type="primary" :disabled="!$hasPermission('transactions.create')" @click="submit()">
         {{ $t("create") }}
       </el-button>
     </div>
@@ -91,6 +91,7 @@ import type { Sale } from '@/modules/sales/type';
 import confirmDialog from '@/services/dialog/confirm';
 import transactionsCons from '../../constant';
 import type { Purchase } from '@/modules/purchases/type';
+import { ensurePermission } from '@/services/permission';
 
 const emit = defineEmits<{ submitted: [] }>();
 
@@ -212,6 +213,7 @@ const submit = async (formEl: FormInstance | undefined = formRef.value) => {
 };
 
 const open = async () => {
+  if (!ensurePermission('transactions.create')) return;
   dialogModel.value = true;
   try {
     loadingContainer.value.push('loading');

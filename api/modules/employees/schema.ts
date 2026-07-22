@@ -55,43 +55,43 @@ export default {
     },
     create: {
         validation: {
-            auth: true,
+            permission: 'employees.create',
             body: createBody
         }
     },
     get: {
         validation: {
-            auth: true,
+            permission: 'employees.access',
             params: getParams
         }
     },
     update: {
         validation: {
-            auth: true,
+            permission: 'employees.update',
             body: updateBody
         }
     },
     setTeam: {
         validation: {
-            auth: true,
+            permission: 'employees.update',
             body: setTeam
         }
     },
     getAll: {
         validation: {
-            auth: true,
+            permission: 'employees.access',
             query: getAllQuery
         }
     },
     getDocuments: {
         validation: {
-            auth: true,
+            permission: 'employees.access',
             params: getParams
         }
     },
     uploadDocument: {
         validation: {
-            auth: true,
+            permission: 'employees.update',
             params: getParams,
             query: uploadDocumentQuery,
             body: uploadDocumentBody
@@ -99,7 +99,7 @@ export default {
     },
     deleteDocument: {
         validation: {
-            auth: true,
+            permission: 'employees.update',
             params: getParams,
             body: documentKeyBody
         }

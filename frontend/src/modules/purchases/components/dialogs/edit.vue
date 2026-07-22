@@ -18,7 +18,7 @@
           <el-button @click="close()">
             {{ $t("close") }}
           </el-button>
-          <el-button type="primary" @click="submit()">
+          <el-button type="primary" :disabled="!$hasPermission('purchases.update')" @click="submit()">
             {{ $t("save") }}
           </el-button>
         </div>
@@ -37,6 +37,7 @@ import PurchaseApi from '../../api';
 import SupplierApi from '@/modules/suppliers/api';
 import type { Supplier } from '@/modules/suppliers/type';
 import confirmDialog from '@/services/dialog/confirm';
+import { ensurePermission } from '@/services/permission';
 
 const props = defineProps<{
   purchase_uid: string;
@@ -111,6 +112,7 @@ const submit = async (formEl: FormInstance | undefined = formRef.value) => {
 };
 
 const open = async () => {
+  if (!ensurePermission('purchases.update')) return;
   dialogModel.value = true;
   try {
     loadingContainer.value.push('loading');

@@ -8,7 +8,7 @@
               <el-icon><el-icon-arrow-left /></el-icon>
             </el-button>
             <span class="truncate">{{ $t('generalInfo') }}</span>
-            <el-button @click="editDialogRef?.open()" text class="m-0!">
+            <el-button :disabled="!$hasPermission('suppliers.update')" @click="editDialogRef?.open()" text class="m-0!">
               <el-icon><el-icon-edit /></el-icon>
             </el-button>
           </div>
@@ -41,7 +41,7 @@
       </el-card>
       <div class="col-span-1 md:col-span-3 flex-1 space-y-app">
         <el-tabs type="border-card" :default-value="$route.query.tab || 'purchases'" @tab-change="$router.replace({ query: { tab: $event } })">
-          <el-tab-pane :label="$t('purchases')" name="purchases">
+          <el-tab-pane :label="$t('purchases')" name="purchases" :disabled="!$hasPermission('purchases.access')">
             <purchases-list-app v-if="$route.query.tab === 'purchases' || !$route.query.tab" :view="{ type: 'supplier', data: formData }" @updated="load()" />
           </el-tab-pane>
         </el-tabs>

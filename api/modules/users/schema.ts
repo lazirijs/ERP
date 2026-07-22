@@ -56,38 +56,38 @@ export default {
     create: {
         value: createBody,
         validation: {
-            auth: true as const,
+            permission: 'users.create',
             body: createBody
         }
     },
     update: {
         value: updateBody,
         validation: {
-            auth: true,
+            permission: 'users.update',
             body: updateBody
         }
     },
     get: {
         validation: {
-            auth: true,
+            permission: 'users.access',
             params: uidParam
         }
     },
     delete: {
         validation: {
-            auth: true,
+            permission: 'users.delete',
             params: uidParam
         }
     },
     getAll: {
         validation: {
-            auth: true,
+            permission: 'users.access',
             query: DataGridSchema.data
         }
     },
     uploadProfilePicture: {
         validation: {
-            auth: true,
+            permission: 'users.update',
             params: uidParam,
             body: uploadProfilePictureBody
         }

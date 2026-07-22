@@ -21,7 +21,7 @@
                 </el-button>
                 <el-segmented v-if="!$appStore().isMobile && props.view?.type !== 'product'" v-model="section" :options="sectionOptions" />
             </div>
-            <el-button v-if="!props.hideCreate && props.view?.type != 'product'" @click="createDialogRef?.open()" class="w-8 sm:w-auto m-0!" type="success">
+            <el-button v-if="!props.hideCreate && props.view?.type != 'product'" :disabled="!$hasPermission('purchases.create')" @click="createDialogRef?.open()" class="w-8 sm:w-auto m-0!" type="success">
                 <span class="hidden sm:block">{{ $t('create') }}</span>
                 <el-icon class="sm:ml-2">
                     <el-icon-plus />

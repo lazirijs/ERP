@@ -37,25 +37,25 @@ export default {
     },
     create: {
         validation: {
-            auth: true,
+            permission: 'suppliers.create',
             body: createBody
         }
     },
     get: {
         validation: {
-            auth: true,
+            permission: 'suppliers.access',
             params: getParams
         }
     },
     getAll: {
         validation: {
-            auth: true,
+            permission: 'suppliers.access',
             query: getAllQuery
         }
     },
     update: {
         validation: {
-            auth: true,
+            permission: 'suppliers.update',
             body: updateBody
         }
     }

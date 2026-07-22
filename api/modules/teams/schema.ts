@@ -32,25 +32,25 @@ export default {
     },
     create: {
         validation: {
-            auth: true,
+            permission: 'teams.create',
             body: createBody
         }
     },
     get: {
         validation: {
-            auth: true,
+            permission: 'teams.access',
             params: getParams
         }
     },
     update: {
         validation: {
-            auth: true,
+            permission: 'teams.update',
             body: updateBody
         }
     },
     getAll: {
         validation: {
-            auth: true,
+            permission: 'teams.access',
             query: DataGridSchema.data
         }
     }

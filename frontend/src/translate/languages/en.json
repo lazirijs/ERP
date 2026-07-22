@@ -375,5 +375,6 @@
   "tryDifferentSearchTerm": "Try a different search term.",
   "goodMorning": "Good Morning",
   "goodAfternoon": "Good Afternoon",
-  "goodEvening": "Good Evening"
+  "goodEvening": "Good Evening",
+  "noPermissionForThisAction": "You don't have permission to perform this action"
 }

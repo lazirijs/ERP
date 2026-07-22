@@ -20,7 +20,7 @@
                     </el-icon>
                 </el-button>
             </div>
-            <el-button @click="createDialogRef?.open()" class="w-8 sm:w-auto m-0!" type="success">
+            <el-button :disabled="!$hasPermission('users.create')" @click="createDialogRef?.open()" class="w-8 sm:w-auto m-0!" type="success">
                 <span class="hidden sm:block">{{ $t('create') }}</span>
                 <el-icon class="sm:ml-2">
                     <el-icon-plus />

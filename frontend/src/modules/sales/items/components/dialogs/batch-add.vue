@@ -13,7 +13,7 @@
       <el-button @click="close()">
         {{ $t("close") }}
       </el-button>
-      <el-button type="primary" @click="submit()">
+      <el-button type="primary" :disabled="!$hasPermission('sales.update')" @click="submit()">
         {{ $t("add") }}
       </el-button>
     </div>
@@ -27,6 +27,7 @@ import { useI18n } from 'vue-i18n';
 import itemsApi from '../../api';
 import ItemsBatchDataGridApp from '@/modules/sales/components/items-batch-data-grid.vue';
 import confirmDialog from '@/services/dialog/confirm';
+import { ensurePermission } from '@/services/permission';
 
 const props = defineProps<{
   sale_uid: string;
@@ -75,6 +76,7 @@ const submit = async () => {
 };
 
 const open = () => {
+  if (!ensurePermission('sales.update')) return;
   dialogModel.value = true;
 };
 

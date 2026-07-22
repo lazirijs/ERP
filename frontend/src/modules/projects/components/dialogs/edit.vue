@@ -42,7 +42,7 @@
       <el-button @click="close()">
         {{ $t("close") }}
       </el-button>
-      <el-button type="primary" @click="submit()">
+      <el-button type="primary" :disabled="!$hasPermission('projects.update')" @click="submit()">
         {{ $t("save") }}
       </el-button>
     </div>
@@ -63,6 +63,7 @@ import ClientApi from '@/modules/clients/api';
 import CategoryApi from '@/modules/projects/categories/api';
 import confirmDialog from '@/services/dialog/confirm';
 import { currency } from '@/constants';
+import { ensurePermission } from '@/services/permission';
 
 const props = defineProps<{
   uid: string;
@@ -149,6 +150,7 @@ const submit = async (formEl: FormInstance | undefined = formRef.value) => {
 };
 
 const open = async () => {
+  if (!ensurePermission('projects.update')) return;
   dialogModel.value = true;
   try {
     loadingContainer.value.push('loading');

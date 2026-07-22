@@ -9,6 +9,7 @@ declare module 'vue' {
   interface ComponentCustomProperties {
     $appStore: () => ReturnType<typeof AppStore>;
     $authStore: () => ReturnType<typeof AuthStore>;
+    $hasPermission: (permission: string) => boolean;
     $previewImage: typeof previewImage;
     $getFileUrl: typeof getFileUrl;
     $arrayHasAny: typeof arrayHasAny;

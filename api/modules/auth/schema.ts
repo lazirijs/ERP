@@ -7,8 +7,12 @@ const loginBody = t.Object({
     password: Users.schema.data.password
 });;
 
+// The signed cookie now carries only the identity needed to re-validate against the DB on
+// every request: the email to look the user up by, and the password hash to compare so a
+// password change (or deactivation/deletion) invalidates existing sessions.
 const cookie = t.Optional(t.Object({
-    user: Users.schema.data.value,
+    email: Users.schema.data.value.properties.email,
+    password: Users.schema.data.password,
     expires_at: t.Number()
 }));
 

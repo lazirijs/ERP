@@ -42,7 +42,7 @@
         <el-button @click="close()">
           {{ $t("close") }}
         </el-button>
-        <el-button type="primary" @click="submit()">
+        <el-button type="primary" :disabled="!$hasPermission('employees.create')" @click="submit()">
           {{ $t("create") }}
         </el-button>
       </div>
@@ -62,6 +62,7 @@ import { status } from '@/modules/employees/constant';
 import type { Team } from '@/modules/teams/type';
 import confirmDialog from '@/services/dialog/confirm';
 import { previewImage } from '@/services/files';
+import { ensurePermission } from '@/services/permission';
 
 const emit = defineEmits<{ submitted: [] }>();
 
@@ -144,6 +145,7 @@ const submit = async (formEl: FormInstance | undefined = formRef.value) => {
 };
 
 const open = async () => {
+  if (!ensurePermission('employees.create')) return;
   dialogModel.value = true;
   try {
     loadingContainer.value.push('loading');

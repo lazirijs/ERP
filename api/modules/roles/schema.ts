@@ -30,31 +30,31 @@ export default {
     },
     create: {
         validation: {
-            auth: true,
+            permission: 'roles.create',
             body: createBody
         }
     },
     get: {
         validation: {
-            auth: true,
+            permission: 'roles.access',
             params: getParams
         }
     },
     getAll: {
         validation: {
-            auth: true,
+            permission: 'roles.access',
             query: DataGridSchema.data
         }
     },
     update: {
         validation: {
-            auth: true,
+            permission: 'roles.update',
             body: updateBody
         }
     },
     delete: {
         validation: {
-            auth: true,
+            permission: 'roles.delete',
             params: getParams
         }
     }

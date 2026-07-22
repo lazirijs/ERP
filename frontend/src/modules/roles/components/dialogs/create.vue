@@ -35,7 +35,7 @@
     </el-form>
     <div class="flex justify-end gap-2 mt-8">
       <el-button @click="close()">{{ $t("close") }}</el-button>
-      <el-button type="primary" @click="submit()">{{ $t("create") }}</el-button>
+      <el-button type="primary" :disabled="!$hasPermission('roles.create')" @click="submit()">{{ $t("create") }}</el-button>
     </div>
   </el-dialog>
 </template>
@@ -50,6 +50,7 @@ import { useI18n } from 'vue-i18n';
 import RoleApi from '@/modules/roles/api';
 import PermissionApi from '@/modules/permissions/api';
 import confirmDialog from '@/services/dialog/confirm';
+import { ensurePermission } from '@/services/permission';
 
 const emit = defineEmits<{ submitted: [] }>();
 
@@ -138,6 +139,7 @@ const submit = async (formEl: FormInstance | undefined = formRef.value) => {
 };
 
 const open = async () => {
+  if (!ensurePermission('roles.create')) return;
   dialogModel.value = true;
   try {
     loadingContainer.value.push('loading');

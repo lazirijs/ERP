@@ -29,6 +29,7 @@ const routes: Route[] = [
     path: "/users",
     meta: {
       auth: "required",
+      permission: "users.access",
     },
     children: [
       {
@@ -42,6 +43,7 @@ const routes: Route[] = [
     path: "/roles",
     meta: {
       auth: "required",
+      permission: "roles.access",
     },
     children: [
       {
@@ -55,6 +57,7 @@ const routes: Route[] = [
     path: "/clients",
     meta: {
       auth: "required",
+      permission: "clients.access",
     },
     children: [
       {
@@ -73,6 +76,7 @@ const routes: Route[] = [
     path: "/projects",
     meta: {
       auth: "required",
+      permission: "projects.access",
     },
     children: [
       {
@@ -91,6 +95,7 @@ const routes: Route[] = [
     path: "/transactions",
     meta: {
       auth: "required",
+      permission: "transactions.access",
     },
     children: [
       {
@@ -104,6 +109,7 @@ const routes: Route[] = [
     path: "/accounts",
     meta: {
       auth: "required",
+      permission: "accounts.access",
     },
     children: [
       {
@@ -122,6 +128,7 @@ const routes: Route[] = [
     path: "/products",
     meta: {
       auth: "required",
+      permission: "products.access",
     },
     children: [
       {
@@ -140,6 +147,7 @@ const routes: Route[] = [
     path: "/purchases",
     meta: {
       auth: "required",
+      permission: "purchases.access",
     },
     children: [
       {
@@ -158,6 +166,7 @@ const routes: Route[] = [
     path: "/sales",
     meta: {
       auth: "required",
+      permission: "sales.access",
     },
     children: [
       {
@@ -176,6 +185,7 @@ const routes: Route[] = [
     path: "/suppliers",
     meta: {
       auth: "required",
+      permission: "suppliers.access",
     },
     children: [
       {
@@ -194,6 +204,7 @@ const routes: Route[] = [
     path: "/employees",
     meta: {
       auth: "required",
+      permission: "employees.access",
     },
     children: [
       {
@@ -212,6 +223,7 @@ const routes: Route[] = [
     path: "/teams",
     meta: {
       auth: "required",
+      permission: "teams.access",
     },
     children: [
       {
@@ -230,6 +242,7 @@ const routes: Route[] = [
     path: "/reports",
     meta: {
       auth: "required",
+      permission: "reports.access",
     },
     children: [
       {
@@ -243,6 +256,7 @@ const routes: Route[] = [
     path: "/sessions",
     meta: {
       auth: "required",
+      permission: "sessions.access",
     },
     children: [
       {
@@ -283,7 +297,7 @@ router.beforeEach(async (to) => {
   const authApi = new AuthApi();
   const authStore = AuthStore();
 
-  if (authStore.isAuthed == undefined) {    
+  if (authStore.isAuthed == undefined) {
     try {
       const response = await authApi.profile();
       authStore.set(response.detail);
@@ -293,9 +307,15 @@ router.beforeEach(async (to) => {
     } finally {
       loading.close();
     }
-  } 
+  }
   else if (to.meta.auth == 'required' && authStore.isAuthed == false) return { name: 'auth-login' };
   else if (to.meta.auth == 'none' && authStore.isAuthed == true) return { name: 'home' };
+
+  // Block routes the user lacks the `<module>.access` permission for (admins hold every key).
+  // Only relevant once authed; unauthed users are already redirected to login above.
+  if (authStore.isAuthed && to.meta.permission && !authStore.hasPermission(to.meta.permission as string)) {
+    return { name: 'home' };
+  }
 });
 
 export default router;

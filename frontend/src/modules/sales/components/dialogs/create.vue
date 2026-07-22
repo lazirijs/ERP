@@ -23,7 +23,7 @@
         <el-button @click="close()">
           {{ $t("close") }}
         </el-button>
-        <el-button type="primary" @click="submit()">
+        <el-button type="primary" :disabled="!$hasPermission('sales.create')" @click="submit()">
           {{ $t("create") }}
         </el-button>
       </el-form-item>
@@ -45,6 +45,7 @@ import type { Project } from '@/modules/projects/type';
 import type { Client } from '@/modules/clients/type';
 import formatter from '@/services/formatter';
 import confirmDialog from '@/services/dialog/confirm';
+import { ensurePermission } from '@/services/permission';
 
 const emit = defineEmits<{ submitted: [] }>();
 
@@ -128,6 +129,7 @@ const submit = async (formEl: FormInstance | undefined = formRef.value) => {
 };
 
 const open = async () => {
+  if (!ensurePermission('sales.create')) return;
   dialogModel.value = true;
   formData.value.name = formatter.date(new Date().toISOString());
   if (props.config?.project?.uid) {

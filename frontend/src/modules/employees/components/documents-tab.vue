@@ -1,6 +1,6 @@
 <template>
   <el-upload :auto-upload="false" :show-file-list="false" accept=".pdf,.csv,.xls,.xlsx,image/*" @change="onAdd" class="flex justify-end mb-4">
-    <el-button type="primary">
+    <el-button type="primary" :disabled="!$hasPermission('employees.update')">
       <el-icon class="mr-2"><el-icon-plus /></el-icon>
       {{ $t('upload') }}
     </el-button>
@@ -15,7 +15,7 @@
           <span class="text-xs font-medium uppercase">{{ getFileExtension(doc.key) }}</span>
         </div>
       </a>
-      <el-button text type="danger" class="absolute top-1 right-1" size="small" circle @click="remove(doc.key)">
+      <el-button text type="danger" class="absolute top-1 right-1" size="small" circle :disabled="!$hasPermission('employees.update')" @click="remove(doc.key)">
         <el-icon class="mb-0.5 mr-[0.025rem]"><el-icon-delete /></el-icon>
       </el-button>
     </div>

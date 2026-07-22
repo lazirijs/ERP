@@ -65,44 +65,44 @@ export default {
     },
     create: {
         validation: {
-            auth: true,
+            permission: 'projects.create',
             body: createBody
         }
     },
     get: {
         validation: {
-            auth: true,
+            permission: 'projects.access',
             params: getParams
         }
     },
     getAll: {
         validation: {
-            auth: true,
+            permission: 'projects.access',
             query: getAllQuery
         }
     },
     update: {
         validation: {
-            auth: true,
+            permission: 'projects.update',
             body: updateBody
         }
     },
     getDocuments: {
         validation: {
-            auth: true,
+            permission: 'projects.access',
             params: getParams
         }
     },
     uploadDocument: {
         validation: {
-            auth: true,
+            permission: 'projects.update',
             params: getParams,
             body: uploadDocumentBody
         }
     },
     deleteDocument: {
         validation: {
-            auth: true,
+            permission: 'projects.update',
             params: getParams,
             body: documentKeyBody
         }

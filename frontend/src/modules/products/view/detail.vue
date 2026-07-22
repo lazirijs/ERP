@@ -8,7 +8,7 @@
               <el-icon><el-icon-arrow-left /></el-icon>
             </el-button>
             <span class="truncate">{{ $t('generalInfo') }}</span>
-            <el-button @click="editDialogRef?.open()" text class="m-0!">
+            <el-button :disabled="!$hasPermission('products.update')" @click="editDialogRef?.open()" text class="m-0!">
               <el-icon><el-icon-edit /></el-icon>
             </el-button>
           </div>
@@ -43,18 +43,18 @@
         </div>
       </el-card>
       <div class="col-span-1 md:col-span-3 flex-1 space-y-app">
-        <el-tabs type="border-card" :default-value="$route.query.tab || 'sales'" @tab-change="$router.replace({ query: { tab: $event } })">
-          <el-tab-pane :label="$t('sales')" name="sales">
-            <sales-items-list-app v-if="$route.query.tab === 'sales' || !$route.query.tab" :view="{ type: 'product', data: formData }" @row-click="$" />
+        <el-tabs type="border-card" :default-value="activeTab" @tab-change="$router.replace({ query: { tab: $event } })">
+          <el-tab-pane :label="$t('sales')" name="sales" :disabled="!$hasPermission('sales.access')">
+            <sales-items-list-app v-if="activeTab === 'sales'" :view="{ type: 'product', data: formData }" @row-click="$" />
           </el-tab-pane>
-          <el-tab-pane :label="$t('purchases')" name="purchases">
-            <purchase-items-list-app v-if="$route.query.tab === 'purchases'" :view="{ type: 'product', data: formData }" @row-click="$router.push({ name: 'purchases-detail', params: { uid: $event.data.purchase.uid } })" />
+          <el-tab-pane :label="$t('purchases')" name="purchases" :disabled="!$hasPermission('purchases.access')">
+            <purchase-items-list-app v-if="activeTab === 'purchases'" :view="{ type: 'product', data: formData }" @row-click="$router.push({ name: 'purchases-detail', params: { uid: $event.data.purchase.uid } })" />
           </el-tab-pane>
-          <el-tab-pane :label="$t('suppliers')" name="suppliers">
-            <suppliers-list-app v-if="$route.query.tab === 'suppliers'" :view="{ type: 'product', data: formData }" @row-click="$router.push({ name: 'suppliers-detail', params: { uid: $event.data.uid } })" />
+          <el-tab-pane :label="$t('suppliers')" name="suppliers" :disabled="!$hasPermission('suppliers.access')">
+            <suppliers-list-app v-if="activeTab === 'suppliers'" :view="{ type: 'product', data: formData }" @row-click="$router.push({ name: 'suppliers-detail', params: { uid: $event.data.uid } })" />
           </el-tab-pane>
           <el-tab-pane :label="$t('images')" name="images">
-            <images-gallery-tab v-if="$route.query.tab === 'images'" :uid="formData.uid" :image="formData.image" @changed="load()" />
+            <images-gallery-tab v-if="activeTab === 'images'" :uid="formData.uid" :image="formData.image" @changed="load()" />
           </el-tab-pane>
         </el-tabs>
       </div>
@@ -64,18 +64,32 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, computed } from 'vue';
 import { useRoute } from 'vue-router';
 import ProductsApi from '@/modules/products/api';
 import type { Product } from '@/modules/products/type';
 import SalesItemsListApp from '@/modules/sales/items/view/list.vue';
 import SuppliersListApp from '@/modules/suppliers/view/list.vue';
 import PurchaseItemsListApp from '@/modules/purchases/items/view/list.vue';
+import AuthStore from '@/modules/auth/store';
 
 import EditDialogApp from '@/modules/products/components/dialogs/edit.vue';
 import ImagesGalleryTab from '@/modules/products/components/images-gallery.vue';
 
 const route = useRoute();
+const authStore = AuthStore();
+
+// Land on the first tab the user can actually open (images is always available as a fallback).
+const defaultTab = computed(() => {
+  const tabs: { name: string; permission?: string }[] = [
+    { name: 'sales', permission: 'sales.access' },
+    { name: 'purchases', permission: 'purchases.access' },
+    { name: 'suppliers', permission: 'suppliers.access' },
+    { name: 'images' },
+  ];
+  return (tabs.find(t => !t.permission || authStore.hasPermission(t.permission)) ?? tabs[0]).name;
+});
+const activeTab = computed(() => (route.query.tab as string) || defaultTab.value);
 
 const loadingContainer = ref<('detail')[]>([]);
 

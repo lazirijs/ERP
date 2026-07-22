@@ -27,7 +27,7 @@
                 router
             >
                 <template v-for="item in Const.menuItems" :key="item.name">
-                    <el-menu-item v-if="!item.children" :index="item.routeName" @click="handleMenuItemClick(item.routeName)">
+                    <el-menu-item v-if="!item.children" :index="item.routeName!" :disabled="!canSee(item.permission)" @click="handleMenuItemClick(item.routeName!)">
                         <el-icon>
                             <component :is="item.icon" />
                         </el-icon>
@@ -37,7 +37,7 @@
                             </span>
                         </template>
                     </el-menu-item>
-                    <el-sub-menu v-else :index="item.name">
+                    <el-sub-menu v-else :index="item.name" :disabled="!groupEnabled(item)">
                         <template #title>
                             <el-icon>
                                 <component :is="item.icon" />
@@ -46,7 +46,7 @@
                                 {{ $t(item.name) }}
                             </span>
                         </template>
-                        <el-menu-item v-for="child in item.children" :key="child.name" :index="child.routeName" @click="handleMenuItemClick(child.routeName)">
+                        <el-menu-item v-for="child in item.children" :key="child.name" :index="child.routeName!" :disabled="!canSee(child.permission)" @click="handleMenuItemClick(child.routeName!)">
                             <el-icon>
                                 <component :is="child.icon" />
                             </el-icon>
@@ -71,7 +71,8 @@
 import { ref, onMounted, onUnmounted, onBeforeMount } from 'vue';
 import { useRouter } from 'vue-router';
 import AppStore from '@/stores/app';
-import Const from './constant';
+import AuthStore from '@/modules/auth/store';
+import Const, { type MenuItem } from './constant';
 
 const emit = defineEmits<{
   collapsed: [boolean];
@@ -79,6 +80,12 @@ const emit = defineEmits<{
 
 const router = useRouter();
 const app = AppStore();
+const authStore = AuthStore();
+
+// Nav the user can't reach stays visible but is disabled: an item is enabled only when the
+// user holds its `permission`, and a parent group only when at least one child is enabled.
+const canSee = (permission?: string) => !permission || authStore.hasPermission(permission);
+const groupEnabled = (item: MenuItem) => (item.children ?? []).some(child => canSee(child.permission));
 
 // initialize collapsed state based on mobile status
 const isCollapsed = ref(app.isMobile);

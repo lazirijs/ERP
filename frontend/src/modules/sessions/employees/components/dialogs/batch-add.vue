@@ -13,7 +13,7 @@
       <el-button @click="close()">
         {{ $t("close") }}
       </el-button>
-      <el-button type="primary" @click="submit()">
+      <el-button type="primary" :disabled="!$hasPermission('sessions.update')" @click="submit()">
         {{ $t("add") }}
       </el-button>
     </div>
@@ -27,6 +27,7 @@ import { useI18n } from 'vue-i18n';
 import sessionEmployeesApi from '../../api';
 import SessionEmployeesBatchDataGridApp from '../session-employees-batch-data-grid.vue';
 import confirmDialog from '@/services/dialog/confirm';
+import { ensurePermission } from '@/services/permission';
 
 const props = defineProps<{
   session_uid: string;
@@ -77,6 +78,7 @@ const submit = async () => {
 };
 
 const open = () => {
+  if (!ensurePermission('sessions.update')) return;
   dialogModel.value = true;
 };
 

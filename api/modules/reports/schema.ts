@@ -122,25 +122,25 @@ export default {
     },
     sales: {
         validation: {
-            auth: true,
+            permission: 'reports.financials',
             query: rangeQuery
         }
     },
     cash: {
         validation: {
-            auth: true,
+            permission: 'reports.financials',
             query: rangeQuery
         }
     },
     inventory: {
         validation: {
-            auth: true,
+            permission: 'reports.access',
             query: rangeQuery
         }
     },
     hr: {
         validation: {
-            auth: true,
+            permission: 'reports.access',
             query: rangeQuery
         }
     }

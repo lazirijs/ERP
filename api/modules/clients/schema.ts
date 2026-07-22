@@ -31,25 +31,25 @@ export default {
     },
     create: {
         validation: {
-            auth: true,
+            permission: 'clients.create',
             body: createBody
         }
     },
     get: {
         validation: {
-            auth: true,
+            permission: 'clients.access',
             params: getParams
         }
     },
     getAll: {
         validation: {
-            auth: true,
+            permission: 'clients.access',
             query: DataGridSchema.data
         }
     },
     update: {
         validation: {
-            auth: true,
+            permission: 'clients.update',
             body: updateBody
         }
     }

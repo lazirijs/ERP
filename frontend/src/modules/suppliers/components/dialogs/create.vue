@@ -21,7 +21,7 @@
       <el-button @click="close()">
         {{ $t("close") }}
       </el-button>
-      <el-button type="primary" @click="submit()">
+      <el-button type="primary" :disabled="!$hasPermission('suppliers.create')" @click="submit()">
         {{ $t("create") }}
       </el-button>
     </div>
@@ -36,6 +36,7 @@ import type { SupplierCreateBody } from '@/modules/suppliers/type';
 import { useI18n } from 'vue-i18n';
 import SupplierApi from '@/modules/suppliers/api';
 import confirmDialog from '@/services/dialog/confirm';
+import { ensurePermission } from '@/services/permission';
 
 const emit = defineEmits<{ submitted: [] }>();
 
@@ -105,6 +106,7 @@ const submit = async (formEl: FormInstance | undefined = formRef.value) => {
 };
 
 const open = () => {
+  if (!ensurePermission('suppliers.create')) return;
   dialogModel.value = true;
 };
 

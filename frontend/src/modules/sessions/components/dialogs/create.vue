@@ -13,7 +13,7 @@
           <el-button @click="close()">
             {{ $t("close") }}
           </el-button>
-          <el-button type="primary" @click="submit()">
+          <el-button type="primary" :disabled="!$hasPermission('sessions.create')" @click="submit()">
             {{ $t("create") }}
           </el-button>
         </div>
@@ -31,6 +31,7 @@ import { useRouter } from 'vue-router';
 import type { SessionCreateBody } from '@/modules/sessions/type';
 import sessionsApi from '@/modules/sessions/api';
 import confirmDialog from '@/services/dialog/confirm';
+import { ensurePermission } from '@/services/permission';
 
 const { t } = useI18n();
 const router = useRouter();
@@ -91,6 +92,7 @@ const submit = async (formEl: FormInstance | undefined = formRef.value) => {
 };
 
 const open = (date?: string) => {
+  if (!ensurePermission('sessions.create')) return;
   dialogModel.value = true;
   if (date) formData.value.date = date;
 };

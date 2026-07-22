@@ -22,19 +22,19 @@ export default {
     },
     create: {
         validation: {
-            auth: true,
+            permission: 'projects.create',
             body: createBody
         }
     },
     get: {
         validation: {
-            auth: true,
+            permission: 'projects.access',
             params: getParams
         }
     },
     getAll: {
         validation: {
-            auth: true,
+            permission: 'projects.access',
             query: DataGridSchema.data
         }
     }

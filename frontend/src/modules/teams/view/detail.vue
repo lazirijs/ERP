@@ -8,7 +8,7 @@
               <el-icon><el-icon-arrow-left /></el-icon>
             </el-button>
             <span>General Info</span>
-            <el-button @click="editDialogRef?.open()" text class="m-0!">
+            <el-button :disabled="!$hasPermission('teams.update')" @click="editDialogRef?.open()" text class="m-0!">
               <el-icon><el-icon-edit /></el-icon>
             </el-button>
           </div>
@@ -30,7 +30,7 @@
       </el-card>
       <div class="col-span-1 md:col-span-3 flex-1 space-y-app">        
         <el-tabs type="border-card" :default-value="$route.query.tab || 'employees'" @tab-change="$router.replace({ query: { tab: $event } })">
-          <el-tab-pane :label="$t('employees')" name="employees">
+          <el-tab-pane :label="$t('employees')" name="employees" :disabled="!$hasPermission('employees.access')">
             <div v-if="$route.query.tab === 'employees' || !$route.query.tab" class="grid gap-app">
               <div class="flex justify-between items-center gap-app">
                 <div class="flex items-center gap-2">

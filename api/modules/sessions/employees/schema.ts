@@ -58,37 +58,37 @@ export default {
     },
     create: {
         validation: {
-            auth: true,
+            permission: 'sessions.update',
             body: createBody
         }
     },
     batch: {
         validation: {
-            auth: true,
+            permission: 'sessions.update',
             body: batchBody
         }
     },
     get: {
         validation: {
-            auth: true,
+            permission: 'sessions.access',
             params: getParams
         }
     },
     getAll: {
         validation: {
-            auth: true,
+            permission: 'sessions.access',
             query: getAllQuery
         }
     },
     update: {
         validation: {
-            auth: true,
+            permission: 'sessions.update',
             body: updateBody
         }
     },
     delete: {
         validation: {
-            auth: true,
+            permission: 'sessions.update',
             params: getParams
         }
     }

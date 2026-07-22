@@ -47,37 +47,37 @@ export default {
     },
     create: {
         validation: {
-            auth: true,
+            permission: 'products.create',
             body: createBody
         }
     },
     get: {
         validation: {
-            auth: true,
+            permission: 'products.access',
             params: getParams
         }
     },
     getAll: {
         validation: {
-            auth: true,
+            permission: 'products.access',
             query: DataGridSchema.data
         }
     },
     update: {
         validation: {
-            auth: true,
+            permission: 'products.update',
             body: updateBody
         }
     },
     getImages: {
         validation: {
-            auth: true,
+            permission: 'products.access',
             params: getParams
         }
     },
     uploadImage: {
         validation: {
-            auth: true,
+            permission: 'products.update',
             params: getParams,
             query: uploadImageQuery,
             body: uploadImageBody
@@ -85,14 +85,14 @@ export default {
     },
     setPrimary: {
         validation: {
-            auth: true,
+            permission: 'products.update',
             params: getParams,
             body: imageKeyBody
         }
     },
     deleteImage: {
         validation: {
-            auth: true,
+            permission: 'products.update',
             params: getParams,
             body: imageKeyBody
         }

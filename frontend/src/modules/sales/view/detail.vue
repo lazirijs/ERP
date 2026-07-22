@@ -8,7 +8,7 @@
               <el-icon><el-icon-arrow-left /></el-icon>
             </el-button>
             <span class="truncate">{{ $t('generalInfo') }}</span>
-            <el-button @click="editDialogRef?.open()" text class="m-0!">
+            <el-button :disabled="!$hasPermission('sales.update')" @click="editDialogRef?.open()" text class="m-0!">
               <el-icon><el-icon-edit /></el-icon>
             </el-button>
           </div>
@@ -56,7 +56,7 @@
           <el-tab-pane :label="$t('items')" name="items">
             <sale-items-list-app v-if="$route.query.tab === 'items' || !$route.query.tab" :view="{ type: 'sale', data: formData }" :hide-create="formData.status == 1" @updated="load()" />
           </el-tab-pane>
-          <el-tab-pane :label="$t('transactions')" name="transactions">
+          <el-tab-pane :label="$t('transactions')" name="transactions" :disabled="!$hasPermission('transactions.access')">
             <transaction-list-app v-if="$route.query.tab === 'transactions'" :view="{ type: 'sale', data: formData }" :hide-create="formData.status === 1" @updated="load()" />
           </el-tab-pane>
         </el-tabs>

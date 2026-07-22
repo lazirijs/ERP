@@ -375,5 +375,6 @@
   "tryDifferentSearchTerm": "جرّب مصطلح بحث مختلف.",
   "goodMorning": "صباح الخير",
   "goodAfternoon": "مساء الخير",
-  "goodEvening": "مساء الخير"
+  "goodEvening": "مساء الخير",
+  "noPermissionForThisAction": "ليس لديك صلاحية لتنفيذ هذا الإجراء"
 }

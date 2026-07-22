@@ -18,7 +18,7 @@
           <el-button @click="close()">
             {{ $t("close") }}
           </el-button>
-          <el-button type="primary" @click="submit()">
+          <el-button type="primary" :disabled="!$hasPermission('clients.update')" @click="submit()">
             {{ $t("save") }}
           </el-button>
         </div>
@@ -35,6 +35,7 @@ import type { ClientUpdateBody } from '@/modules/clients/type';
 import { useI18n } from 'vue-i18n';
 import ClientApi from '../../api';
 import confirmDialog from '@/services/dialog/confirm';
+import { ensurePermission } from '@/services/permission';
 
 const props = defineProps<{
   client_uid: string;
@@ -114,6 +115,7 @@ const submit = async (formEl: FormInstance | undefined = formRef.value) => {
 };
 
 const open = async () => {
+  if (!ensurePermission('clients.update')) return;
   dialogModel.value = true;
   try {
     loadingContainer.value.push('loading');

@@ -12,7 +12,7 @@
           <el-button @click="close()">
             {{ $t("close") }}
           </el-button>
-          <el-button type="primary" @click="submit()">
+          <el-button type="primary" :disabled="!$hasPermission('accounts.update')" @click="submit()">
             {{ $t("save") }}
           </el-button>
         </div>
@@ -29,6 +29,7 @@ import type { AccountUpdateBody } from '@/modules/accounts/type';
 import { useI18n } from 'vue-i18n';
 import AccountApi from '../../api';
 import confirmDialog from '@/services/dialog/confirm';
+import { ensurePermission } from '@/services/permission';
 
 const props = defineProps<{
   uid: string;
@@ -104,6 +105,7 @@ const submit = async (formEl: FormInstance | undefined = formRef.value) => {
 };
 
 const open = async () => {
+  if (!ensurePermission('accounts.update')) return;
   dialogModel.value = true;
   try {
     loadingContainer.value.push('loading');

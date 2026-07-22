@@ -22,7 +22,7 @@
           <el-button @click="close()">
             {{ $t("close") }}
           </el-button>
-          <el-button type="primary" @click="submit()">
+          <el-button type="primary" :disabled="!$hasPermission('suppliers.update')" @click="submit()">
             {{ $t("save") }}
           </el-button>
         </div>
@@ -39,6 +39,7 @@ import type { SupplierUpdateBody } from '@/modules/suppliers/type';
 import { useI18n } from 'vue-i18n';
 import SupplierApi from '../../api';
 import confirmDialog from '@/services/dialog/confirm';
+import { ensurePermission } from '@/services/permission';
 
 const props = defineProps<{
   supplier_uid: string;
@@ -122,6 +123,7 @@ const submit = async (formEl: FormInstance | undefined = formRef.value) => {
 };
 
 const open = async () => {
+  if (!ensurePermission('suppliers.update')) return;
   dialogModel.value = true;
   try {
     loadingContainer.value.push('loading');

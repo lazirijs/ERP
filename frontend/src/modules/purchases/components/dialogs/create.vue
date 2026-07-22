@@ -34,7 +34,7 @@
         <el-button @click="close()">
           {{ $t("close") }}
         </el-button>
-        <el-button type="primary" @click="submit()">
+        <el-button type="primary" :disabled="!$hasPermission('purchases.create')" @click="submit()">
           {{ $t("create") }}
         </el-button>
       </div>
@@ -56,6 +56,7 @@ import type { Supplier } from '@/modules/suppliers/type';
 import ItemsBatchDataGridApp from '../items-batch-data-grid.vue';
 import confirmDialog from '@/services/dialog/confirm';
 import formatter from '@/services/formatter.ts';
+import { ensurePermission } from '@/services/permission';
 
 const emit = defineEmits<{ submitted: [] }>();
 
@@ -162,6 +163,7 @@ const submitMultiple = async () => {
 const submit = () => mode.value === 'purchase' ? submitSingle() : submitMultiple();
 
 const open = async () => {
+  if (!ensurePermission('purchases.create')) return;
   dialogModel.value = true;
   if (props.defaultMode) mode.value = props.defaultMode;
   formData.value.name = formatter.date(new Date().toISOString());

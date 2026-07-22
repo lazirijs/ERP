@@ -54,25 +54,25 @@ export default {
     },
     create: {
         validation: {
-            auth: true,
+            permission: 'sales.create',
             body: createBody
         }
     },
     get: {
         validation: {
-            auth: true,
+            permission: 'sales.access',
             params: getParams
         }
     },
     getAll: {
         validation: {
-            auth: true,
+            permission: 'sales.access',
             query: getAllQuery
         }
     },
     update: {
         validation: {
-            auth: true,
+            permission: 'sales.update',
             body: updateBody
         }
     }

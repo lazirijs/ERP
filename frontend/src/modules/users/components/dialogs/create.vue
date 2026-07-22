@@ -36,7 +36,7 @@
               <el-button @click="close()">
                   {{ $t("close") }}
               </el-button>
-              <el-button type="primary" @click="submit()">
+              <el-button type="primary" :disabled="!$hasPermission('users.create')" @click="submit()">
                   {{ $t("create") }}
               </el-button>
           </div>
@@ -55,6 +55,7 @@ import { status } from '@/modules/users/constant';
 import { useI18n } from 'vue-i18n';
 import userApi from '@/modules/users/api';
 import RoleApi from '@/modules/roles/api';
+import { ensurePermission } from '@/services/permission';
 
 const emit = defineEmits<{ submitted: [] }>();
 
@@ -129,6 +130,7 @@ const submit = async (formEl: FormInstance | undefined = formRef.value) => {
 };
 
 const open = async () => {
+  if (!ensurePermission('users.create')) return;
   dialogModel.value = true;
   try {
     const response = await RoleApi.getAll({ take: 100 });

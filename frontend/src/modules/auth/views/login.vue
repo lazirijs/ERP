@@ -73,6 +73,7 @@ const login = async (formEl: FormInstance | undefined = ruleFormRef.value) => {
           ElMessage.success(t('userLoggedSuccessfully'));
         }
       } catch (error: any) {
+        console.log({ error });
         const errorMessage = error?.detail?.message || t("failedToLogin");
         ElMessage.error(errorMessage);
       } finally {

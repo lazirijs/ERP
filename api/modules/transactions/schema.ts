@@ -54,19 +54,19 @@ export default {
     },
     create: {
         validation: {
-            auth: true,
+            permission: 'transactions.create',
             body: createBody
         }
     },
     get: {
         validation: {
-            auth: true,
+            permission: 'transactions.access',
             params: getParams
         }
     },
     getAll: {
         validation: {
-            auth: true,
+            permission: 'transactions.access',
             query: DataGridSchema.data
         }
     }

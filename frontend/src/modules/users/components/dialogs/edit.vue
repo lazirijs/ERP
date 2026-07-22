@@ -36,7 +36,7 @@
               <el-button @click="close()">
                   {{ $t("close") }}
               </el-button>
-              <el-button type="primary" @click="submit()">
+              <el-button type="primary" :disabled="!$hasPermission('users.update')" @click="submit()">
                   {{ $t("edit") }}
               </el-button>
           </div>
@@ -55,6 +55,7 @@ import { status } from '@/modules/users/constant';
 import { useI18n } from 'vue-i18n';
 import userApi from '@/modules/users/api';
 import RoleApi from '@/modules/roles/api';
+import { ensurePermission } from '@/services/permission';
 
 const emit = defineEmits<{ submitted: [] }>();
 
@@ -127,6 +128,7 @@ const submit = async (formEl: FormInstance | undefined = formRef.value) => {
 };
 
 const open = async (data: User) => {
+  if (!ensurePermission('users.update')) return;
   dialogModel.value = true;
   // is_admin comes from the API as 0/1; the switch binds a boolean.
   formData.value = {

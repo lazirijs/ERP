@@ -8,7 +8,7 @@
               <el-icon><el-icon-arrow-left /></el-icon>
             </el-button>
             <span>General Info</span>
-            <el-button @click="editDialogRef?.open()" text class="m-0!">
+            <el-button :disabled="!$hasPermission('clients.update')" @click="editDialogRef?.open()" text class="m-0!">
               <el-icon><el-icon-edit /></el-icon>
             </el-button>
           </div>
@@ -39,12 +39,12 @@
         </div>
       </el-card>
       <div class="col-span-1 md:col-span-3 flex-1 space-y-app">
-        <el-tabs type="border-card" :default-value="$route.query.tab || 'projects'" @tab-change="$router.replace({ query: { tab: $event } })">
-          <el-tab-pane :label="$t('projects')" name="projects">
-            <projects-list-app v-if="$route.query.tab === 'projects' || !$route.query.tab" :view="{ type: 'client', data: formData }" @updated="load()" />
+        <el-tabs type="border-card" :default-value="activeTab" @tab-change="$router.replace({ query: { tab: $event } })">
+          <el-tab-pane :label="$t('projects')" name="projects" :disabled="!$hasPermission('projects.access')">
+            <projects-list-app v-if="activeTab === 'projects'" :view="{ type: 'client', data: formData }" @updated="load()" />
           </el-tab-pane>
-          <el-tab-pane :label="$t('sales')" name="sales">
-            <sales-list-app v-if="$route.query.tab === 'sales'" :view="{ type: 'client', data: formData }" @updated="load()" />
+          <el-tab-pane :label="$t('sales')" name="sales" :disabled="!$hasPermission('sales.access')">
+            <sales-list-app v-if="activeTab === 'sales'" :view="{ type: 'client', data: formData }" @updated="load()" />
           </el-tab-pane>
         </el-tabs>
       </div>
@@ -54,15 +54,28 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, computed } from 'vue';
 import { useRoute } from 'vue-router';
 import ClientApi from '@/modules/clients/api';
 import type { Client } from '@/modules/clients/type';
 import SalesListApp from '@/modules/sales/view/list.vue';
 import EditDialogApp from '@/modules/clients/components/dialogs/edit.vue';
 import ProjectsListApp from '@/modules/projects/view/list.vue';
+import AuthStore from '@/modules/auth/store';
 
 const route = useRoute();
+const authStore = AuthStore();
+
+// Land on the first tab the user can actually open, so a gated default tab never leaves them
+// staring at a disabled, empty pane.
+const defaultTab = computed(() => {
+  const tabs: { name: string; permission?: string }[] = [
+    { name: 'projects', permission: 'projects.access' },
+    { name: 'sales', permission: 'sales.access' },
+  ];
+  return (tabs.find(t => !t.permission || authStore.hasPermission(t.permission)) ?? tabs[0]).name;
+});
+const activeTab = computed(() => (route.query.tab as string) || defaultTab.value);
 
 const loadingContainer = ref<('detail')[]>([]);
 

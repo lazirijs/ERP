@@ -65,37 +65,37 @@ export default {
     },
     create: {
         validation: {
-            auth: true,
+            permission: 'sales.update',
             body: createBody
         }
     },
     batch: {
         validation: {
-            auth: true,
+            permission: 'sales.update',
             body: batchBody
         }
     },
     get: {
         validation: {
-            auth: true,
+            permission: 'sales.access',
             params: getParams
         }
     },
     getAll: {
         validation: {
-            auth: true,
+            permission: 'sales.access',
             query: getAllQuery
         }
     },
     update: {
         validation: {
-            auth: true,
+            permission: 'sales.update',
             body: updateBody
         }
     },
     delete: {
         validation: {
-            auth: true,
+            permission: 'sales.update',
             params: getParams
         }
     }

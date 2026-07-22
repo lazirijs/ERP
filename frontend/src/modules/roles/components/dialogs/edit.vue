@@ -34,10 +34,10 @@
       </el-form-item>
 
       <el-form-item class="mb-0! mt-8">
-        <el-button type="danger" text @click="remove()">{{ $t('delete') }}</el-button>
+        <el-button type="danger" text :disabled="!$hasPermission('roles.delete')" @click="remove()">{{ $t('delete') }}</el-button>
         <div class="ml-auto">
           <el-button @click="close()">{{ $t("close") }}</el-button>
-          <el-button type="primary" @click="submit()">{{ $t("save") }}</el-button>
+          <el-button type="primary" :disabled="!$hasPermission('roles.update')" @click="submit()">{{ $t("save") }}</el-button>
         </div>
       </el-form-item>
     </el-form>
@@ -54,6 +54,7 @@ import { useI18n } from 'vue-i18n';
 import RoleApi from '@/modules/roles/api';
 import PermissionApi from '@/modules/permissions/api';
 import confirmDialog from '@/services/dialog/confirm';
+import { ensurePermission } from '@/services/permission';
 
 const emit = defineEmits<{ submitted: [] }>();
 
@@ -159,6 +160,7 @@ const remove = async () => {
 };
 
 const open = async (uid: string) => {
+  if (!ensurePermission('roles.update')) return;
   dialogModel.value = true;
   try {
     loadingContainer.value.push('loading');

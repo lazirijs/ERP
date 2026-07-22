@@ -62,50 +62,50 @@ export default {
     },
     create: {
         validation: {
-            auth: true,
+            permission: 'purchases.create',
             body: createBody
         }
     },
     batch: {
         validation: {
-            auth: true,
+            permission: 'purchases.create',
             body: batchBody
         }
     },
     get: {
         validation: {
-            auth: true,
+            permission: 'purchases.access',
             params: getParams
         }
     },
     getAll: {
         validation: {
-            auth: true,
+            permission: 'purchases.access',
             query: getAllQuery
         }
     },
     update: {
         validation: {
-            auth: true,
+            permission: 'purchases.update',
             body: updateBody
         }
     },
     getDocuments: {
         validation: {
-            auth: true,
+            permission: 'purchases.access',
             params: getParams
         }
     },
     uploadDocument: {
         validation: {
-            auth: true,
+            permission: 'purchases.update',
             params: getParams,
             body: uploadDocumentBody
         }
     },
     deleteDocument: {
         validation: {
-            auth: true,
+            permission: 'purchases.update',
             params: getParams,
             body: documentKeyBody
         }

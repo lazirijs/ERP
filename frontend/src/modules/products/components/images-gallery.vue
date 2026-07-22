@@ -1,6 +1,6 @@
 <template>
   <el-upload :auto-upload="false" :show-file-list="false" accept="image/*" @change="onAdd" class="flex justify-end mb-4">
-    <el-button type="primary">
+    <el-button type="primary" :disabled="!$hasPermission('products.update')">
       <el-icon class="mr-2">
         <el-icon-plus />
       </el-icon>
@@ -13,10 +13,10 @@
       <a :href="$getFileUrl(img.key)" target="_blank" rel="noopener">
         <img :src="$previewImage({ type: 'image', src: img.key })" class="object-cover size-full" />
       </a>
-      <el-button :type="props.image === img.key ? 'primary' : 'default'" class="absolute top-1 left-1" rounded size="small" circle @click="setPrimary(img.key)">
+      <el-button :type="props.image === img.key ? 'primary' : 'default'" class="absolute top-1 left-1" rounded size="small" circle :disabled="!$hasPermission('products.update')" @click="setPrimary(img.key)">
         <el-icon class="mb-0.5 mr-[0.025rem]"><el-icon-star-filled /></el-icon>
       </el-button>
-      <el-button text type="danger" class="absolute top-1 right-1" size="small" circle @click="remove(img.key)">
+      <el-button text type="danger" class="absolute top-1 right-1" size="small" circle :disabled="!$hasPermission('products.update')" @click="remove(img.key)">
         <el-icon class="mb-0.5 mr-[0.025rem]"><el-icon-delete /></el-icon>
       </el-button>
     </div>

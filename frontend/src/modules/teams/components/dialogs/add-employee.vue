@@ -11,7 +11,7 @@
       <el-button @click="close()">
         {{ $t("close") }}
       </el-button>
-      <el-button type="primary" @click="submit()">
+      <el-button type="primary" :disabled="!$hasPermission('teams.update')" @click="submit()">
         {{ $t("add") }}
       </el-button>
     </div>
@@ -25,6 +25,7 @@ import type { FormInstance, FormItemRule } from 'element-plus';
 import { useI18n } from 'vue-i18n';
 import EmployeeApi from '@/modules/employees/api';
 import type { Employee } from '@/modules/employees/type';
+import { ensurePermission } from '@/services/permission';
 
 const props = defineProps<{ team_uid: string }>();
 
@@ -83,6 +84,7 @@ const submit = async (formEl: FormInstance | undefined = formRef.value) => {
 };
 
 const open = async () => {
+  if (!ensurePermission('teams.update')) return;
   dialogModel.value = true;
   try {
     loadingContainer.value.push('loading');

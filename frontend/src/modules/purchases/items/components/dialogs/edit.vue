@@ -19,12 +19,12 @@
       </el-form-item>
 
       <el-form-item class="mb-0! mt-8">
-        <el-button type="danger" text @click="remove()">{{ $t('delete') }}</el-button>
+        <el-button type="danger" text :disabled="!$hasPermission('purchases.update')" @click="remove()">{{ $t('delete') }}</el-button>
         <div class="ml-auto">
           <el-button @click="close()">
             {{ $t("close") }}
           </el-button>
-          <el-button type="primary" @click="submit()">
+          <el-button type="primary" :disabled="!$hasPermission('purchases.update')" @click="submit()">
             {{ $t("save") }}
           </el-button>
         </div>
@@ -44,6 +44,7 @@ import ProductApi from '@/modules/products/api';
 import type { Product } from '@/modules/products/type';
 import { currency } from '@/constants';
 import confirmDialog from '@/services/dialog/confirm';
+import { ensurePermission } from '@/services/permission';
 
 const emit = defineEmits<{ submitted: [] }>();
 
@@ -126,6 +127,7 @@ const remove = async () => {
 };
 
 const open = async (data: PurchaseItemUpdateBody) => {
+  if (!ensurePermission('purchases.update')) return;
   dialogModel.value = true;
   try {
     loadingContainer.value.push('loading');

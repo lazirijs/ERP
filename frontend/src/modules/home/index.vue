@@ -37,8 +37,11 @@
     <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
       <div
         v-for="(item, index) in filteredMenuItems.slice(1)" :key="index"
-        @click="$router.push({ name: item.routeName })"
-        class="group flex items-center gap-4 px-4 py-4 rounded-md border border-gray-200 bg-white hover:border-blue-300 hover:shadow-sm hover:-translate-y-px transition-all no-underline cursor-pointer"
+        @click="!item.disabled && $router.push({ name: item.routeName })"
+        class="group flex items-center gap-4 px-4 py-4 rounded-md border border-gray-200 bg-white transition-all no-underline"
+        :class="item.disabled
+          ? 'opacity-50 cursor-not-allowed'
+          : 'hover:border-blue-300 hover:shadow-sm hover:-translate-y-px cursor-pointer'"
       >
         <div class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0">
           <el-icon :size="18"><component :is="item.icon" /></el-icon>
@@ -57,6 +60,9 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import ConstSideBar from '@/layouts/sidebar/constant.ts'
+import AuthStore from '@/modules/auth/store'
+
+const authStore = AuthStore();
 
 const search = ref('');
 
@@ -70,9 +76,11 @@ const timeOfDay = computed(() => {
 const filteredMenuItems = computed(() => {
   const query = search.value.toLowerCase().trim();
 
-  const flattenedItems: any[] = ConstSideBar.menuItems.flatMap(item => 
+  const flattenedItems: any[] = ConstSideBar.menuItems.flatMap(item =>
     item.children ? item.children : item
   )
+  // Modules the user can't reach stay listed but render disabled (admins hold every key).
+  .map(item => ({ ...item, disabled: !!item.permission && !authStore.hasPermission(item.permission) }))
   .filter(item => item.name.toLowerCase().includes(query))
 
   if (!query) return flattenedItems;

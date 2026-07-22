@@ -14,7 +14,7 @@
         <el-button @click="close()">
           {{ $t("close") }}
         </el-button>
-        <el-button type="primary" @click="submit()">
+        <el-button type="primary" :disabled="!$hasPermission('accounts.create')" @click="submit()">
           {{ $t("create") }}
         </el-button>
       </div>
@@ -30,6 +30,7 @@ import type { AccountCreateBody } from '@/modules/accounts/type';
 import { useI18n } from 'vue-i18n';
 import AccountApi from '@/modules/accounts/api';
 import confirmDialog from '@/services/dialog/confirm';
+import { ensurePermission } from '@/services/permission';
 
 const emit = defineEmits<{ submitted: [] }>();
 
@@ -96,6 +97,7 @@ const submit = async (formEl: FormInstance | undefined = formRef.value) => {
 };
 
 const open = () => {
+  if (!ensurePermission('accounts.create')) return;
   dialogModel.value = true;
 };
 

@@ -25,6 +25,9 @@ const app = createApp(main);
 
 app.config.globalProperties.$appStore = AppStore;
 app.config.globalProperties.$authStore = AuthStore;
+// Terse permission check for templates: `:disabled="!$hasPermission('clients.create')"`.
+// Admins already carry the full catalog in their profile, so this is a single key lookup.
+app.config.globalProperties.$hasPermission = (permission: string) => AuthStore().hasPermission(permission);
 
 app.config.globalProperties.$previewImage = previewImage;
 app.config.globalProperties.$getFileUrl = getFileUrl;

@@ -14,7 +14,7 @@ export default {
     },
     getAll: {
         validation: {
-            auth: true
+            permission: 'roles.access'
         }
     }
 };
