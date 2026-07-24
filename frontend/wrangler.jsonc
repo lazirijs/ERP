@@ -1,0 +1,22 @@
+/**
+ * Cloudflare Pages configuration for the ERP frontend.
+ *
+ * The only reason this exists is the service binding below: it lets the /api/* Pages Function
+ * (functions/api/[[path]].ts) call the erp-api Worker directly, so the browser only ever talks
+ * to this one origin and the auth cookie stays first-party.
+ *
+ * With the Pages Git integration, Cloudflare reads this file at build time. The build command
+ * and root directory stay configured in the Pages dashboard; `pages_build_output_dir` just points
+ * Cloudflare at Vite's build output.
+ */
+{
+	"name": "laziri-erp",
+	"compatibility_date": "2026-03-17",
+	"pages_build_output_dir": "dist",
+	"services": [
+		{
+			"binding": "API",
+			"service": "erp-api"
+		}
+	]
+}
