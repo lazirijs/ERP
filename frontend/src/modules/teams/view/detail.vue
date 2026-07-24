@@ -13,7 +13,7 @@
             </el-button>
           </div>
         </template>
-        <div class="space-y-app">
+        <div dir="auto" class="space-y-app">
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">{{ $t('name') }}</label>
             <span class="block text-sm text-gray-900">{{ formData.name }}</span>

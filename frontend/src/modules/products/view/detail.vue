@@ -13,7 +13,7 @@
             </el-button>
           </div>
         </template>
-        <div class="space-y-app">
+        <div dir="auto" class="space-y-app">
           <div>
             <a :href="$getFileUrl(formData.image)" target="_blank" rel="noopener">
               <img :src="$previewImage({ type: 'image', src: formData.image })" class="w-full aspect-square object-cover rounded-lg" />

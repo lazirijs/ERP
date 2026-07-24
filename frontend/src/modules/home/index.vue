@@ -2,7 +2,7 @@
   <container-app type="scroll">
     <!-- Header -->
     <div class="flex flex-wrap items-start justify-between gap-6 mb-10">
-      <div>
+      <div dir="auto" class="w-full">
         <h1 class="text-2xl font-bold text-gray-900 tracking-tight mb-1">
           {{ $t(timeOfDay || "goodMorning") }}, {{ $authStore().profile?.name }}
         </h1>
@@ -42,6 +42,7 @@
         :class="item.disabled
           ? 'opacity-50 cursor-not-allowed'
           : 'hover:border-blue-300 hover:shadow-sm hover:-translate-y-px cursor-pointer'"
+        dir="auto"
       >
         <div class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0">
           <el-icon :size="18"><component :is="item.icon" /></el-icon>
@@ -50,7 +51,7 @@
           {{ $t(item.name) }}
         </span>
         <el-icon class="text-gray-300 opacity-0 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all">
-          <el-icon-arrow-right />
+          <component :is="'el-icon-arrow-' + ($appStore().selectedLocale.dir === 'rtl' ? 'left' : 'right')" />
         </el-icon>
       </div>
     </div>

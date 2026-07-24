@@ -13,7 +13,7 @@
             </el-button>
           </div>
         </template>
-        <div class="space-y-app">
+        <div dir="auto" class="space-y-app">
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">{{ $t('status') }}</label>
             <span :class="`badge-app-${ status[formData.status]?.color }`">{{ $t(status[formData.status]?.label || '-') }}</span>

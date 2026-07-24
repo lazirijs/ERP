@@ -13,7 +13,7 @@
             </el-button>
           </div>
         </template>
-        <div class="space-y-app">
+        <div dir="auto" class="space-y-app">
           <img :src="$previewImage({ type: 'avatar', src: formData.image })" class="size-32 mx-auto rounded-full object-cover border border-gray-200" />
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">{{ $t('status') }}</label>
