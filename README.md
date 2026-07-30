@@ -2,6 +2,8 @@
 
 A modular, full-stack **Enterprise Resource Planning** platform covering finance, HR, sales, projects, and CRM. The system is split into a Cloudflare Workers API backend and a Vue 3 web frontend.
 
+Give it a try at: https://laziri-erp.pages.dev
+
 ## Architecture
 
 ```
