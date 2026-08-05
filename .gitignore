@@ -39,3 +39,4 @@ wrangler.jsonc
 .wrangler/
 .dev.vars
 .claude
+.vscode
