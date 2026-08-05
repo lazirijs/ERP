@@ -1,3 +1,5 @@
+import { supportedBadgeColors } from '@/constants';
+
 export const status = {
     0: {
         id: 0,
@@ -19,7 +21,11 @@ export const status = {
         label: 'left',
         color: 'orange'
     }
-} as const;
+} as const satisfies Record<number, {
+    id: number;
+    label: string;
+    color: (typeof supportedBadgeColors)[number];
+}>;
 
 export default {
     status
