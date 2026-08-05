@@ -8,7 +8,7 @@
               <el-icon><el-icon-arrow-left /></el-icon>
             </el-button>
             <span class="truncate">{{ $t('generalInfo') }}</span>
-            <el-button :disabled="props.config.editPermission && !$hasPermission(props.config.editPermission)" @click="emit('edit')" text class="m-0!">
+            <el-button :disabled="!!(props.config.editPermission && !$hasPermission(props.config.editPermission))" @click="emit('edit')" text class="m-0!">
               <el-icon><el-icon-edit /></el-icon>
             </el-button>
           </div>
@@ -16,7 +16,7 @@
         <div dir="auto" class="space-y-app">
           <div v-for="(menu, index) in props.config.sideBar(formData).filter(item => !item.permission || $hasPermission(item.permission))" :key="index">
             <label class="block text-sm font-medium text-gray-700 mb-1">{{ menu.label }}</label>
-            <span v-if="'badge' in menu" :class="`badge-app-${menu.badge.color}`">{{ menu.badge.value }}</span>
+            <span v-if="'badge' in menu" :class="`badge-app-${menu.badge.color}`">{{ menu.badge.label }}</span>
             <span v-else-if="menu.value" class="block text-sm text-gray-900">{{ menu.value }}</span>
             <span v-else class="block text-sm text-gray-400">{{ $t('notProvided') }}</span>
           </div>
@@ -24,7 +24,7 @@
       </el-card>
       <div class="col-span-1 md:col-span-3 flex-1 space-y-app">
         <el-tabs type="border-card" :default-value="activeTab" @tab-change="$router.replace({ query: { tab: $event } })">
-          <el-tab-pane v-for="tab in props.config.tabs" :key="tab" :label="tab.label || $t(tab.name)" :name="tab.name" :disabled="tab.permission && !$hasPermission(tab.permission)">
+          <el-tab-pane v-for="tab in props.config.tabs" :key="tab" :label="tab.label || $t(tab.name)" :name="tab.name" :disabled="!!(tab.permission && !$hasPermission(tab.permission))">
             <slot :name="'tab-' + tab.name" v-if="activeTab === tab.name" />
           </el-tab-pane>
         </el-tabs>
@@ -41,13 +41,14 @@ import { useRoute } from 'vue-router';
 import { ElMessage } from 'element-plus';
 import { t } from '@/translate';
 import type { ApiResponse } from '@/api/type';
+import { supportedBadgeColors } from '@/constants';
 
 const props = defineProps<{
   config: {
     sideBar: (data: any) => (
       { label: string; permission?: string; } & (
         | { value: any; }
-        | { badge: { value: any; color: string; }; }
+        | { badge: { label: string; color: (typeof supportedBadgeColors)[number]; }; }
       )
     )[];
 
