@@ -16,7 +16,7 @@
         <div dir="auto" class="space-y-app">
           <div v-for="(menu, index) in props.config.sideBar(formData).filter(item => !item.permission || $hasPermission(item.permission))" :key="index">
             <label class="block text-sm font-medium text-gray-700 mb-1">{{ menu.label }}</label>
-            <span v-if="'badge' in menu" :class="`badge-app-${menu.badge.color}`">{{ menu.badge.label }}</span>
+            <span v-if="'badge' in menu" :class="`badge-app-${menu.badge?.color}`">{{ $t(menu.badge?.label || "-") }}</span>
             <span v-else-if="menu.value" class="block text-sm text-gray-900">{{ menu.value }}</span>
             <span v-else class="block text-sm text-gray-400">{{ $t('notProvided') }}</span>
           </div>
