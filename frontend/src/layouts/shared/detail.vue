@@ -1,6 +1,6 @@
 <template>
-  <container-app type="scroll" v-loading="props.config.loadingContainer?.includes('detail')">
-    <div v-if="!props.config.loadingContainer?.includes('detail')" class="grid grid-cols-1 md:grid-cols-4 items-start gap-app">
+  <container-app type="scroll" v-loading="loadingContainer?.includes('detail')">
+    <div v-if="!loadingContainer?.includes('detail')" class="grid grid-cols-1 md:grid-cols-4 items-start gap-app">
       <el-card shadow="never">
         <template #header>
           <div class="flex justify-between items-center gap-app">
@@ -14,7 +14,7 @@
           </div>
         </template>
         <div dir="auto" class="space-y-app">
-          <div v-for="(menu, index) in props.config.sideBar.filter(item => !item.permission || $hasPermission(item.permission))" :key="index">
+          <div v-for="(menu, index) in props.config.sideBar(formData).filter(item => !item.permission || $hasPermission(item.permission))" :key="index">
             <label class="block text-sm font-medium text-gray-700 mb-1">{{ menu.label }}</label>
             <span v-if="'badge' in menu" :class="`badge-app-${menu.badge.color}`">{{ menu.badge.value }}</span>
             <span v-else-if="menu.value" class="block text-sm text-gray-900">{{ menu.value }}</span>
@@ -35,38 +35,37 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, computed } from 'vue';
+import { onMounted, computed, ref } from 'vue';
 import AuthStore from '@/modules/auth/store';
 import { useRoute } from 'vue-router';
+import { ElMessage } from 'element-plus';
+import { t } from '@/translate';
+import type { ApiResponse } from '@/api/type';
 
 const props = defineProps<{
-    config: {
-        sideBar: (
-            {
-                label: string;
-                permission?: string;
-            } &
-            ( |
-                {
-                    value: any;
-                } |
-                {
-                    badge: {
-                        value: any;
-                        color: string;
-                    };
-                }
-            )
-        )[];
-        tabs: { name: string; label?: string; permission?: string }[];
-        editPermission?: string;
-        loadingContainer?: string[];
-        load: () => Promise<void>;
-    }
+  config: {
+    sideBar: (data: any) => (
+      { label: string; permission?: string; } & (
+        | { value: any; }
+        | { badge: { value: any; color: string; }; }
+      )
+    )[];
+
+    tabs: {
+      name: string;
+      label?: string;
+      permission?: string;
+    }[];
+
+    editPermission?: string;
+  } & (
+    | { loadUid?: string; load: (uid: string) => Promise<ApiResponse<unknown>>; }
+    | { data: object; }
+  );
 }>();
 
 const emit = defineEmits<{
-    edit: []
+  edit: []
 }>();
 
 const route = useRoute();
@@ -74,12 +73,33 @@ const authStore = AuthStore();
 
 // Land on the first tab the user can actually open (documents is always available as a fallback).
 const defaultTab = computed(() => {
-  return (props.config.tabs.find(t => !t.permission || authStore.hasPermission(t.permission)) ?? props.config.tabs[0]).name;
+  return (props.config.tabs.find(tab => !tab.permission || authStore.hasPermission(tab.permission)) ?? props.config.tabs[0]).name;
 });
 
 const activeTab = computed(() => (route.query.tab as string) || defaultTab.value);
 
-onMounted(props.config.load);
+const loadingContainer = ref<string[]>([]);
 
-defineExpose({ load: props.config.load });
+const formData = ref<any>({});
+
+const load = async () => {
+  try {
+    if ('data' in props.config) return formData.value = props.config.data;
+    loadingContainer.value.push('detail');
+    const response = await props.config.load(props.config.loadUid || (route.params.uid as string));
+    if (response.success) formData.value = response.detail;
+  } catch (error: any) {
+    console.error(error);
+    ElMessage.error(error?.detail?.message || t('loadingFailed'));
+  } finally {
+    loadingContainer.value = loadingContainer.value.filter(item => item !== 'detail');
+  }
+}
+
+onMounted(load);
+
+defineExpose({
+  load,
+  formData
+});
 </script>
