@@ -38,7 +38,7 @@ import confirmDialog from '@/services/dialog/confirm';
 import { ensurePermission } from '@/services/permission';
 
 const props = defineProps<{
-  client_uid: string;
+  uid: string;
 }>();
 
 const emit = defineEmits<{ submitted: [] }>();
@@ -67,7 +67,7 @@ const formRules = reactive<Record<keyof ClientUpdateBody, FormItemRule | FormIte
 });
 
 const formData = ref<ClientUpdateBody>({
-  uid: props.client_uid,
+  uid: props.uid,
   name: '',
   contact: '',
   address: ''
@@ -119,7 +119,7 @@ const open = async () => {
   dialogModel.value = true;
   try {
     loadingContainer.value.push('loading');
-    const response = await ClientApi.get(props.client_uid);
+    const response = await ClientApi.get(props.uid);
     formData.value.name = response.detail.name;
     formData.value.uid = response.detail.uid;
     formData.value.contact = response.detail.contact;
